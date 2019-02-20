@@ -10,4 +10,4 @@ project (Ridgelets)
 # Command to output information to the console (debugging)
 message ("cxx Flags:" ${CMAKE_CXX_FLAGS})
 
-add_executable(sphridg Ridgelets.cpp)
+add_executable(sphridg Ridgelets/Ridgelets.cpp)
