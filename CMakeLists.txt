@@ -1,9 +1,13 @@
-cmake_minimum_required (VERSION 2.6)
- 
+cmake_minimum_required (VERSION 3.5)
+
+#use c++ 11
+set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 project (Ridgelets)
 
-# Command to output information to the console
-# Useful for displaying errors, warnings, and debugging
+# Command to output information to the console (debugging)
 message ("cxx Flags:" ${CMAKE_CXX_FLAGS})
- 
-add_executable(Ridgelets Ridgelets.cpp)
+
+add_executable(sphridg Ridgelets.cpp)
