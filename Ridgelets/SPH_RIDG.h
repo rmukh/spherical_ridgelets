@@ -13,6 +13,7 @@ public:
 	int J; //J value
 	double rho; //rho value
 	UtilMath UM = UtilMath(); //Object of UtilMath class
+	MatrixType C;
 
 	SPH_RIDG();
 	SPH_RIDG(unsigned JIn, double rhoIn);
@@ -26,7 +27,6 @@ private:
 	int mcut;
 	MatrixType h;
 	MatrixType psi;
-	MatrixType C;
 	MatrixType t;
 	MatrixType Lmd;
 	double tau;

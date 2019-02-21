@@ -50,7 +50,7 @@ int main()
 
 	//ODF
 	MatrixType Q = ridg.QBasis(g); //Build a Q basis
-	MatrixType ODF = Q * res; //Computer ODF
+	MatrixType ODF = Q * ridg.C; //Computer ODF
 
 	high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	auto duration = duration_cast<seconds>(t2 - t1).count();
