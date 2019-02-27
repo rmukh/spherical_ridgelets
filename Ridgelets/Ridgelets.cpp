@@ -10,6 +10,12 @@
 #include "SPH_RIDG.h"
 #include "DATA_SOURCE.h"
 
+#include <vtkpolydata.h>
+#include <vtkpolydatamapper.h>
+#include <vtksmartpointer.h>
+#include <vtkdelaunay3d.h>
+#include <vtkcleanpolydata.h>
+
 int main()
 {
 	DATA_SOURCE data;
@@ -50,6 +56,29 @@ int main()
 	u2 << C * (t.array() + 0.2 * m.PI).cos(), C * (t.array() + 0.2 * m.PI).sin(), -0.5 * C * MatrixType::Ones(5, 1);
 	MatrixType u(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
+
+	/* 
+	Convex hull part (might be conflict between VTK 7 and 8 versions)
+	*/
+	//vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+	//points->InsertNextPoint(1.0, 0.0, 0.0);
+	//points->InsertNextPoint(0.0, 0.0, 0.0);
+	//points->InsertNextPoint(0.0, 1.0, 0.0);
+
+	//vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+	//polydata->SetPoints(points);
+
+	//vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	//mapper->SetInputData(polydata);
+	//
+	//// Polydata cleaning. Remove duplicate points
+	//vtkSmartPointer<vtkCleanPolyData> cleaner = vtkSmartPointer<vtkCleanPolyData>::New();
+	//cleaner->SetInputConnection(mapper->GetOutputPort());
+
+	//// Create the convex hull of the pointcloud
+	//vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer<vtkDelaunay3D>::New();
+	//delaunay->SetInputConnection(cleaner->GetOutputPort());
+	//delaunay->Update();
 
 	//
 	//high_resolution_clock::time_point t1 = high_resolution_clock::now(); //start timer point
