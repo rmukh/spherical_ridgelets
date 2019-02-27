@@ -37,24 +37,38 @@ int main()
 	MatrixType s(51, 16);
 
 	data.readTestData(g, s);
-	
-	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
-	SPH_RIDG ridg(2, 0.5);
-	MatrixType A = ridg.RBasis(g);
-	A = ridg.normBasis(A);
+	//icosahedron
+	UtilMath m;
+	int level = 4;
 
-	SOLVERS slv(A, s, 0.1);
-	MatrixType res = slv.FISTA();
-	cout << endl << res;
+	double C = 1 / sqrt(1.25);
+	MatrixType t = (2 * m.PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
+	MatrixType u1(5, 3);
+	u1 << C * t.array().cos(), C * t.array().sin(), C * 0.5 * MatrixType::Ones(5, 1);
+	MatrixType u2(5, 3);
+	u2 << C * (t.array() + 0.2 * m.PI).cos(), C * (t.array() + 0.2 * m.PI).sin(), -0.5 * C * MatrixType::Ones(5, 1);
+	MatrixType u(12, 3);
+	u << 0, 0, 1, u1, u2, 0, 0, -1;
 
-	//ODF
-	MatrixType Q = ridg.QBasis(g); //Build a Q basis
-	MatrixType ODF = Q * ridg.C; //Computer ODF
+	//
+	//high_resolution_clock::time_point t1 = high_resolution_clock::now(); //start timer point
 
-	high_resolution_clock::time_point t2 = high_resolution_clock::now();
-	auto duration = duration_cast<seconds>(t2 - t1).count();
-	cout << "Execution time " << duration << " seconds" << endl;
+	//SPH_RIDG ridg(2, 0.5);
+	//MatrixType A = ridg.RBasis(g);
+	//A = ridg.normBasis(A)
+
+	//SOLVERS slv(A, s, 0.1);
+	//MatrixType C = slv.FISTA();
+	//cout << endl << C;
+
+	////ODF
+	////MatrixType Q = ridg.QBasis(nu); //Build a Q basis
+	////MatrixType ODF = C * Q.transpose(); //Computer ODF
+
+	//high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	//auto duration = duration_cast<seconds>(t2 - t1).count();
+	//cout << "Execution time " << duration << " seconds" << endl;
 
 	return 0;
 }
