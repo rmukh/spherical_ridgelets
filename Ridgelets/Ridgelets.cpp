@@ -10,11 +10,15 @@
 #include "SPH_RIDG.h"
 #include "DATA_SOURCE.h"
 
-#include <vtkpolydata.h>
-#include <vtkpolydatamapper.h>
-#include <vtksmartpointer.h>
-#include <vtkdelaunay3d.h>
-#include <vtkcleanpolydata.h>
+#include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkCleanPolyData.h>
+#include <vtkDelaunay3D.h>
+#include <vtkCellArray.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkGeometryFilter.h>
+#include <vtkPointSource.h>
 
 int main()
 {
@@ -58,27 +62,53 @@ int main()
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 
 	/* 
-	Convex hull part (might be conflict between VTK 7 and 8 versions)
+	   Convex hull part (might be conflict between VTK 7 and 8 versions)
 	*/
-	//vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-	//points->InsertNextPoint(1.0, 0.0, 0.0);
-	//points->InsertNextPoint(0.0, 0.0, 0.0);
-	//points->InsertNextPoint(0.0, 1.0, 0.0);
+	
+	// Convert from Eigen MatrixType to vtkPoints (probably make as an function)
+	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+	for (unsigned i = 0; i < u.rows(); ++i) {
+		points->InsertNextPoint(u(i, 0), u(i, 1), u(i, 2));
+	}
 
-	//vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-	//polydata->SetPoints(points);
+	// Dataset to represent verticies (points)
+	vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+	polydata->SetPoints(points);
 
-	//vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	//mapper->SetInputData(polydata);
-	//
-	//// Polydata cleaning. Remove duplicate points
-	//vtkSmartPointer<vtkCleanPolyData> cleaner = vtkSmartPointer<vtkCleanPolyData>::New();
-	//cleaner->SetInputConnection(mapper->GetOutputPort());
+	// Create the convex hull of the pointcloud
+	vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer<vtkDelaunay3D>::New();
+	delaunay->SetInputData(polydata);
+	delaunay->Update();
 
-	//// Create the convex hull of the pointcloud
-	//vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer<vtkDelaunay3D>::New();
-	//delaunay->SetInputConnection(cleaner->GetOutputPort());
-	//delaunay->Update();
+	//to Eigen back
+	//vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+	vtkSmartPointer<vtkUnstructuredGrid> raw = delaunay->GetOutput();
+
+	vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
+	geometryFilter->SetInputData(raw);
+	geometryFilter->Update();
+
+	vtkPolyData* polydata2 = geometryFilter->GetOutput();
+
+	cout << "Output has " << polydata2->GetNumberOfCells() << " cells." << endl;
+
+	for (vtkIdType i = 0; i < raw->GetNumberOfCells(); ++i) {
+		vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
+		raw->GetCellPoints(i, cellPointIds);
+		cout << "cell " << i << " : ";
+		for (vtkIdType j = 0; j < cellPointIds->GetNumberOfIds(); ++j)
+		{
+			cout << cellPointIds->GetId(j) << " ";
+		}
+		cout << endl;
+	}
+
+	//for (vtkIdType i = 0; i < raw->GetNumberOfPoints(); i++)
+	//{
+	//	double p[3];
+	//	raw->GetCell(i, p);
+	//	cout << "point " << i << " : (" << p[0] << " " << p[1] << " " << p[2] << ")" << endl;
+	//}
 
 	//
 	//high_resolution_clock::time_point t1 = high_resolution_clock::now(); //start timer point
