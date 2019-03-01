@@ -90,19 +90,21 @@ int main()
 
 	vtkPolyData* polydata2 = geometryFilter->GetOutput();
 
-	cout << "Output has " << polydata2->GetNumberOfCells() << " cells." << endl;
-
-	for (vtkIdType i = 0; i < raw->GetNumberOfCells(); ++i) {
+	unsigned NCells = polydata2->GetNumberOfCells();
+	cout << "Output has " << NCells << " cells." << endl;
+	
+	MatrixType fcs(NCells, 3);
+	for (vtkIdType i = 0; i < NCells; ++i) {
 		vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
-		raw->GetCellPoints(i, cellPointIds);
-		cout << "cell " << i << " : ";
+		polydata2->GetCellPoints(i, cellPointIds);
+
 		for (vtkIdType j = 0; j < cellPointIds->GetNumberOfIds(); ++j)
 		{
-			cout << cellPointIds->GetId(j) << " ";
+			fcs(i,j) = cellPointIds->GetId(j);
 		}
-		cout << endl;
 	}
 
+	cout << "faces" << endl << fcs;
 	//for (vtkIdType i = 0; i < raw->GetNumberOfPoints(); i++)
 	//{
 	//	double p[3];
