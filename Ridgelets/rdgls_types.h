@@ -2,6 +2,16 @@
 #define RDGLS_TYPES_H
 
 //libraries
+#include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkCleanPolyData.h>
+#include <vtkDelaunay3D.h>
+#include <vtkCellArray.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkGeometryFilter.h>
+#include <vtkPointSource.h>
+
 #include <itkImage.h>
 #include <itkImageFileReader.h>
 #include <itkNrrdImageIO.h>
