@@ -40,7 +40,7 @@ int main()
 
 	//icosahedron
 	UtilMath m;
-	int level = 4;
+	unsigned level = 4;
 
 	double C = 1 / sqrt(1.25);
 	MatrixType t = (2 * m.PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
@@ -51,9 +51,15 @@ int main()
 	MatrixType u(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 
-	/*
-	   Convex hull part (might be conflict between VTK 7 and 8 versions)
-	*/
+	/* */
+	if (level > 0) {
+		for (unsigned lev = 1; lev <= level; ++lev) {
+			MatrixType fcs = m.convhulln(u);
+			unsigned N = fcs.rows();
+			MatrixType U = MatrixType::Zero(3 * N, 3);
+		}
+	}
+
 	MatrixType fcs = m.convhulln(u);
 	cout << "faces" << endl << fcs.array() + 1;
 

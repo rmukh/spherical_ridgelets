@@ -28,7 +28,7 @@ MatrixType SOLVERS::FISTA() {
 	double e_old = 1e32;
 	double e;
 
-	for (int iter = 0; iter < 10; iter++) {
+	for (int iter = 0; iter < 10; ++iter) {
 		x = y + A.transpose() * (s - A * y);
 		//Soft thresholding
 		x = ((x.cwiseAbs().array() - lmd).cwiseMax(dummyZeros.array())).cwiseProduct(x.array().sign());

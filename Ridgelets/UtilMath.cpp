@@ -96,6 +96,8 @@ void UtilMath::polyleg(MatrixType& P, MatrixType x, unsigned n)
 }
 
 MatrixType UtilMath::convhulln(MatrixType& u) {
+	//Convex hull (might be a conflict between VTK 7 and 8 versions)
+
 	// Convert from Eigen MatrixType to vtkPoints (probably make as an function)
 	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 	for (unsigned i = 0; i < u.rows(); ++i)

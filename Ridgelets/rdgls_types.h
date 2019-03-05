@@ -1,7 +1,7 @@
 #ifndef RDGLS_TYPES_H
 #define RDGLS_TYPES_H
 
-//libraries
+// Libraries
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
@@ -26,8 +26,9 @@
 #include <chrono>
 #include <thread>
 
+// Necessary types defenitions
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
-/*
+/* Alternate way to define dMRI volume
 typedef itk::Vector<signed short, 59>   VectorType;
 typedef itk::Image<VectorType, 3>	    DiffusionImageType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
@@ -37,6 +38,7 @@ typedef itk::VectorImage<VectorType, 3>	DiffusionImageType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 typedef itk::ImageLinearConstIteratorWithIndex<DiffusionImageType> ConstIterator;
 
+// Necessary namespaces
 using namespace Eigen;
 using namespace std;
 using namespace std::chrono;
