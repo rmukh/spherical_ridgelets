@@ -45,8 +45,6 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 	u.col(2) = z.array();
 	for (unsigned i = 0; i < N; ++i)
 		u.row(i).normalize();
-
-	//return u;
 }
 
 void UtilMath::fura(MatrixType& Lmd, unsigned n)
@@ -95,4 +93,43 @@ void UtilMath::polyleg(MatrixType& P, MatrixType x, unsigned n)
 			P.col(k) = c1 * x.cwiseProduct(P.col(k - 1)) - c2 * P.col(k - 2);
 		}
 	}
+}
+
+MatrixType UtilMath::convhulln(MatrixType& u) {
+	// Convert from Eigen MatrixType to vtkPoints (probably make as an function)
+	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+	for (unsigned i = 0; i < u.rows(); ++i)
+		points->InsertNextPoint(u(i, 0), u(i, 1), u(i, 2));
+
+	// Dataset to represent verticies (points)
+	vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+	polydata->SetPoints(points);
+
+	// Create the convex hull of the pointcloud
+	vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer<vtkDelaunay3D>::New();
+	delaunay->SetInputData(polydata);
+	delaunay->Update();
+
+	// Convert to polygonal type
+	vtkSmartPointer<vtkUnstructuredGrid> raw = delaunay->GetOutput();
+	vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
+	geometryFilter->SetInputData(raw);
+	geometryFilter->Update();
+
+	vtkSmartPointer<vtkPolyData> polyPoints = geometryFilter->GetOutput();
+
+	unsigned NCells = polyPoints->GetNumberOfCells();
+	cout << "Output has " << NCells << " cells." << endl;
+
+	// Convert to Eigen matrix
+	MatrixType fcs(NCells, 3);
+	for (vtkIdType i = 0; i < NCells; ++i) {
+		vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
+		polyPoints->GetCellPoints(i, cellPointIds);
+
+		for (vtkIdType j = 0; j < cellPointIds->GetNumberOfIds(); ++j)
+			fcs(i, j) = cellPointIds->GetId(j);
+	}
+
+	return fcs;
 }

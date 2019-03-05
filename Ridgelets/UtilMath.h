@@ -17,6 +17,7 @@ public:
 	void spiralsample(MatrixType& u, unsigned flg, unsigned N);
 	void fura(MatrixType& Lmd, unsigned n);
 	void polyleg(MatrixType& P, MatrixType x, unsigned n);
+	MatrixType convhulln(MatrixType & u);
 };
 
 #endif // ! UTILMATH_H
