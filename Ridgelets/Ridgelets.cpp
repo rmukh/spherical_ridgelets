@@ -61,15 +61,14 @@ int main()
 	MatrixType u(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 
-	/* 
+	/*
 	   Convex hull part (might be conflict between VTK 7 and 8 versions)
 	*/
-	
+
 	// Convert from Eigen MatrixType to vtkPoints (probably make as an function)
 	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-	for (unsigned i = 0; i < u.rows(); ++i) {
+	for (unsigned i = 0; i < u.rows(); ++i)
 		points->InsertNextPoint(u(i, 0), u(i, 1), u(i, 2));
-	}
 
 	// Dataset to represent verticies (points)
 	vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
@@ -80,31 +79,28 @@ int main()
 	delaunay->SetInputData(polydata);
 	delaunay->Update();
 
-	//to Eigen back
-	//vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+	// Convert to polygonal type
 	vtkSmartPointer<vtkUnstructuredGrid> raw = delaunay->GetOutput();
-
 	vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
 	geometryFilter->SetInputData(raw);
 	geometryFilter->Update();
 
-	vtkPolyData* polydata2 = geometryFilter->GetOutput();
+	vtkSmartPointer<vtkPolyData> polyPoints = geometryFilter->GetOutput();
 
-	unsigned NCells = polydata2->GetNumberOfCells();
+	unsigned NCells = polyPoints->GetNumberOfCells();
 	cout << "Output has " << NCells << " cells." << endl;
-	
+
+	// Convert to Eigen matrix
 	MatrixType fcs(NCells, 3);
 	for (vtkIdType i = 0; i < NCells; ++i) {
 		vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
-		polydata2->GetCellPoints(i, cellPointIds);
+		polyPoints->GetCellPoints(i, cellPointIds);
 
 		for (vtkIdType j = 0; j < cellPointIds->GetNumberOfIds(); ++j)
-		{
-			fcs(i,j) = cellPointIds->GetId(j);
-		}
+			fcs(i, j) = cellPointIds->GetId(j);
 	}
 
-	cout << "faces" << endl << fcs;
+	cout << "faces" << endl << fcs.array() + 1;
 	//for (vtkIdType i = 0; i < raw->GetNumberOfPoints(); i++)
 	//{
 	//	double p[3];

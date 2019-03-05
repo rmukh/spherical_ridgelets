@@ -2,8 +2,8 @@
 #include "DATA_SOURCE.h"
 
 int DATA_SOURCE::readNRRD(
-	string inputVolume, MatrixType &GradientDirections, 
-	DiffusionImagePointer &image, unsigned &nGradImgs, 
+	string inputVolume, MatrixType &GradientDirections,
+	DiffusionImagePointer &image, unsigned &nGradImgs,
 	unsigned &nOfImgs) {
 	bool is_b0 = false;
 	double b0 = 0;
@@ -16,9 +16,9 @@ int DATA_SOURCE::readNRRD(
 
 	typedef itk::ImageFileReader<DiffusionImageType> FileReaderType;
 	FileReaderType::Pointer reader = FileReaderType::New();
-	
+
 	//get image
-	
+
 	reader->SetFileName(inputVolume);
 	try
 	{
@@ -119,9 +119,8 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 
 	//normalize
 	MatrixType gnorm = g.array().pow(2).rowwise().sum().sqrt();
-	for (int i = 0; i < 51; ++i) {
+	for (int i = 0; i < 51; ++i)
 		g.row(i) = g.row(i) / gnorm(i);
-	}
 }
 
 void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MatrixType &signal, unsigned &nGradImgs, unsigned &nOfImgs) {
@@ -141,9 +140,8 @@ void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MatrixType &signal, uns
 		while (!it.IsAtEndOfLine())
 		{
 			voxel_content = it.Get();
-			for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
+			for (unsigned i = first_grad_image_index; i < nOfImgs; ++i)
 				signal(i - first_grad_image_index, vox) = voxel_content.GetElement(i);
-			}
 
 			++vox;
 			++it;

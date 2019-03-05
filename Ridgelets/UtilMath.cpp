@@ -7,9 +7,7 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 	MatrixType z(N, 1);
 	double val = 1.0 - (1.0 / N);
 	for (unsigned int i = 0; i < N; ++i, val += (-2.0 / N))
-	{
 		z(i) = val;
-	}
 
 	//r=sqrt(1-z.*z);
 	MatrixType r(N, 1);
@@ -24,9 +22,7 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 		double sqrtN = sqrt(N);
 		Long(0) = 0.0;
 		for (unsigned i = 1; i < N; ++i)
-		{
 			Long(i) = Long(i - 1) + ((3.6 / sqrtN) / r(i - 1));
-		}
 	}
 	break;
 	case 2:
