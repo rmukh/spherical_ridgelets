@@ -22,9 +22,8 @@ void SPH_RIDG::init() {
 	h = MatrixType::Zero(mcut + 1, J + 1);
 	h.col(0) = VectorXd::LinSpaced(mcut + 1, 0, mcut);
 
-	for (int i = 1; i < J + 1; ++i) {
+	for (int i = 1; i < J + 1; ++i)
 		h.col(i) = h.col(i - 1) * 0.5;
-	}
 
 	h = (-rho * h.array().cwiseProduct(h.array() + 1.0)).exp();
 
@@ -40,17 +39,15 @@ void SPH_RIDG::init() {
 	C.col(0) = (2.0 * VectorXd::LinSpaced(mcut + 1, 0, mcut).array() + 1.0) / (4 * UM.PI);
 
 	t = ((psi.cwiseProduct(psi)).transpose() * C).array().sqrt();
-	for (int i = 0; i < J + 1; ++i) {
+	for (int i = 0; i < J + 1; ++i)
 		psi.col(i) = psi.col(i) / t(i);
-	}
 
 	tau = 4.0 * log(10.0) / rho;
 	m0 = (int)floor((-1.0 + sqrt(1.0 + 4.0 * tau)) / 2.0);
 	M0 = VectorXi::Zero(J + 1, 1);
 
-	for (int i = 0; i < J + 1; ++i) {
+	for (int i = 0; i < J + 1; ++i)
 		M0(i, 0) = (int)pow((pow(2, i) * m0 + 1), 2);
-	}
 }
 
 MatrixType SPH_RIDG::RBasis(MatrixType u) {
