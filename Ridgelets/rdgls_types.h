@@ -25,6 +25,7 @@
 #include <omp.h>
 #include <chrono>
 #include <thread>
+#include <unordered_map>
 
 // Necessary types defenitions
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixType;

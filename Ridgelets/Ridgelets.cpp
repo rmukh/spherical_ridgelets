@@ -40,7 +40,7 @@ int main()
 
 	//icosahedron
 	UtilMath m;
-	unsigned level = 4;
+	unsigned level = 1;
 
 	double C = 1 / sqrt(1.25);
 	MatrixType t = (2 * m.PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
@@ -50,18 +50,66 @@ int main()
 	u2 << C * (t.array() + 0.2 * m.PI).cos(), C * (t.array() + 0.2 * m.PI).sin(), -0.5 * C * MatrixType::Ones(5, 1);
 	MatrixType u(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
-
+	cout << endl;
 	/* */
 	if (level > 0) {
 		for (unsigned lev = 1; lev <= level; ++lev) {
 			MatrixType fcs = m.convhulln(u);
 			unsigned N = fcs.rows();
 			MatrixType U = MatrixType::Zero(3 * N, 3);
+			MatrixType A;
+			MatrixType B;
+			MatrixType C;
+			for (unsigned k = 0; k < N; ++k) {
+				A = u.row(fcs(k, 0));
+				B = u.row(fcs(k, 1));
+				C = u.row(fcs(k, 2));
+				U.block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
+			}
+			cout << U << endl;
+			/*
+				Find unique rows 
+				Not the fanciest and most optimal way, but
+				1) icosahedron function does not intend to be called many times
+				2) uses kind of hashtable as serious boys usually do :)
+			*/
+
+			// Define hashtable
+			unordered_map<string, bool> hTable;
+
+			// Define array of existing indicies
+			vector<int> duplicates;
+
+			// Preallocate string for faster string concatenation
+			string key;
+			size_t added_length = 3 * to_string(U(0, 0)).length();
+			key.reserve(key.length() + added_length);
+
+			// Iterate over matrix
+			for (unsigned i = 0; i < U.rows(); ++i) {
+				// Create unique key from row valuse
+				key = to_string(U(i, 0)).append(to_string(U(i, 1))).append(to_string(U(i, 2))); 
+				
+				// If element exists in hash table
+				if (hTable.count(key) > 0) 
+					duplicates.push_back(i);
+				else
+					hTable.insert(pair<string, bool>(key, true));
+			}
+
+			for (const int i : duplicates)
+				cout << i << ' ';
+			cout << endl;
+
+			Map<VectorXi> rowsToKeep(duplicates.data(), duplicates.size());
+			VectorXd allCols = VectorXd::LinSpaced(3, 0, 2);
+			cout << U.outerStride();
+			Map<MatrixType, 0, OuterStride<>> U2(U.data(), rowsToKeep.rows(), 3, OuterStride<>(U.outerStride() * 3));
 		}
 	}
 
-	MatrixType fcs = m.convhulln(u);
-	cout << "faces" << endl << fcs.array() + 1;
+	//MatrixType fcs = m.convhulln(u);
+	//cout << "faces" << endl << fcs.array() + 1;
 
 	//for (vtkIdType i = 0; i < raw->GetNumberOfPoints(); i++)
 	//{
