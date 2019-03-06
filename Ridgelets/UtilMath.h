@@ -18,6 +18,7 @@ public:
 	void fura(MatrixType& Lmd, unsigned n);
 	void polyleg(MatrixType& P, MatrixType x, unsigned n);
 	MatrixType convhulln(MatrixType & u);
+	void unique_rows(vector<int>& uniques, MatrixType & U);
 };
 
 #endif // ! UTILMATH_H

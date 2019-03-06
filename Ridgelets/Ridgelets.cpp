@@ -67,44 +67,14 @@ int main()
 				U.block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
 			}
 			cout << U << endl;
-			/*
-				Find unique rows 
-				Not the fanciest and most optimal way, but
-				1) icosahedron function does not intend to be called many times
-				2) uses kind of hashtable as serious boys usually do :)
-			*/
 
-			// Define hashtable
-			unordered_map<string, bool> hTable;
+			vector<int> uniques;
+			m.unique_rows(uniques, U);
 
-			// Define array of existing indicies
-			vector<int> duplicates;
-
-			// Preallocate string for faster string concatenation
-			string key;
-			size_t added_length = 3 * to_string(U(0, 0)).length();
-			key.reserve(key.length() + added_length);
-
-			// Iterate over matrix
-			for (unsigned i = 0; i < U.rows(); ++i) {
-				// Create unique key from row valuse
-				key = to_string(U(i, 0)).append(to_string(U(i, 1))).append(to_string(U(i, 2))); 
-				
-				// If element exists in hash table
-				if (hTable.count(key) > 0) 
-					duplicates.push_back(i);
-				else
-					hTable.insert(pair<string, bool>(key, true));
+			// Not the most efficient way to remove duplicates
+			for (unsigned i = 0; i < uniques.size(); ++i) {
+				cout << i << "   " << U.row(uniques.at(i)) << endl;
 			}
-
-			for (const int i : duplicates)
-				cout << i << ' ';
-			cout << endl;
-
-			Map<VectorXi> rowsToKeep(duplicates.data(), duplicates.size());
-			VectorXd allCols = VectorXd::LinSpaced(3, 0, 2);
-			cout << U.outerStride();
-			Map<MatrixType, 0, OuterStride<>> U2(U.data(), rowsToKeep.rows(), 3, OuterStride<>(U.outerStride() * 3));
 		}
 	}
 

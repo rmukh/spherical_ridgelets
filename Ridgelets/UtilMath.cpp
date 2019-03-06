@@ -135,3 +135,32 @@ MatrixType UtilMath::convhulln(MatrixType& u) {
 
 	return fcs;
 }
+
+void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
+	/*
+		Find unique rows
+		Not the fanciest and most optimal way, but
+		1) icosahedron function does not intend to be called many times
+		2) uses kind of hashtable as serious boys usually do :)
+	*/
+
+	// Define hashtable
+	unordered_map<string, bool> hTable;
+
+	// Preallocate string for faster string concatenation
+	string key;
+	size_t added_length = 3 * to_string(U(0, 0)).length();
+	key.reserve(key.length() + added_length);
+
+	// Iterate over matrix
+	for (unsigned i = 0; i < U.rows(); ++i) {
+		// Create unique key from row valuse
+		key = to_string(U(i, 0)).append(to_string(U(i, 1))).append(to_string(U(i, 2)));
+
+		// If element not exists in hash table
+		if (hTable.count(key) == 0) {
+			hTable.insert(pair<string, bool>(key, true));
+			uniques.push_back(i);
+		}
+	}
+}
