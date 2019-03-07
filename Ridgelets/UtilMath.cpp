@@ -166,23 +166,14 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 	}
 }
 
-void UtilMath::sort(MatrixType& orig, MatrixType& sorted, unsigned col_n) {
+void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, unsigned col_n) {
 	// Matrix column to std vector
 	vector<double> uc3;
-	unsigned orig_size = orig.col(col_n).size();
+	unsigned orig_size = matrix.col(col_n).size();
 	uc3.resize(orig_size);
-	VectorXd::Map(&uc3[0], orig_size) = orig.col(col_n);
+	VectorXd::Map(&uc3[0], orig_size) = matrix.col(col_n);
 
 	// Mapping from value to index and so make sort ascending
-	multimap<double, unsigned> indx;
 	for (auto it = uc3.begin(); it != uc3.end(); ++it)
 		indx.insert(make_pair(*it, it - uc3.begin()));
-
-	// Using indicies in reverse order gives us desired descending order
-	unsigned i = 0;
-
-	for (multimap<double, unsigned>::reverse_iterator it = indx.rbegin(); it != indx.rend(); ++it) {
-		sorted.row(i) = orig.row(it->second);
-		++i;
-	}
 }

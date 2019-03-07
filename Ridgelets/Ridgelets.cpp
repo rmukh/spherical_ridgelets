@@ -81,8 +81,16 @@ int main()
 		cout << u << endl << endl;
 
 		// Sorting u by 3rd col
+		multimap<double, unsigned> ind;
+		m.ind_sort(u, ind, 2);
+
+		// Using indicies in reverse order gives us desired descending order
+		unsigned i = 0;
 		MatrixType u_sorted(u.rows(), 3);
-		m.sort(u, u_sorted, 2);
+		for (multimap<double, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
+			u_sorted.row(i) = u.row(it->second);
+			++i;
+		}
 		cout << u_sorted << endl;
 
 		// Find indicies where 3rd column eq 0
@@ -101,8 +109,6 @@ int main()
 			v.row(i) = u_sorted.row(index.at(i));
 
 		cout << v << endl;
-
-		// Sort v by 2nd column
 	}
 
 	//MatrixType fcs = m.convhulln(u);

@@ -19,7 +19,7 @@ public:
 	void polyleg(MatrixType& P, MatrixType x, unsigned n);
 	MatrixType convhulln(MatrixType & u);
 	void unique_rows(vector<int>& uniques, MatrixType & U);
-	void sort(MatrixType & orig, MatrixType & sorted, unsigned col_n);
+	void ind_sort(MatrixType & matrix, multimap<double, unsigned>& indx, unsigned col_n);
 };
 
 #endif // ! UTILMATH_H
