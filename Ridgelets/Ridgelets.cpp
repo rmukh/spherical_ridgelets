@@ -10,6 +10,11 @@
 #include "SPH_RIDG.h"
 #include "DATA_SOURCE.h"
 
+bool compare(int a, int b, vector<double>* data)
+{
+	return data->at(a) < data->at(b);
+}
+
 int main()
 {
 	DATA_SOURCE data;
@@ -66,16 +71,35 @@ int main()
 				C = u.row(fcs(k, 2));
 				U.block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
 			}
-			cout << U << endl;
 
 			vector<int> uniques;
 			m.unique_rows(uniques, U);
 
-			// Not the most efficient way to remove duplicates
-			for (unsigned i = 0; i < uniques.size(); ++i) {
-				cout << i << "   " << U.row(uniques.at(i)) << endl;
-			}
+			// Normalize and add to u
+			unsigned u_len = u.rows();
+			unsigned unique_len = uniques.size();
+			u.conservativeResize(u.rows() + unique_len, u.cols());
+
+			for (unsigned i = 0, j = 0 + u_len; i < unique_len, j < unique_len + u_len; ++i, ++j)
+				u.row(j) = U.row(uniques.at(i)) / U.row(uniques.at(i)).norm();
 		}
+		cout << u << endl << endl;
+
+		// Matrix column to std vector
+		vector<double> uc3;
+		uc3.resize(u.col(2).size());
+		VectorXd::Map(&uc3[0], u.col(2).size()) = u.col(2);
+
+		// Mapping from value to index
+		multimap<double, unsigned> indx;
+		for (auto it = uc3.rbegin(); it != uc3.rend(); ++it)
+			indx.insert(make_pair(*it, it - uc3.rbegin())); //find shift by 1 element
+
+		for (auto it = indx.begin(); it != indx.end(); ++it)
+			cout << it->second << endl;
+
+		for (unsigned i = 0; i < uc3.size(); ++i)
+			cout << uc3.at(i) << " ";
 	}
 
 	//MatrixType fcs = m.convhulln(u);
