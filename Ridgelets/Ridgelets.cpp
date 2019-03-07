@@ -51,7 +51,7 @@ int main()
 	MatrixType u(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 	cout << endl;
-	/* */
+
 	if (level > 0) {
 		for (unsigned lev = 1; lev <= level; ++lev) {
 			MatrixType fcs = m.convhulln(u);
@@ -80,21 +80,29 @@ int main()
 		}
 		cout << u << endl << endl;
 
-		// Matrix column to std vector
-		vector<double> uc3;
-		uc3.resize(u.col(2).size());
-		VectorXd::Map(&uc3[0], u.col(2).size()) = u.col(2);
+		// Sorting u by 3rd col
+		MatrixType u_sorted(u.rows(), 3);
+		m.sort(u, u_sorted, 2);
+		cout << u_sorted << endl;
 
-		// Mapping from value to index
-		multimap<double, unsigned> indx;
-		for (auto it = uc3.rbegin(); it != uc3.rend(); ++it)
-			indx.insert(make_pair(*it, it - uc3.rbegin())); //find shift by 1 element
+		// Find indicies where 3rd column eq 0
+		std::vector<Eigen::Index> index;
+		for (Eigen::Index i = 0; i < u_sorted.rows(); ++i)
+			if (!u_sorted.col(2)(i))
+				index.push_back(i);
 
-		for (auto it = indx.begin(); it != indx.end(); ++it)
-			cout << it->second << endl;
+		unsigned N_index = index.size();
+		for (unsigned i = 0; i < N_index; ++i)
+			cout << index.at(i) << " ";
 
-		for (unsigned i = 0; i < uc3.size(); ++i)
-			cout << uc3.at(i) << " ";
+		// v matrix part of u where 3rd col eq 0
+		MatrixType v(N_index, 3);
+		for (unsigned i = 0; i < N_index; ++i)
+			v.row(i) = u_sorted.row(index.at(i));
+
+		cout << v << endl;
+
+		// Sort v by 2nd column
 	}
 
 	//MatrixType fcs = m.convhulln(u);
