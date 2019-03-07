@@ -10,11 +10,6 @@
 #include "SPH_RIDG.h"
 #include "DATA_SOURCE.h"
 
-bool compare(int a, int b, vector<double>* data)
-{
-	return data->at(a) < data->at(b);
-}
-
 int main()
 {
 	DATA_SOURCE data;

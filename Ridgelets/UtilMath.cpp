@@ -134,6 +134,7 @@ MatrixType UtilMath::convhulln(MatrixType& u) {
 	}
 
 	return fcs;
+
 }
 
 void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
