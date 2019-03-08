@@ -178,14 +178,14 @@ void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, un
 		indx.insert(make_pair(*it, it - uc3.begin()));
 }
 
-void UtilMath::icosahedron(MatrixType& faces, unsigned level) {
+void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 	double C = 1 / sqrt(1.25);
 	MatrixType t = (2 * PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
 	MatrixType u1(5, 3);
 	u1 << C * t.array().cos(), C * t.array().sin(), C * 0.5 * MatrixType::Ones(5, 1);
 	MatrixType u2(5, 3);
 	u2 << C * (t.array() + 0.2 * PI).cos(), C * (t.array() + 0.2 * PI).sin(), -0.5 * C * MatrixType::Ones(5, 1);
-	MatrixType u(12, 3);
+	u.resize(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 	MatrixType u_final;
 

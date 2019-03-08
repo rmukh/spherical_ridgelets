@@ -42,7 +42,11 @@ int main()
 	UtilMath m;
 
 	MatrixType fcs;
-	m.icosahedron(fcs, 1);
+	MatrixType u;
+	m.icosahedron(u, fcs, 1);
+
+	data.matrixToFile("C:\\Users\\mukho\\Desktop\\fcs.txt", fcs);
+	data.matrixToFile("C:\\Users\\mukho\\Desktop\\u.txt", u);
 
 	//for (vtkIdType i = 0; i < raw->GetNumberOfPoints(); i++)
 	//{

@@ -18,7 +18,7 @@ public:
 	MatrixType convhulln(MatrixType & u);
 	void unique_rows(vector<int>& uniques, MatrixType & U);
 	void ind_sort(MatrixType & matrix, multimap<double, unsigned>& indx, unsigned col_n);
-	void icosahedron(MatrixType & faces, unsigned level);
+	void icosahedron(MatrixType& u,MatrixType & faces, unsigned level);
 };
 
 #endif // ! UTILMATH_H

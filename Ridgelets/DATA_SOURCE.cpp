@@ -149,3 +149,9 @@ void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MatrixType &signal, uns
 		it.NextLine();
 	}
 }
+
+void DATA_SOURCE::matrixToFile(const string& fname, MatrixType& matrix) {
+	ofstream file(fname);
+	if (file.is_open())
+		file << matrix << '\n';
+}
