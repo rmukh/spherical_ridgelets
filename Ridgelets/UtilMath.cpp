@@ -141,8 +141,7 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 	/*
 		Find unique rows
 		Not the fanciest and most optimal way, but
-		1) icosahedron function does not intend to be called many times
-		2) uses kind of hashtable as serious boys usually do :)
+		uses kind of hashtable as serious boys usually do :)
 	*/
 
 	// Define hashtable
@@ -150,7 +149,7 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 
 	// Preallocate string for faster string concatenation
 	string key;
-	size_t added_length = 3 * to_string(U(0, 0)).length();
+	size_t added_length = U.cols() * to_string(U(0, 0)).length();
 	key.reserve(key.length() + added_length);
 
 	// Iterate over matrix

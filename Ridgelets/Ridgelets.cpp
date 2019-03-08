@@ -105,8 +105,14 @@ int main()
 		std::cout << i << ' ';
 	cout << endl;
 
-	MatrixType t;
-	//for (unsigned i = 0; i < a3.size(); ++i)
+	MatrixType t(2 * a3.size(), 1);
+	for (unsigned i = 0; i < a3.size(); ++i) {
+		unsigned j = i * 2;
+		t(j, 0) = fcs(a3.at(i), 0);
+		t(j + 1, 0) = fcs(a3.at(i), 1);
+	}
+	vector<int> un;
+	m.unique_rows(un, t);
 
 	return 0;
 }
