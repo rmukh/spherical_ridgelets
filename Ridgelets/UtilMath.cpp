@@ -177,3 +177,84 @@ void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, un
 	for (auto it = uc3.begin(); it != uc3.end(); ++it)
 		indx.insert(make_pair(*it, it - uc3.begin()));
 }
+
+void UtilMath::icosahedron(MatrixType& faces, unsigned level) {
+	double C = 1 / sqrt(1.25);
+	MatrixType t = (2 * PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
+	MatrixType u1(5, 3);
+	u1 << C * t.array().cos(), C * t.array().sin(), C * 0.5 * MatrixType::Ones(5, 1);
+	MatrixType u2(5, 3);
+	u2 << C * (t.array() + 0.2 * PI).cos(), C * (t.array() + 0.2 * PI).sin(), -0.5 * C * MatrixType::Ones(5, 1);
+	MatrixType u(12, 3);
+	u << 0, 0, 1, u1, u2, 0, 0, -1;
+	MatrixType u_final;
+
+	if (level > 0) {
+		for (unsigned lev = 1; lev <= level; ++lev) {
+			MatrixType fcs = convhulln(u);
+			unsigned N = fcs.rows();
+			MatrixType U = MatrixType::Zero(3 * N, 3);
+			MatrixType A;
+			MatrixType B;
+			MatrixType C;
+			for (unsigned k = 0; k < N; ++k) {
+				A = u.row(fcs(k, 0));
+				B = u.row(fcs(k, 1));
+				C = u.row(fcs(k, 2));
+				U.block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
+			}
+
+			vector<int> uniques;
+			unique_rows(uniques, U);
+
+			// Normalize and add to u
+			unsigned u_len = u.rows();
+			unsigned unique_len = uniques.size();
+			u.conservativeResize(u.rows() + unique_len, u.cols());
+
+			for (unsigned i = 0, j = 0 + u_len; i < unique_len, j < unique_len + u_len; ++i, ++j)
+				u.row(j) = U.row(uniques.at(i)) / U.row(uniques.at(i)).norm();
+		}
+
+		// Sorting u by 3rd col
+		multimap<double, unsigned> ind;
+		ind_sort(u, ind, 2);
+
+		// Using indicies in reverse order gives us desired descending order
+		unsigned i = 0;
+		MatrixType u_sorted(u.rows(), 3);
+		for (multimap<double, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
+			u_sorted.row(i) = u.row(it->second);
+			++i;
+		}
+
+		// Find indicies where 3rd column eq 0
+		std::vector<Eigen::Index> index;
+		for (Eigen::Index i = 0; i < u_sorted.rows(); ++i)
+			if (!u_sorted.col(2)(i))
+				index.push_back(i);
+
+		// v matrix part of u where 3rd col eq 0
+		unsigned N_index = index.size();
+		MatrixType v(N_index, 3);
+		for (unsigned i = 0; i < N_index; ++i)
+			v.row(i) = u_sorted.row(index.at(i));
+
+		// Sort v by 2nd column
+		multimap<double, unsigned> ind_v;
+		ind_sort(v, ind_v, 1);
+
+		// Using indicies in reverse order gives us desired descending order
+		i = 0;
+		for (multimap<double, unsigned>::reverse_iterator it = ind_v.rbegin(); it != ind_v.rend(); ++it) {
+			u_sorted.row(index.at(i)) = v.row(it->second);
+			++i;
+		}
+		u = u_sorted;
+	}
+
+	// Normalize
+	u = u.array().colwise() / (u.rowwise().norm().array() + 2.2204e-16);
+
+	faces = convhulln(u);
+}

@@ -40,79 +40,9 @@ int main()
 
 	//icosahedron
 	UtilMath m;
-	unsigned level = 1;
 
-	double C = 1 / sqrt(1.25);
-	MatrixType t = (2 * m.PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
-	MatrixType u1(5, 3);
-	u1 << C * t.array().cos(), C * t.array().sin(), C * 0.5 * MatrixType::Ones(5, 1);
-	MatrixType u2(5, 3);
-	u2 << C * (t.array() + 0.2 * m.PI).cos(), C * (t.array() + 0.2 * m.PI).sin(), -0.5 * C * MatrixType::Ones(5, 1);
-	MatrixType u(12, 3);
-	u << 0, 0, 1, u1, u2, 0, 0, -1;
-	cout << endl;
-
-	if (level > 0) {
-		for (unsigned lev = 1; lev <= level; ++lev) {
-			MatrixType fcs = m.convhulln(u);
-			unsigned N = fcs.rows();
-			MatrixType U = MatrixType::Zero(3 * N, 3);
-			MatrixType A;
-			MatrixType B;
-			MatrixType C;
-			for (unsigned k = 0; k < N; ++k) {
-				A = u.row(fcs(k, 0));
-				B = u.row(fcs(k, 1));
-				C = u.row(fcs(k, 2));
-				U.block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
-			}
-
-			vector<int> uniques;
-			m.unique_rows(uniques, U);
-
-			// Normalize and add to u
-			unsigned u_len = u.rows();
-			unsigned unique_len = uniques.size();
-			u.conservativeResize(u.rows() + unique_len, u.cols());
-
-			for (unsigned i = 0, j = 0 + u_len; i < unique_len, j < unique_len + u_len; ++i, ++j)
-				u.row(j) = U.row(uniques.at(i)) / U.row(uniques.at(i)).norm();
-		}
-		cout << u << endl << endl;
-
-		// Sorting u by 3rd col
-		multimap<double, unsigned> ind;
-		m.ind_sort(u, ind, 2);
-
-		// Using indicies in reverse order gives us desired descending order
-		unsigned i = 0;
-		MatrixType u_sorted(u.rows(), 3);
-		for (multimap<double, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
-			u_sorted.row(i) = u.row(it->second);
-			++i;
-		}
-		cout << u_sorted << endl;
-
-		// Find indicies where 3rd column eq 0
-		std::vector<Eigen::Index> index;
-		for (Eigen::Index i = 0; i < u_sorted.rows(); ++i)
-			if (!u_sorted.col(2)(i))
-				index.push_back(i);
-
-		unsigned N_index = index.size();
-		for (unsigned i = 0; i < N_index; ++i)
-			cout << index.at(i) << " ";
-
-		// v matrix part of u where 3rd col eq 0
-		MatrixType v(N_index, 3);
-		for (unsigned i = 0; i < N_index; ++i)
-			v.row(i) = u_sorted.row(index.at(i));
-
-		cout << v << endl;
-	}
-
-	//MatrixType fcs = m.convhulln(u);
-	//cout << "faces" << endl << fcs.array() + 1;
+	MatrixType fcs;
+	m.icosahedron(fcs, 1);
 
 	//for (vtkIdType i = 0; i < raw->GetNumberOfPoints(); i++)
 	//{
