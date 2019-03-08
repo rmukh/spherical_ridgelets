@@ -105,14 +105,16 @@ int main()
 		std::cout << i << ' ';
 	cout << endl;
 
-	MatrixType t(2 * a3.size(), 1);
+	MatrixType t(a3.size(), 2);
 	for (unsigned i = 0; i < a3.size(); ++i) {
-		unsigned j = i * 2;
-		t(j, 0) = fcs(a3.at(i), 0);
-		t(j + 1, 0) = fcs(a3.at(i), 1);
+		t << fcs.block<1, 2>(a3.at(i), 0);
 	}
+
 	vector<int> un;
 	m.unique_rows(un, t);
-
+	cout << "u" << t << endl;
+	cout << "uniques " << endl;
+	for (auto i : un)
+		std::cout << i << ' ';
 	return 0;
 }

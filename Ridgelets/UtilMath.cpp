@@ -144,18 +144,23 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 		uses kind of hashtable as serious boys usually do :)
 	*/
 
+	unsigned nCols = U.cols();
+
 	// Define hashtable
 	unordered_map<string, bool> hTable;
 
 	// Preallocate string for faster string concatenation
 	string key;
-	size_t added_length = U.cols() * to_string(U(0, 0)).length();
+	size_t added_length = nCols * to_string(U(0, 0)).length();
 	key.reserve(key.length() + added_length);
 
 	// Iterate over matrix
 	for (unsigned i = 0; i < U.rows(); ++i) {
 		// Create unique key from row valuse
-		key = to_string(U(i, 0)).append(to_string(U(i, 1))).append(to_string(U(i, 2)));
+		key.clear();
+		for (unsigned j = 0; j < nCols; ++j) {
+			key.append(to_string(U(i, j)));
+		}
 
 		// If element not exists in hash table
 		if (hTable.count(key) == 0) {
