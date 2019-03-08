@@ -155,3 +155,45 @@ void DATA_SOURCE::matrixToFile(const string& fname, MatrixType& matrix) {
 	if (file.is_open())
 		file << matrix << '\n';
 }
+
+void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
+{
+	unsigned number_of_rows = 0;
+	unsigned number_of_cols = 0;
+	std::string line;
+
+	ifstream infile;
+	infile.open(fname);
+
+	// Get number of lines
+	while (getline(infile, line))
+		++number_of_rows;
+
+	// Get number of columns
+	infile.clear();
+	infile.seekg(0, ios::beg);
+	getline(infile, line);
+	stringstream stream(line);
+	while (stream)
+	{
+		std::string c;
+		stream >> c;
+		if (c.length())
+			++number_of_cols;
+	}
+
+	matrix.resize(number_of_rows, number_of_cols);
+
+	// Filling matrix
+	infile.clear();
+	infile.seekg(0, ios::beg);
+
+	for (unsigned i = 0; i < number_of_rows; ++i)
+	{
+		getline(infile, line);
+		stringstream stream(line);
+
+		for (unsigned j = 0; j < number_of_cols; ++j)
+			stream >> matrix(i, j);
+	}
+}

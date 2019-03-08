@@ -178,7 +178,7 @@ void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, un
 		indx.insert(make_pair(*it, it - uc3.begin()));
 }
 
-void UtilMath::eigen_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
+void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
 	for (Eigen::Index i = 0; i < arr.rows(); ++i) {
 		if (equal) {
 			if (arr.col(col_n)(i) == val)
@@ -244,7 +244,7 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 		// Find indicies where 3rd column eq 0
 		
 		std::vector<Eigen::Index> index;
-		eigen_find(index, u_sorted, 2, true, 0);
+		column_find(index, u_sorted, 2, true, 0);
 
 		// v matrix part of u where 3rd col eq 0
 		unsigned N_index = index.size();

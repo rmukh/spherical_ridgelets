@@ -38,6 +38,12 @@ int main()
 
 	data.readTestData(g, s);
 
+	// import values from matlab
+	MatrixType u;
+	MatrixType fcs;
+	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\fcs_external.txt", fcs);
+	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\u_external.txt", u);
+
 	//icosahedron
 	UtilMath m;
 
@@ -73,6 +79,34 @@ int main()
 	//high_resolution_clock::time_point t2 = high_resolution_clock::now();
 	//auto duration = duration_cast<seconds>(t2 - t1).count();
 	//cout << "Execution time " << duration << " seconds" << endl;
+
+	// FindConnectivity
+	unsigned N = u.rows();
+
+	std::vector<Eigen::Index> a1;
+	m.column_find(a1, fcs, 0, true, 0+1);
+
+	std::vector<Eigen::Index> a2;
+	m.column_find(a2, fcs, 1, true, 0+1);
+
+	std::vector<Eigen::Index> a3;
+	m.column_find(a3, fcs, 2, true, 0+1);
+
+	cout << "a1 ";
+	for (auto i : a1)
+		std::cout << i << ' ';
+	cout << endl;
+	cout << "a2 ";
+	for (auto i : a2)
+		std::cout << i << ' ';
+	cout << endl;
+	cout << "a3 ";
+	for (auto i : a3)
+		std::cout << i << ' ';
+	cout << endl;
+
+	MatrixType t;
+	//for (unsigned i = 0; i < a3.size(); ++i)
 
 	return 0;
 }

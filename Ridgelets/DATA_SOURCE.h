@@ -16,6 +16,7 @@ public:
 	void readTestData(MatrixType& g, MatrixType& s);
 	void DWI2Matrix(DiffusionImagePointer & img, MatrixType & signal, unsigned & nGradImgs, unsigned & nOfImgs);
 	void matrixToFile(const string & fname, MatrixType & matrix);
+	void fileToMatrix(const string & fname, MatrixType & arr);
 };
 
 #endif
