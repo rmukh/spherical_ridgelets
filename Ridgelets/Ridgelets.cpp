@@ -83,38 +83,29 @@ int main()
 	// FindConnectivity
 	unsigned N = u.rows();
 
-	std::vector<Eigen::Index> a1;
+	vector<Eigen::Index> a1;
 	m.column_find(a1, fcs, 0, true, 0+1);
 
-	std::vector<Eigen::Index> a2;
+	vector<Eigen::Index> a2;
 	m.column_find(a2, fcs, 1, true, 0+1);
 
-	std::vector<Eigen::Index> a3;
+	vector<Eigen::Index> a3;
 	m.column_find(a3, fcs, 2, true, 0+1);
 
-	cout << "a1 ";
-	for (auto i : a1)
-		std::cout << i << ' ';
-	cout << endl;
-	cout << "a2 ";
-	for (auto i : a2)
-		std::cout << i << ' ';
-	cout << endl;
-	cout << "a3 ";
-	for (auto i : a3)
-		std::cout << i << ' ';
-	cout << endl;
+	data.printVec("a1", a1);
+	data.printVec("a2", a2);
+	data.printVec("a3", a3);
 
 	MatrixType t(a3.size(), 2);
-	for (unsigned i = 0; i < a3.size(); ++i) {
-		t << fcs.block<1, 2>(a3.at(i), 0);
-	}
+	for (unsigned i = 0; i < a3.size(); ++i)
+		t.row(i) = fcs.block<1, 2>(a3.at(i), 0);
 
+	t.resize(2 * a3.size(), 1);
 	vector<int> un;
-	m.unique_rows(un, t);
-	cout << "u" << t << endl;
-	cout << "uniques " << endl;
-	for (auto i : un)
-		std::cout << i << ' ';
+	m.unique_sorted(un, t);
+
+	cout << "u " << endl << t << endl;
+	data.printVec("uniques", un);
+
 	return 0;
 }

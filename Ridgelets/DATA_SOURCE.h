@@ -17,6 +17,8 @@ public:
 	void DWI2Matrix(DiffusionImagePointer & img, MatrixType & signal, unsigned & nGradImgs, unsigned & nOfImgs);
 	void matrixToFile(const string & fname, MatrixType & matrix);
 	void fileToMatrix(const string & fname, MatrixType & arr);
+	template<typename T>
+	void printVec(const string & name, vector<T>& v);
 };
 
 #endif

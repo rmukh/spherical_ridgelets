@@ -197,3 +197,14 @@ void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
 			stream >> matrix(i, j);
 	}
 }
+
+template <typename T>
+void DATA_SOURCE::printVec(const string& name, vector<T>& v) {
+	cout << name << endl;
+	for (auto i : v)
+		std::cout << i << ' ';
+	cout << endl;
+}
+
+template void DATA_SOURCE::printVec<int>(const string&, vector<int>&); 
+template void DATA_SOURCE::printVec<Eigen::Index>(const string&, vector<Eigen::Index>&);

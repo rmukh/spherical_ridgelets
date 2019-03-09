@@ -170,6 +170,25 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 	}
 }
 
+void UtilMath::unique_sorted(vector<int>& uniques, MatrixType& U) {
+	/*
+		Find unique values and return them sorted (same as default matlab version)
+		Now working with 1D and integer values of U only
+	*/
+	// Define hashtable
+	unordered_map<long, bool> hTable;
+
+	// Iterate over matrix
+	for (unsigned i = 0; i < U.size(); ++i) {
+		// If element not exists in hash table
+		if (hTable.count(U(i)) == 0) {
+			hTable.insert(pair<long, bool>(U(i), true));
+			uniques.push_back(U(i));
+		}
+	}
+	sort(uniques.begin(), uniques.end());
+}
+
 void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, unsigned col_n) {
 	// Matrix column to std vector
 	vector<double> uc3;
