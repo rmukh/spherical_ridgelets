@@ -170,7 +170,7 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 	}
 }
 
-void UtilMath::unique_sorted(vector<int>& uniques, MatrixType& U) {
+void UtilMath::unique_sorted(vector<unsigned>& uniques, MatrixType& U) {
 	/*
 		Find unique values and return them sorted (same as default matlab version)
 		Now working with 1D and integer values of U only
@@ -202,6 +202,10 @@ void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, un
 }
 
 void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
+	/*
+	Looking for columns of MatrixType matrix. bool equal is basically to comply with matlab notation of 
+	== if true and ~= if false. So you can check if col_n equal or not to val
+	*/
 	for (Eigen::Index i = 0; i < arr.rows(); ++i) {
 		if (equal) {
 			if (arr.col(col_n)(i) == val)
@@ -298,4 +302,41 @@ void UtilMath::index_and_flat(MatrixType& u, vector<Eigen::Index>& a, MatrixType
 	for (unsigned i = 0; i < a.size(); ++i)
 		u.row(i) = fcs.block(a.at(i), col, 1, sz);
 	u.resize(sz * a.size(), 1);
+}
+
+void UtilMath::FindConnectivity(vector<vector<unsigned>>& conn, MatrixType& fcs, unsigned N) {
+	/*
+	FindConnectivity function. It is return vector of vectors because in matlab function it returns dynamic size
+	cell array. So it is the best way I found to store arrays of indcicies with different sizes.
+	*/
+	for (unsigned i = 1; i < N + 1; ++i) {//should be 'i = 0; i < N' for real data
+		vector<Eigen::Index> a1;
+		column_find(a1, fcs, 0, true, i);
+
+		vector<Eigen::Index> a2;
+		column_find(a2, fcs, 1, true, i);
+
+		vector<Eigen::Index> a3;
+		column_find(a3, fcs, 2, true, i);
+
+		MatrixType u1(a1.size(), 2);
+		index_and_flat(u1, a1, fcs, 2, 1);
+
+		MatrixType u2(a2.size(), 1);
+		index_and_flat(u2, a2, fcs, 1, 0);
+
+		MatrixType u3(a2.size(), 1);
+		index_and_flat(u3, a2, fcs, 1, 2);
+
+		MatrixType u4(a3.size(), 2);
+		index_and_flat(u4, a3, fcs, 2, 0);
+
+		MatrixType u_out(u1.size() + u2.size() + u3.size() + u4.size(), 1);
+		u_out << u1, u2, u3, u4;
+
+		vector<unsigned> un;
+		unique_sorted(un, u_out);
+
+		conn.push_back(un);
+	}
 }
