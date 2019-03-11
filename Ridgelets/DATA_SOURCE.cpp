@@ -151,6 +151,9 @@ void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MatrixType &signal, uns
 }
 
 void DATA_SOURCE::matrixToFile(const string& fname, MatrixType& matrix) {
+	/*
+	Write space separated matrix of MatrixType to text type file. Useful to debugging. 
+	*/
 	ofstream file(fname);
 	if (file.is_open())
 		file << matrix << '\n';
@@ -158,6 +161,9 @@ void DATA_SOURCE::matrixToFile(const string& fname, MatrixType& matrix) {
 
 void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
 {
+	/*
+	Read space separated matricies and vectors. Useful to debug with matlab code.
+	*/
 	unsigned number_of_rows = 0;
 	unsigned number_of_cols = 0;
 	std::string line;

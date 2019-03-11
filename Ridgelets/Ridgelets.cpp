@@ -41,8 +41,10 @@ int main()
 	// import values from matlab
 	MatrixType u;
 	MatrixType fcs;
+	MatrixType W;
 	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\fcs_external.txt", fcs);
 	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\u_external.txt", u);
+	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\odf_one_vol.txt", W);
 
 	//icosahedron
 	UtilMath m;
@@ -83,13 +85,8 @@ int main()
 	vector<vector<unsigned>> conn;
 	m.FindConnectivity(conn, fcs, u.rows());
 
-	// display a two-dimensional vector
-	for (int i = 0; i < conn.size(); i++)       // loops through each row of vy
-	{
-		for (int j = 0; j < conn[i].size(); j++) // loops through each element of each row 
-			cout << " " << conn[i][j];           // prints the jth element of the ith row
-		cout << endl;
-	}
+	//FindODFMaxima
+	float thresh = 0.7;
 
 	return 0;
 }
