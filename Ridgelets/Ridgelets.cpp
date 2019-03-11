@@ -37,6 +37,8 @@ int main()
 	MatrixType s(51, 16);
 
 	data.readTestData(g, s);
+	cout << " g " << g << endl;
+	cout << " s " << s << endl;
 
 	// import values from matlab
 	MatrixType u;

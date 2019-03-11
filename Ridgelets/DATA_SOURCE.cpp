@@ -94,28 +94,9 @@ void DATA_SOURCE::testFNC() {
 	test.normBasis(normA);
 }
 
-MatrixType DATA_SOURCE::readF(string f, int x, int y) {
-	ifstream file(f);
-	string str;
-	MatrixType v(x, y);
-	int g = 0;
-	while (getline(file, str))
-	{
-		vector<string> result;
-		istringstream iss(str);
-		int i = 0;
-		for (string s; iss >> s;) {
-			v(g, i) = atof(s.c_str());
-			i++;
-		}
-		g++;
-	}
-	return v;
-}
-
 void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
-	g = readF("D:\\test\\bvec.txt", 51, 3);
-	s = readF("D:\\test\\sign.txt", 51, 16);
+	fileToMatrix("D:\\test\\bvec.txt", g);
+	fileToMatrix("D:\\test\\sign.txt", s);
 
 	//normalize
 	MatrixType gnorm = g.array().pow(2).rowwise().sum().sqrt();
