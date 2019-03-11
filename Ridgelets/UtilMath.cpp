@@ -208,6 +208,21 @@ void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, un
 		indx.insert(make_pair(*it, it - uc3.begin()));
 }
 
+void UtilMath::ind_sort_vec(MatrixType& vec, multimap<double, unsigned>& indx) {
+	/*
+	Return indexies indx in ascending order of sorted vector
+	*/
+	// Matrix to std vector
+	vector<double> uc3;
+	unsigned orig_size = vec.size();
+	uc3.resize(orig_size);
+	VectorXd::Map(&uc3[0], orig_size) = vec;
+
+	// Mapping from value to index and so make sort ascending
+	for (auto it = uc3.begin(); it != uc3.end(); ++it)
+		indx.insert(make_pair(*it, it - uc3.begin()));
+}
+
 void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
 	/*
 	Looking for columns of MatrixType matrix. bool equal is basically to comply with matlab notation of 
@@ -279,7 +294,6 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 		}
 
 		// Find indicies where 3rd column eq 0
-		
 		std::vector<Eigen::Index> index;
 		column_find(index, u_sorted, 2, true, 0);
 
@@ -352,4 +366,15 @@ void UtilMath::FindConnectivity(vector<vector<unsigned>>& conn, MatrixType& fcs,
 
 		conn.push_back(un);
 	}
+}
+
+void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
+{
+	unsigned cols = a.cols();
+	unsigned rows = a.rows() - 1;
+	
+	if (del < rows)
+		a.block(del, 0, rows - del, cols) = a.block(del + 1, 0, rows - del, cols);
+
+	a.conservativeResize(rows, cols);
 }
