@@ -21,6 +21,7 @@ public:
 	void ind_sort(MatrixType & matrix, multimap<double, unsigned>& indx, unsigned col_n);
 	void column_find(std::vector<Eigen::Index>& index, MatrixType & arr, unsigned col_n, bool equal, int val);
 	void icosahedron(MatrixType& u,MatrixType & faces, unsigned level);
+	void index_and_flat(MatrixType & u, vector<Eigen::Index>& a, MatrixType & fcs, unsigned sz, unsigned col);
 };
 
 #endif // ! UTILMATH_H

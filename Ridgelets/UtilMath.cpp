@@ -293,3 +293,9 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 
 	faces = convhulln(u);
 }
+
+void UtilMath::index_and_flat(MatrixType& u, vector<Eigen::Index>& a, MatrixType& fcs, unsigned sz, unsigned col) {
+	for (unsigned i = 0; i < a.size(); ++i)
+		u.row(i) = fcs.block(a.at(i), col, 1, sz);
+	u.resize(sz * a.size(), 1);
+}

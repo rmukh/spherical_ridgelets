@@ -76,35 +76,43 @@ int main()
 	////MatrixType Q = ridg.QBasis(nu); //Build a Q basis
 	////MatrixType ODF = C * Q.transpose(); //Computer ODF
 
-	//high_resolution_clock::time_point t2 = high_resolution_clock::now();
-	//auto duration = duration_cast<seconds>(t2 - t1).count();
+	//high_resolution_clock::time_point u2 = high_resolution_clock::now();
+	//auto duration = duration_cast<seconds>(u2 - t1).count();
 	//cout << "Execution time " << duration << " seconds" << endl;
 
-	// FindConnectivity
 	unsigned N = u.rows();
-
+	// FindConnectivity
 	vector<Eigen::Index> a1;
-	m.column_find(a1, fcs, 0, true, 0+1);
+	m.column_find(a1, fcs, 0, true, 0+2);
 
 	vector<Eigen::Index> a2;
-	m.column_find(a2, fcs, 1, true, 0+1);
+	m.column_find(a2, fcs, 1, true, 0+2);
 
 	vector<Eigen::Index> a3;
-	m.column_find(a3, fcs, 2, true, 0+1);
+	m.column_find(a3, fcs, 2, true, 0+2);
 
 	data.printVec("a1", a1);
 	data.printVec("a2", a2);
 	data.printVec("a3", a3);
 
-	MatrixType t(a3.size(), 2);
-	for (unsigned i = 0; i < a3.size(); ++i)
-		t.row(i) = fcs.block<1, 2>(a3.at(i), 0);
+	MatrixType u1(a1.size(), 2);
+	m.index_and_flat(u1, a1, fcs, 2, 1);
 
-	t.resize(2 * a3.size(), 1);
+	MatrixType u2(a2.size(), 1);
+	m.index_and_flat(u2, a2, fcs, 1, 0);
+
+	MatrixType u3(a2.size(), 1);
+	m.index_and_flat(u3, a2, fcs, 1, 2);
+
+	MatrixType u4(a3.size(), 2);
+	m.index_and_flat(u4, a3, fcs, 2, 0);
+
+	MatrixType u_out(u1.size() + u2.size() + u3.size() + u4.size(), 1);
+	u_out << u1, u2, u3, u4;
+	cout << "u " << u_out;
+
 	vector<int> un;
-	m.unique_sorted(un, t);
-
-	cout << "u " << endl << t << endl;
+	m.unique_sorted(un, u_out);
 	data.printVec("uniques", un);
 
 	return 0;
