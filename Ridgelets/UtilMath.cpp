@@ -3,6 +3,9 @@
 
 void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 {
+	/*
+	Spiral sampling on the sphere
+	*/
 	//z=(1-1/N:-2/N:1/N-1)';
 	MatrixType z(N, 1);
 	double val = 1.0 - (1.0 / N);
@@ -96,7 +99,9 @@ void UtilMath::polyleg(MatrixType& P, MatrixType x, unsigned n)
 }
 
 MatrixType UtilMath::convhulln(MatrixType& u) {
-	//Convex hull (might be a conflict between VTK 7 and 8 versions)
+	/* 
+	Convex hull (might be a conflict between VTK 7 and 8 versions)
+	*/
 
 	// Convert from Eigen MatrixType to vtkPoints (probably make as an function)
 	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -134,7 +139,6 @@ MatrixType UtilMath::convhulln(MatrixType& u) {
 	}
 
 	return fcs;
-
 }
 
 void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
@@ -190,6 +194,9 @@ void UtilMath::unique_sorted(vector<unsigned>& uniques, MatrixType& U) {
 }
 
 void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, unsigned col_n) {
+	/*
+	Return indexies indx in ascending order of sorted column col_n of the matrix
+	*/
 	// Matrix column to std vector
 	vector<double> uc3;
 	unsigned orig_size = matrix.col(col_n).size();
@@ -219,6 +226,9 @@ void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, un
 }
 
 void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
+	/*
+	Build icosahedron based sampling array and their respective faces
+	*/
 	double C = 1 / sqrt(1.25);
 	MatrixType t = (2 * PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
 	MatrixType u1(5, 3);
@@ -299,6 +309,9 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 }
 
 void UtilMath::index_and_flat(MatrixType& u, vector<Eigen::Index>& a, MatrixType& fcs, unsigned sz, unsigned col) {
+	/*
+	Create sub array of fcs of size sz starting in column col and rows a
+	*/
 	for (unsigned i = 0; i < a.size(); ++i)
 		u.row(i) = fcs.block(a.at(i), col, 1, sz);
 	u.resize(sz * a.size(), 1);
