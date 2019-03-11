@@ -193,5 +193,6 @@ void DATA_SOURCE::printVec(const string& name, vector<T>& v) {
 	cout << endl;
 }
 
-template void DATA_SOURCE::printVec<int>(const string&, vector<int>&); 
+template void DATA_SOURCE::printVec<int>(const string&, vector<int>&);
+template void DATA_SOURCE::printVec<unsigned>(const string&, vector<unsigned>&);
 template void DATA_SOURCE::printVec<Eigen::Index>(const string&, vector<Eigen::Index>&);
