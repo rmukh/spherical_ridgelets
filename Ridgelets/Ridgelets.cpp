@@ -82,12 +82,14 @@ int main()
 	//auto duration = duration_cast<seconds>(u2 - t1).count();
 	//cout << "Execution time " << duration << " seconds" << endl;
 
+	fcs = fcs.array() - 1;
+
 	vector<vector<unsigned>> conn;
 	m.FindConnectivity(conn, fcs, u.rows());
 
-	MatrixType d;
 	MatrixType ex;
+	MatrixType d;
 	m.FindODFMaxima(ex, d, W, conn, u);
-
+	cout << d;
 	return 0;
 }

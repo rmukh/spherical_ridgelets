@@ -336,7 +336,7 @@ void UtilMath::FindConnectivity(vector<vector<unsigned>>& conn, MatrixType& fcs,
 	FindConnectivity function. It is return vector of vectors because in matlab function it returns dynamic size
 	cell array. So it is the best way I found to store arrays of indcicies with different sizes.
 	*/
-	for (unsigned i = 1; i < N + 1; ++i) {//should be 'i = 0; i < N' for real data
+	for (unsigned i = 0; i < N; ++i) {
 		vector<Eigen::Index> a1;
 		column_find(a1, fcs, 0, true, i);
 
@@ -407,7 +407,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W, vecto
 				bool if_any = false;
 				unsigned conn_row_length = conn[j].size();
 				for (unsigned i = 0; i < conn_row_length; i++) {
-					if (W(conn[j][i] - 1) >= W(j)) { //remove -1 for real data
+					if (W(conn[j][i]) >= W(j)) {
 						if_any = true;
 						break; // trick to speed up computations.
 					}
@@ -417,29 +417,29 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W, vecto
 					unsigned id = 0;
 					unsigned maxw = 0;
 					for (unsigned i = 0; i < conn_row_length; i++) {
-						if (W(conn[j][i] - 1) > maxw) { //remove -1 for real data
-							maxw = W(conn[j][i] - 1);
+						if (W(conn[j][i]) > maxw) {
+							maxw = W(conn[j][i]);
 							id = i;
 						}
 					}
 
 					// We have already traveled this path
-					if (used(conn[j][id] - 1)) //remove -1 for real data
+					if (used(conn[j][id])) 
 						reached_maxima = true;
 
 					// used(conn(j).elem) = 1
 					for (unsigned i = 0; i < conn_row_length; ++i)
-						used(conn[j][i] - 1) = 1; //remove -1 for real data
+						used(conn[j][i]) = 1;
 
 					// j = conn(j).elem(id)
-					j = conn[j][id] - 1; //remove -1 for real data
+					j = conn[j][id];
 				}
 				else {
 					reached_maxima = true;
 					extrema.conservativeResize(1, extrema.cols() + 1);
 					extrema(ct) = j;
 					for (unsigned i = 0; i < conn_row_length; ++i)
-						used(conn[j][i] - 1) = 1; //remove -1 for real data
+						used(conn[j][i]) = 1;
 					ct += 1;
 				}
 			}
