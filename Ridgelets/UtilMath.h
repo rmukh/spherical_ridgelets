@@ -25,6 +25,7 @@ public:
 	void index_and_flat(MatrixType & u, vector<Eigen::Index>& a, MatrixType & fcs, unsigned sz, unsigned col);
 	void FindConnectivity(vector<vector<unsigned>>& conn, MatrixType & fcs, unsigned N);
 	void remove_row(MatrixType & a, MatrixType::Index del);
+	void FindODFMaxima(MatrixType & ex, MatrixType & d, MatrixType & W, vector<vector<unsigned>>& conn, MatrixType & u);
 };
 
 #endif // ! UTILMATH_H

@@ -378,3 +378,127 @@ void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
 
 	a.conservativeResize(rows, cols);
 }
+
+void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W, vector<vector<unsigned>>& conn, MatrixType& u) {
+	float thresh = 0.7;
+
+	// Standart min-max normalization
+	double W_min = W.minCoeff();
+	W = (W.array() - W_min) / (W.maxCoeff() - W_min);
+
+	// Find maxima above this point
+	MatrixType used = MatrixType::Zero(W.rows(), W.cols());
+
+	// used(W <= thresh) = 1
+	for (unsigned i = 0; i < W.size(); ++i)
+		if (W(i) <= thresh)
+			used(i) = 1;
+
+	unsigned ct = 0;
+
+	MatrixType extrema(0, 0);
+
+	for (unsigned n = 0; n < used.size(); ++n) {
+		if (used(n) == 0) {
+			unsigned j = n;
+			bool reached_maxima = false;
+			while (!reached_maxima) {
+				// if (any(W(conn(j).elem) >= W(j)))
+				bool if_any = false;
+				unsigned conn_row_length = conn[j].size();
+				for (unsigned i = 0; i < conn_row_length; i++) {
+					if (W(conn[j][i] - 1) >= W(j)) { //remove -1 for real data
+						if_any = true;
+						break; // trick to speed up computations.
+					}
+				}
+				if (if_any) {
+					// [maxw id] = max(W(conn(j).elem))
+					unsigned id = 0;
+					unsigned maxw = 0;
+					for (unsigned i = 0; i < conn_row_length; i++) {
+						if (W(conn[j][i] - 1) > maxw) { //remove -1 for real data
+							maxw = W(conn[j][i] - 1);
+							id = i;
+						}
+					}
+
+					// We have already traveled this path
+					if (used(conn[j][id] - 1)) //remove -1 for real data
+						reached_maxima = true;
+
+					// used(conn(j).elem) = 1
+					for (unsigned i = 0; i < conn_row_length; ++i)
+						used(conn[j][i] - 1) = 1; //remove -1 for real data
+
+					// j = conn(j).elem(id)
+					j = conn[j][id] - 1; //remove -1 for real data
+				}
+				else {
+					reached_maxima = true;
+					extrema.conservativeResize(1, extrema.cols() + 1);
+					extrema(ct) = j;
+					for (unsigned i = 0; i < conn_row_length; ++i)
+						used(conn[j][i] - 1) = 1; //remove -1 for real data
+					ct += 1;
+				}
+			}
+		}
+	}
+	
+	if (extrema.size() == 0) {
+		extrema.conservativeResize(1, 1);
+		extrema(0) = 1;
+	}
+	vector<unsigned> u_extrema;
+	unique_sorted(u_extrema, extrema);
+
+	unsigned u_extrema_length = u_extrema.size();
+	MatrixType directions(u_extrema_length, 3);
+	for (unsigned i = 0; i < u_extrema_length; ++i)
+		directions.row(i) = u.row(u_extrema.at(i));
+
+	//sort(W(extrema),'descend')
+	MatrixType W_e(u_extrema_length, 1);
+	for (unsigned i = 0; i < u_extrema_length; ++i)
+		W_e(i) = W(u_extrema.at(i));
+
+	multimap<double, unsigned> idxies;
+	ind_sort_vec(W_e, idxies);
+
+	// Go in reverse order to get descend order as needed in that part of code
+	unsigned i = 0;
+	vector<unsigned> idx;
+	MatrixType directions_sorted(directions.rows(), directions.cols());
+	for (multimap<double, unsigned>::reverse_iterator it = idxies.rbegin(); it != idxies.rend(); ++it) {
+		directions_sorted.row(i) = directions.row(it->second);
+		idx.push_back(it->second);
+		i += 1;
+	}
+
+	//reverse idx to make in right order
+	reverse(idx.begin(), idx.end());
+
+	d = MatrixType::Zero(unsigned(extrema.size() / 2) * 2, 3);
+	ex = MatrixType::Zero(d.rows(), 1);
+	i = 0;
+	ct = 0;
+	while (true) {
+		d.row(ct) = directions.row(i);
+		d.row(ct + 1) = -1 * directions.row(i);
+		ex(ct) = extrema(idx.at(i));
+		ex(ct + 1) = ex(ct);
+
+		MatrixType::Index id;
+		double tmp = (directions * d.row(ct + 1).transpose()).maxCoeff(&id);
+		if (tmp > 0.95) {
+			remove_row(directions, id);
+			idx.erase(idx.begin() + id);
+		}
+		i += 1;
+		ct += 2;
+
+		if (i > directions.rows() - 1)
+			break;
+	}
+}
