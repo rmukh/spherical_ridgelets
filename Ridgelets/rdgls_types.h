@@ -38,6 +38,7 @@ typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 typedef double                          VectorType;
 typedef itk::VectorImage<VectorType, 3>	DiffusionImageType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
+typedef itk::ImageFileReader<DiffusionImageType> ImageReaderType;
 typedef itk::ImageLinearConstIteratorWithIndex<DiffusionImageType> ConstIterator;
 
 // Necessary namespaces

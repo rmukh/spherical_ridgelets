@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "DATA_SOURCE.h"
 
-int DATA_SOURCE::readNRRD(
+int DATA_SOURCE::readVolume(
 	string inputVolume, MatrixType &GradientDirections,
 	DiffusionImagePointer &image, unsigned &nGradImgs,
 	unsigned &nOfImgs) {
@@ -13,8 +13,7 @@ int DATA_SOURCE::readNRRD(
 	itk::NrrdImageIOFactory::RegisterOneFactory();
 
 	// Another way to store image data
-	typedef itk::ImageFileReader<DiffusionImageType> FileReaderType;
-	FileReaderType::Pointer reader = FileReaderType::New();
+	ImageReaderType::Pointer reader = ImageReaderType::New();
 
 	// Make some inputfiles checks
 	string ext_vol = inputVolume.substr(inputVolume.length() - 4, inputVolume.length());
@@ -26,7 +25,7 @@ int DATA_SOURCE::readNRRD(
 		}
 	}
 	if (!is_path_exists(inputVolume)) {
-		cout << "dMRI image specified is not exists! Please, check the path and file name." << endl;
+		cout << "Input dMRI image is not exists! Please, check the path and file name." << endl;
 		return EXIT_FAILURE;
 	}
 

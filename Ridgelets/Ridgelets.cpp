@@ -17,7 +17,7 @@ int main()
 	DiffusionImagePointer image; //ITK image pointer
 	unsigned nGradImgs = 0; // Number of gradient images
 	unsigned nOfImgs = 0; // Total number of images (including b0)
-	int res = data.readNRRD("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, image, nGradImgs, nOfImgs);
+	int res = data.readVolume("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, image, nGradImgs, nOfImgs);
 	if (res) {
 		return EXIT_SUCCESS;
 	}

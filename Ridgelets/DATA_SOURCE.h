@@ -10,7 +10,7 @@
 class DATA_SOURCE
 {
 public:
-	int readNRRD(string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image, unsigned &nGradImgs, unsigned &nOfImgs);
+	int readVolume(string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image, unsigned &nGradImgs, unsigned &nOfImgs);
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType& g, MatrixType& s);
