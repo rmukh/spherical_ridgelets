@@ -14,24 +14,29 @@ int main()
 {
 	DATA_SOURCE data;
 	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
-	DiffusionImagePointer image; //ITK image pointer
+	DiffusionImagePointer dMRI;
 	unsigned nGradImgs = 0; // Number of gradient images
 	unsigned nOfImgs = 0; // Total number of images (including b0)
-	int res = data.readVolume("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, image, nGradImgs, nOfImgs);
+	int res = data.readVolume("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, dMRI, nGradImgs, nOfImgs);
+	if (res) {
+		return EXIT_SUCCESS;
+	}
+	MaskImagePointer mask;
+	int res = data.readMask("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", mask);
 	if (res) {
 		return EXIT_SUCCESS;
 	}
 
 	const DiffusionImageType::IndexType pixelIndex = { {27,29,37} }; //Position {X,Y,Z}
-	DiffusionImageType::PixelType value = image->GetPixel(pixelIndex);
+	DiffusionImageType::PixelType value = dMRI->GetPixel(pixelIndex);
 
 	cout << "Gradient Directions: \n" << GradientDirections << endl;
 	cout << value << endl;
 
 	//4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
-	data.DWI2Matrix(image, signal, nGradImgs, nOfImgs);
-	image = nullptr;
+	data.DWI2Matrix(dMRI, signal, nGradImgs, nOfImgs);
+	dMRI = nullptr;
 
 	//cout << "voxel 50000" << signal.col(50000) << endl;
 

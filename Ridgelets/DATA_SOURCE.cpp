@@ -38,7 +38,7 @@ int DATA_SOURCE::readVolume(
 	}
 	catch (itk::ExceptionObject)
 	{
-		cerr << "Can't read input nrrd file! Please, check that file is not corrupted." << endl;
+		cerr << "Can't read input dMRI file! Please, check that file is not corrupted." << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -80,6 +80,43 @@ int DATA_SOURCE::readVolume(
 	if (!is_b0)
 	{
 		cerr << "BValue not specified in file's header." << endl;
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+int DATA_SOURCE::readMask(string inputMask, MaskImagePointer &image) {
+	// Temporary register factories cause don't use cmake
+	itk::NrrdImageIOFactory::RegisterOneFactory();
+
+	// Another way to store image data
+	MaskReaderType::Pointer reader = MaskReaderType::New();
+
+	// Make some inputfiles checks
+	string ext_vol = inputMask.substr(inputMask.length() - 4, inputMask.length());
+
+	if (ext_vol.compare("nhdr")) {
+		if (ext_vol.compare("nrrd")) {
+			cout << "NDHR or NRRD file formats only! Please, check file type." << endl;
+			return EXIT_FAILURE;
+		}
+	}
+	if (!is_path_exists(inputMask)) {
+		cout << "Input mask image is not exists! Please, check the path and file name." << endl;
+		return EXIT_FAILURE;
+	}
+
+	// Get image
+	reader->SetFileName(inputMask);
+	try
+	{
+		reader->Update();
+		image = reader->GetOutput();
+	}
+	catch (itk::ExceptionObject)
+	{
+		cerr << "Can't read input mask file! Please, check that file is not corrupted." << endl;
 		return EXIT_FAILURE;
 	}
 

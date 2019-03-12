@@ -41,6 +41,12 @@ typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 typedef itk::ImageFileReader<DiffusionImageType> ImageReaderType;
 typedef itk::ImageLinearConstIteratorWithIndex<DiffusionImageType> ConstIterator;
 
+// For mask file
+typedef unsigned char                   MaskPixelType;
+typedef itk::Image<MaskPixelType, 3>    MaskImageType;
+typedef MaskImageType::Pointer	        MaskImagePointer;
+typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
+
 // Necessary namespaces
 using namespace Eigen;
 using namespace std;

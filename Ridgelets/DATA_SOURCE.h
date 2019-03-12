@@ -11,6 +11,7 @@ class DATA_SOURCE
 {
 public:
 	int readVolume(string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image, unsigned &nGradImgs, unsigned &nOfImgs);
+	int readMask(string inputMask, MaskImagePointer & image);
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType& g, MatrixType& s);
