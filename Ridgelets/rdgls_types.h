@@ -50,6 +50,7 @@ typedef unsigned char                   MaskPixelType;
 typedef itk::Image<MaskPixelType, 3>    MaskImageType;
 typedef MaskImageType::Pointer	        MaskImagePointer;
 typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
+typedef itk::ImageLinearConstIteratorWithIndex<MaskImageType> MaskIterator;
 
 // Necessary namespaces
 using namespace Eigen;

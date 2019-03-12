@@ -21,7 +21,7 @@ public:
 	void matrixToFile(const string & fname, MatrixType & matrix);
 	void fileToMatrix(const string & fname, MatrixType & arr);
 	template<typename D>
-	int save_to_file(const string & fname, typename D::Pointer & image);
+	int save_to_file(const string & fname, typename D::Pointer & image, bool is_compress);
 	template<typename T>
 	void printVec(const string & name, vector<T>& v);
 };

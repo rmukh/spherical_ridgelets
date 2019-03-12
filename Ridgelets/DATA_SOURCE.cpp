@@ -123,12 +123,13 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 }
 
 template<typename D>
-int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image) {
+int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, bool is_compress) {
 	typedef itk::ImageFileWriter<D> ImageWriterType;
 	ImageWriterType::Pointer writer = ImageWriterType::New();
 
 	writer->SetFileName(fname);
 	writer->SetInput(image);
+	writer->SetUseCompression(is_compress);
 
 	try
 	{
@@ -139,6 +140,7 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image) {
 		cerr << "Error while saving file on disk:\n " << err << endl;
 		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
 }
 
 void DATA_SOURCE::copy_header(DiffusionImagePointer& src, DiffusionImagePointer& dest) {
@@ -215,12 +217,11 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MatrixType &arr) {
 	vec_to_fill.SetSize(n_of_components);
 
 	Iterator it(img, img->GetRequestedRegion());
-	DiffusionImageType::PixelType voxel_content;
 
 	it.SetDirection(0);
 	it.GoToBegin();
 	unsigned vox = 0;
-	cout << "Start converting" << endl;
+
 	while (!it.IsAtEnd())
 	{
 		while (!it.IsAtEndOfLine())
@@ -304,4 +305,4 @@ template void DATA_SOURCE::printVec<int>(const string&, vector<int>&);
 template void DATA_SOURCE::printVec<unsigned>(const string&, vector<unsigned>&);
 template void DATA_SOURCE::printVec<Eigen::Index>(const string&, vector<Eigen::Index>&);
 
-template int DATA_SOURCE::save_to_file<DiffusionImageType>(const string&, DiffusionImageType::Pointer&);
+template int DATA_SOURCE::save_to_file<DiffusionImageType>(const string&, DiffusionImageType::Pointer&, bool);
