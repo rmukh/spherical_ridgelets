@@ -30,8 +30,8 @@ int main()
 	}
 
 	//4D dMRI image to Eigen 2D Matrix
-	//MatrixType signal;
-	//data.DWI2Matrix(dMRI, signal, nGradImgs, nOfImgs);
+	MatrixType signal;
+	data.DWI2Matrix(dMRI, signal, nGradImgs, nOfImgs);
 
 	// just for debugging purpose and development of MatrixType to ITK type image
 
@@ -41,39 +41,39 @@ int main()
 	//dMRI_new->Allocate();
 
 	// test if mask is iterating correctly
-	unsigned n_of_components = dMRI->GetNumberOfComponentsPerPixel();
+	//unsigned n_of_components = dMRI->GetNumberOfComponentsPerPixel();
 
-	VariableVectorType vec_to_fill;
-	vec_to_fill.SetSize(n_of_components);
-	for (unsigned i = 0; i < n_of_components; ++i) {
-		vec_to_fill[i] = 0;
-	}
+	//VariableVectorType vec_to_fill;
+	//vec_to_fill.SetSize(n_of_components);
+	//for (unsigned i = 0; i < n_of_components; ++i) {
+	//	vec_to_fill[i] = 0;
+	//}
 
-	Iterator it1(dMRI, dMRI->GetRequestedRegion());
-	MaskIterator it2(mask, mask->GetRequestedRegion());
+	//Iterator it1(dMRI, dMRI->GetRequestedRegion());
+	//MaskIterator it2(mask, mask->GetRequestedRegion());
 
-	it1.SetDirection(0);
-	it1.GoToBegin();
+	//it1.SetDirection(0);
+	//it1.GoToBegin();
 
-	it2.SetDirection(0);
-	it2.GoToBegin();
+	//it2.SetDirection(0);
+	//it2.GoToBegin();
 
-	cout << "Start iterating " << endl;
-	while (!it1.IsAtEnd())
-	{
-		while (!it1.IsAtEndOfLine())
-		{
-			if (it2.Get() == 0) {
-				it1.Set(vec_to_fill);
-			}
-			++it1;
-			++it2;
-		}
-		it1.NextLine();
-		it2.NextLine();
-	}
+	//cout << "Start iterating " << endl;
+	//while (!it1.IsAtEnd())
+	//{
+	//	while (!it1.IsAtEndOfLine())
+	//	{
+	//		if (it2.Get() == 0) {
+	//			it1.Set(vec_to_fill);
+	//		}
+	//		++it1;
+	//		++it2;
+	//	}
+	//	it1.NextLine();
+	//	it2.NextLine();
+	//}
 
-	data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\test.nhdr", dMRI, false);
+	//data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\test.nhdr", dMRI, false);
 
 	//data.Matrix2DWI(dMRI_new, signal);
 	//data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\test.nhdr", dMRI_new, false);

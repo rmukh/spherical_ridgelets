@@ -379,9 +379,9 @@ void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
 	a.conservativeResize(rows, cols);
 }
 
-void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W, vector<vector<unsigned>>& conn, MatrixType& u) {
-	float thresh = 0.7;
-
+void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
+	vector<vector<unsigned>>& conn, MatrixType& u, float thresh = 0.7) 
+{
 	// Standart min-max normalization
 	double W_min = W.minCoeff();
 	W = (W.array() - W_min) / (W.maxCoeff() - W_min);
