@@ -17,29 +17,48 @@ int main()
 	DiffusionImagePointer dMRI;
 	unsigned nGradImgs = 0; // Number of gradient images
 	unsigned nOfImgs = 0; // Total number of images (including b0)
-	int res = data.readVolume("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, dMRI, nGradImgs, nOfImgs);
-	if (res) {
+	int res_dmri = data.readVolume("C:\\Users\\mukho\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, dMRI, nGradImgs, nOfImgs);
+	if (res_dmri) {
 		return EXIT_SUCCESS;
 	}
 	MaskImagePointer mask;
-	int res = data.readMask("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", mask);
-	if (res) {
+	int res_mask = data.readMask("C:\\Users\\mukho\\Desktop\\01009-mask.nhdr", mask);
+	if (res_mask) {
 		return EXIT_SUCCESS;
 	}
-
-	const DiffusionImageType::IndexType pixelIndex = { {27,29,37} }; //Position {X,Y,Z}
-	DiffusionImageType::PixelType value = dMRI->GetPixel(pixelIndex);
-
-	cout << "Gradient Directions: \n" << GradientDirections << endl;
-	cout << value << endl;
 
 	//4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
 	data.DWI2Matrix(dMRI, signal, nGradImgs, nOfImgs);
-	dMRI = nullptr;
+
+	// just for debugging purpose and development of MatrixType to ITK type image
+
+	DiffusionImagePointer dMRI_new = DiffusionImageType::New();
+	dMRI_new->SetMetaDataDictionary(dMRI->GetMetaDataDictionary());
+	dMRI_new->SetSpacing(dMRI->GetSpacing());
+	dMRI_new->SetDirection(dMRI->GetDirection());
+	dMRI_new->SetOrigin(dMRI->GetOrigin());
+	dMRI_new->SetRegions(dMRI->GetLargestPossibleRegion());
+	dMRI_new->SetNumberOfComponentsPerPixel(signal.rows());
+	dMRI_new->Allocate();
+
+	data.Matrix2DWI(dMRI_new, signal);
+
+	ImageWriterType::Pointer writer = ImageWriterType::New();
+	writer->SetFileName("C:\\Users\\mukho\\Desktop\\test.nhdr");
+	writer->SetInput(dMRI_new);
+	cout << "Start writing" << endl;
+	try
+	{
+		writer->Update();
+	}
+	catch (itk::ExceptionObject & error)
+	{
+		std::cerr << "Error: " << error << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	//cout << "voxel 50000" << signal.col(50000) << endl;
-
 
 	// Demo data for solvers tests
 	//MatrixType g(51, 3);

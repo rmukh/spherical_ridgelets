@@ -14,11 +14,13 @@
 
 #include <itkImage.h>
 #include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
 #include <itkNrrdImageIO.h>
 #include <itkNrrdImageIOFactory.h>
 #include <itkMetaDataDictionary.h>
 #include <itkMetaDataObject.h>
 #include <itkImageLinearConstIteratorWithIndex.h>
+#include <itkImageLinearIteratorWithIndex.h>
 
 #include <Eigen/Dense>
 
@@ -37,9 +39,12 @@ typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 */
 typedef double                          VectorType;
 typedef itk::VectorImage<VectorType, 3>	DiffusionImageType;
+typedef itk::VariableLengthVector<VectorType> VariableVectorType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 typedef itk::ImageFileReader<DiffusionImageType> ImageReaderType;
+typedef itk::ImageFileWriter<DiffusionImageType> ImageWriterType;
 typedef itk::ImageLinearConstIteratorWithIndex<DiffusionImageType> ConstIterator;
+typedef itk::ImageLinearIteratorWithIndex<DiffusionImageType> Iterator;
 
 // For mask file
 typedef unsigned char                   MaskPixelType;

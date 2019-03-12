@@ -75,11 +75,11 @@ int DATA_SOURCE::readVolume(
 	// Normalize directions
 	GradientDirections.rowwise().normalize();
 
-	cout << "Number of gradient images: " << nGradImgs << " and Number of reference images: " << nOfImgs - nGradImgs << endl;
-	cout << "b value " << b0 << endl;
+	cout << "Number of gradient images: " << nGradImgs << " and the number of reference images: " << nOfImgs - nGradImgs << endl;
+	cout << "b-value " << b0 << endl;
 	if (!is_b0)
 	{
-		cerr << "BValue not specified in file's header." << endl;
+		cerr << "b-value not specified in file's header." << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -176,6 +176,35 @@ void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MatrixType &signal, uns
 
 			++vox;
 			++it;
+		}
+		it.NextLine();
+	}
+}
+
+void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MatrixType &arr) {
+	unsigned n_of_components = arr.rows();
+
+	VariableVectorType vec_to_fill;
+	vec_to_fill.SetSize(n_of_components);
+
+	Iterator it(img, img->GetRequestedRegion());
+	DiffusionImageType::PixelType voxel_content;
+
+	it.SetDirection(0);
+	it.GoToBegin();
+	unsigned vox = 0;
+	cout << "Start converting" << endl;
+	while (!it.IsAtEnd())
+	{
+		while (!it.IsAtEndOfLine())
+		{
+			for (unsigned i = 0; i < n_of_components; ++i) {
+				vec_to_fill[i] = arr(i, vox);
+			}
+
+			it.Set(vec_to_fill);
+			++it;
+			++vox;
 		}
 		it.NextLine();
 	}
