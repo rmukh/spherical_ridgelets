@@ -12,6 +12,7 @@ class DATA_SOURCE
 public:
 	int readVolume(string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image, unsigned &nGradImgs, unsigned &nOfImgs);
 	int readMask(string inputMask, MaskImagePointer & image);
+	void copy_header(DiffusionImagePointer & src, DiffusionImagePointer & dest);
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType& g, MatrixType& s);
@@ -19,6 +20,8 @@ public:
 	void Matrix2DWI(DiffusionImagePointer & img, MatrixType & arr);
 	void matrixToFile(const string & fname, MatrixType & matrix);
 	void fileToMatrix(const string & fname, MatrixType & arr);
+	template<typename D>
+	int save_to_file(const string & fname, typename D::Pointer & image);
 	template<typename T>
 	void printVec(const string & name, vector<T>& v);
 };

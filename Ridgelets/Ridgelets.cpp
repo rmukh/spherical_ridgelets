@@ -12,6 +12,8 @@
 
 int main()
 {
+	Eigen::initParallel();
+
 	DATA_SOURCE data;
 	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
 	DiffusionImagePointer dMRI;
@@ -34,29 +36,12 @@ int main()
 	// just for debugging purpose and development of MatrixType to ITK type image
 
 	DiffusionImagePointer dMRI_new = DiffusionImageType::New();
-	dMRI_new->SetMetaDataDictionary(dMRI->GetMetaDataDictionary());
-	dMRI_new->SetSpacing(dMRI->GetSpacing());
-	dMRI_new->SetDirection(dMRI->GetDirection());
-	dMRI_new->SetOrigin(dMRI->GetOrigin());
-	dMRI_new->SetRegions(dMRI->GetLargestPossibleRegion());
+	data.copy_header(dMRI, dMRI_new);
 	dMRI_new->SetNumberOfComponentsPerPixel(signal.rows());
 	dMRI_new->Allocate();
 
 	data.Matrix2DWI(dMRI_new, signal);
-
-	ImageWriterType::Pointer writer = ImageWriterType::New();
-	writer->SetFileName("C:\\Users\\mukho\\Desktop\\test.nhdr");
-	writer->SetInput(dMRI_new);
-	cout << "Start writing" << endl;
-	try
-	{
-		writer->Update();
-	}
-	catch (itk::ExceptionObject & error)
-	{
-		std::cerr << "Error: " << error << std::endl;
-		return EXIT_FAILURE;
-	}
+	data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\test.nhdr", dMRI_new);
 
 	//cout << "voxel 50000" << signal.col(50000) << endl;
 

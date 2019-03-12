@@ -2,9 +2,8 @@
 #include "DATA_SOURCE.h"
 
 int DATA_SOURCE::readVolume(
-	string inputVolume, MatrixType &GradientDirections,
-	DiffusionImagePointer &image, unsigned &nGradImgs,
-	unsigned &nOfImgs) {
+	string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image,
+	unsigned &nGradImgs, unsigned &nOfImgs) {
 	bool is_b0 = false;
 	double b0 = 0;
 	double x, y, z;
@@ -86,7 +85,7 @@ int DATA_SOURCE::readVolume(
 	return EXIT_SUCCESS;
 }
 
-int DATA_SOURCE::readMask(string inputMask, MaskImagePointer &image) {
+int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 	// Temporary register factories cause don't use cmake
 	itk::NrrdImageIOFactory::RegisterOneFactory();
 
@@ -121,6 +120,34 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer &image) {
 	}
 
 	return EXIT_SUCCESS;
+}
+
+template<typename D>
+int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image) {
+	typedef itk::ImageFileWriter<D> ImageWriterType;
+	ImageWriterType::Pointer writer = ImageWriterType::New();
+
+	writer->SetFileName(fname);
+	writer->SetInput(image);
+
+	try
+	{
+		writer->Update();
+	}
+	catch (itk::ExceptionObject & err)
+	{
+		cerr << "Error while saving file on disk:\n " << err << endl;
+		return EXIT_FAILURE;
+	}
+}
+
+void DATA_SOURCE::copy_header(DiffusionImagePointer& src, DiffusionImagePointer& dest) {
+	dest->SetMetaDataDictionary(src->GetMetaDataDictionary());
+	dest->SetSpacing(src->GetSpacing());
+	dest->SetDirection(src->GetDirection());
+	dest->SetOrigin(src->GetOrigin());
+	dest->SetRegions(src->GetLargestPossibleRegion());
+	dest->SetNumberOfComponentsPerPixel(src->GetNumberOfComponentsPerPixel());
 }
 
 bool DATA_SOURCE::is_path_exists(const string &s)
@@ -272,6 +299,9 @@ void DATA_SOURCE::printVec(const string& name, vector<T>& v) {
 	cout << endl;
 }
 
+// Necessary templates for utilized types. Needed because implementation and declaration of function in separate files
 template void DATA_SOURCE::printVec<int>(const string&, vector<int>&);
 template void DATA_SOURCE::printVec<unsigned>(const string&, vector<unsigned>&);
 template void DATA_SOURCE::printVec<Eigen::Index>(const string&, vector<Eigen::Index>&);
+
+template int DATA_SOURCE::save_to_file<DiffusionImageType>(const string&, DiffusionImageType::Pointer&);

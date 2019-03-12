@@ -42,7 +42,6 @@ typedef itk::VectorImage<VectorType, 3>	DiffusionImageType;
 typedef itk::VariableLengthVector<VectorType> VariableVectorType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 typedef itk::ImageFileReader<DiffusionImageType> ImageReaderType;
-typedef itk::ImageFileWriter<DiffusionImageType> ImageWriterType;
 typedef itk::ImageLinearConstIteratorWithIndex<DiffusionImageType> ConstIterator;
 typedef itk::ImageLinearIteratorWithIndex<DiffusionImageType> Iterator;
 
