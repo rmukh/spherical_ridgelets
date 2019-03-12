@@ -9,33 +9,41 @@ int DATA_SOURCE::readNRRD(
 	double b0 = 0;
 	double x, y, z;
 
-	//temporary register factories cause don't use cmake
+	// Temporary register factories cause don't use cmake
 	itk::NrrdImageIOFactory::RegisterOneFactory();
 
-	//Another way to store image data
-
+	// Another way to store image data
 	typedef itk::ImageFileReader<DiffusionImageType> FileReaderType;
 	FileReaderType::Pointer reader = FileReaderType::New();
 
-	//get image
+	// Make some inputfiles checks
+	string ext_vol = inputVolume.substr(inputVolume.length() - 4, inputVolume.length());
 
+	if (ext_vol.compare("nhdr")) {
+		if (ext_vol.compare("nrrd")) {
+			cout << "NDHR or NRRD file formats only! Please, check file type." << endl;
+			return EXIT_FAILURE;
+		}
+	}
+	if (!is_path_exists(inputVolume)) {
+		cout << "dMRI image specified is not exists! Please, check the path and file name." << endl;
+		return EXIT_FAILURE;
+	}
+
+	// Get image
 	reader->SetFileName(inputVolume);
 	try
 	{
 		reader->Update();
 		image = reader->GetOutput();
 	}
-	catch (itk::ExceptionObject & err)
+	catch (itk::ExceptionObject)
 	{
-		cerr << "ExceptionObject caught !" << endl;
-		cerr << err << endl;
-
-		// Since the goal of the example is to catch the exception,
-		// we declare this a success.
-		return EXIT_SUCCESS;
+		cerr << "Can't read input nrrd file! Please, check that file is not corrupted." << endl;
+		return EXIT_FAILURE;
 	}
 
-	//Get and process header information
+	// Get and process header information
 	itk::MetaDataDictionary imgMetaDictionary = image->GetMetaDataDictionary();
 	vector<string> imgMetaKeys = imgMetaDictionary.GetKeys();
 	vector<string>::const_iterator itKey = imgMetaKeys.begin();
@@ -65,18 +73,24 @@ int DATA_SOURCE::readNRRD(
 			b0 = stod(metaString.c_str());
 		}
 	}
-	//Normalize directions
+	// Normalize directions
 	GradientDirections.rowwise().normalize();
 
 	cout << "Number of gradient images: " << nGradImgs << " and Number of reference images: " << nOfImgs - nGradImgs << endl;
 	cout << "b value " << b0 << endl;
 	if (!is_b0)
 	{
-		cerr << "BValue not specified in header file" << endl;
+		cerr << "BValue not specified in file's header." << endl;
 		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;
+}
+
+bool DATA_SOURCE::is_path_exists(const string &s)
+{
+	struct stat buffer;
+	return (stat(s.c_str(), &buffer) == 0);
 }
 
 void DATA_SOURCE::testFNC() {
@@ -133,7 +147,7 @@ void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MatrixType &signal, uns
 
 void DATA_SOURCE::matrixToFile(const string& fname, MatrixType& matrix) {
 	/*
-	Write space separated matrix of MatrixType to text type file. Useful to debugging. 
+	Write space separated matrix of MatrixType to text type file. Useful to debugging.
 	*/
 	ofstream file(fname);
 	if (file.is_open())

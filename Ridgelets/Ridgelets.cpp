@@ -13,12 +13,14 @@
 int main()
 {
 	DATA_SOURCE data;
-	/*
-	MatrixType GradientDirections(0, 3);
-	DiffusionImagePointer image;
-	unsigned nGradImgs = 0;
-	unsigned nOfImgs = 0;
-	data.readNRRD("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, image, nGradImgs, nOfImgs);
+	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
+	DiffusionImagePointer image; //ITK image pointer
+	unsigned nGradImgs = 0; // Number of gradient images
+	unsigned nOfImgs = 0; // Total number of images (including b0)
+	int res = data.readNRRD("C:\\Users\\renat\\Desktop\\01009-dwi-Ed.nhdr", GradientDirections, image, nGradImgs, nOfImgs);
+	if (res) {
+		return EXIT_SUCCESS;
+	}
 
 	const DiffusionImageType::IndexType pixelIndex = { {27,29,37} }; //Position {X,Y,Z}
 	DiffusionImageType::PixelType value = image->GetPixel(pixelIndex);
@@ -32,64 +34,59 @@ int main()
 	image = nullptr;
 
 	//cout << "voxel 50000" << signal.col(50000) << endl;
-	*/
-	MatrixType g(51, 3);
-	MatrixType s(51, 16);
 
-	data.readTestData(g, s);
 
-	// import values from matlab
-	MatrixType u;
-	MatrixType fcs;
-	MatrixType W;
-	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\fcs_external.txt", fcs);
-	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\u_external.txt", u);
-	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\odf_one_vol.txt", W);
+	// Demo data for solvers tests
+	//MatrixType g(51, 3);
+	//MatrixType s(51, 16);
+
+	//data.readTestData(g, s);
 
 	//icosahedron
-	UtilMath m;
+	//UtilMath m;
 
 	//MatrixType fcs;
-	//MatrixType u;
-	//m.icosahedron(u, fcs, 1);
+	//MatrixType nu;
+	//m.icosahedron(nu, fcs, 1);
 
 	//data.matrixToFile("C:\\Users\\mukho\\Desktop\\fcs.txt", fcs);
 	//data.matrixToFile("C:\\Users\\mukho\\Desktop\\u.txt", u);
 
-	//for (vtkIdType i = 0; i < raw->GetNumberOfPoints(); i++)
-	//{
-	//	double p[3];
-	//	raw->GetCell(i, p);
-	//	cout << "point " << i << " : (" << p[0] << " " << p[1] << " " << p[2] << ")" << endl;
-	//}
-
-	//
 	//high_resolution_clock::time_point t1 = high_resolution_clock::now(); //start timer point
 
 	//SPH_RIDG ridg(2, 0.5);
 	//MatrixType A = ridg.RBasis(g);
-	//A = ridg.normBasis(A)
+	//A = ridg.normBasis(A);
 
 	//SOLVERS slv(A, s, 0.1);
 	//MatrixType C = slv.FISTA();
 	//cout << endl << C;
 
 	////ODF
-	////MatrixType Q = ridg.QBasis(nu); //Build a Q basis
-	////MatrixType ODF = C * Q.transpose(); //Computer ODF
+	//MatrixType Q = ridg.QBasis(nu); //Build a Q basis
+	//MatrixType ODF = C * Q.transpose(); //Computer ODF
 
 	//high_resolution_clock::time_point u2 = high_resolution_clock::now();
 	//auto duration = duration_cast<seconds>(u2 - t1).count();
 	//cout << "Execution time " << duration << " seconds" << endl;
 
-	fcs = fcs.array() - 1;
+	// import values from matlab for tests and debugging
+	//MatrixType u;
+	//MatrixType fcs;
+	//MatrixType W;
+	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\fcs_external.txt", fcs);
+	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\u_external.txt", u);
+	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\odf_one_vol.txt", W);
 
-	vector<vector<unsigned>> conn;
-	m.FindConnectivity(conn, fcs, u.rows());
+	//fcs = fcs.array() - 1;
 
-	MatrixType ex;
-	MatrixType d;
-	m.FindODFMaxima(ex, d, W, conn, u);
-	cout << d;
+	//vector<vector<unsigned>> conn;
+	//m.FindConnectivity(conn, fcs, u.rows());
+
+	//MatrixType ex;
+	//MatrixType d;
+	//m.FindODFMaxima(ex, d, W, conn, u);
+	//cout << d;
+
 	return 0;
 }
