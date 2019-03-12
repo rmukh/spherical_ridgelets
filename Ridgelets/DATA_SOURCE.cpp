@@ -183,30 +183,82 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 		g.row(i) = g.row(i) / gnorm(i);
 }
 
-void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MatrixType &signal, unsigned &nGradImgs, unsigned &nOfImgs) {
-	DiffusionImageType::SizeType sz = img->GetLargestPossibleRegion().GetSize();
+void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MaskImagePointer &mask,
+	MatrixType &signal, unsigned &nGradImgs, unsigned &nOfImgs)
+{
+	int N_of_voxels = 0;
+	if (mask != nullptr) {
+		MaskIterator m_it(mask, mask->GetRequestedRegion());
+
+		m_it.SetDirection(0);
+		m_it.GoToBegin();
+		while (!m_it.IsAtEnd())
+		{
+			while (!m_it.IsAtEndOfLine())
+			{
+				if (m_it.Get() == 1) {
+					N_of_voxels += 1;
+				}
+				++m_it;
+			}
+			m_it.NextLine();
+		}
+	}
+	else {
+		DiffusionImageType::SizeType sz = img->GetLargestPossibleRegion().GetSize();
+		N_of_voxels = sz[0] * sz[1] * sz[2];
+	}
+
 	unsigned first_grad_image_index = nOfImgs - nGradImgs;
-	int N_of_voxels = sz[0] * sz[1] * sz[2];
 	signal = MatrixType::Zero(nGradImgs, N_of_voxels);
 	DiffusionImageType::PixelType voxel_content;
 
-	//Iterate over all voxels
-	ConstIterator it(img, img->GetRequestedRegion());
-	unsigned vox = 0;
-	it.SetDirection(0);
-	it.GoToBegin();
-	while (!it.IsAtEnd())
-	{
-		while (!it.IsAtEndOfLine())
-		{
-			voxel_content = it.Get();
-			for (unsigned i = first_grad_image_index; i < nOfImgs; ++i)
-				signal(i - first_grad_image_index, vox) = voxel_content.GetElement(i);
+	// Iterate over all voxels
+	if (mask != nullptr) {
+		ConstIterator it_i(img, img->GetRequestedRegion());
+		MaskIterator it_m(mask, mask->GetRequestedRegion());
+		unsigned vox = 0;
 
-			++vox;
-			++it;
+		it_i.SetDirection(0);
+		it_i.GoToBegin();
+		it_m.SetDirection(0);
+		it_m.GoToBegin();
+
+		while (!it_i.IsAtEnd())
+		{
+			while (!it_i.IsAtEndOfLine())
+			{
+				if (it_m.Get() == 1) {
+					voxel_content = it_i.Get();
+					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i)
+						signal(i - first_grad_image_index, vox) = voxel_content.GetElement(i);
+					++vox;
+				}
+				++it_i;
+				++it_m;
+			}
+			it_i.NextLine();
+			it_m.NextLine();
 		}
-		it.NextLine();
+	}
+	else {
+		ConstIterator it(img, img->GetRequestedRegion());
+		unsigned vox = 0;
+		it.SetDirection(0);
+		it.GoToBegin();
+		while (!it.IsAtEnd())
+		{
+			while (!it.IsAtEndOfLine())
+			{
+				voxel_content = it.Get();
+				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i)
+					signal(i - first_grad_image_index, vox) = voxel_content.GetElement(i);
+
+				++vox;
+				++it;
+			}
+			it.NextLine();
+		}
 	}
 }
 

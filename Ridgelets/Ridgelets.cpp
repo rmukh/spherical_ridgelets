@@ -31,7 +31,7 @@ int main()
 
 	//4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
-	data.DWI2Matrix(dMRI, signal, nGradImgs, nOfImgs);
+	data.DWI2Matrix(dMRI, mask, signal, nGradImgs, nOfImgs);
 
 	// just for debugging purpose and development of MatrixType to ITK type image
 

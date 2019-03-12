@@ -10,13 +10,13 @@
 class DATA_SOURCE
 {
 public:
-	int readVolume(string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image, unsigned &nGradImgs, unsigned &nOfImgs);
+	int readVolume(string inputVolume, MatrixType & GradientDirections, DiffusionImagePointer & image, unsigned & nGradImgs, unsigned & nOfImgs);
 	int readMask(string inputMask, MaskImagePointer & image);
 	void copy_header(DiffusionImagePointer & src, DiffusionImagePointer & dest);
 	bool is_path_exists(const string & s);
 	void testFNC();
-	void readTestData(MatrixType& g, MatrixType& s);
-	void DWI2Matrix(DiffusionImagePointer & img, MatrixType & signal, unsigned & nGradImgs, unsigned & nOfImgs);
+	void readTestData(MatrixType & g, MatrixType & s);
+	void DWI2Matrix(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & signal, unsigned & nGradImgs, unsigned & nOfImgs);
 	void Matrix2DWI(DiffusionImagePointer & img, MatrixType & arr);
 	void matrixToFile(const string & fname, MatrixType & matrix);
 	void fileToMatrix(const string & fname, MatrixType & arr);
