@@ -95,15 +95,16 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 	// Make some inputfiles checks
 	string ext_vol = inputMask.substr(inputMask.length() - 4, inputMask.length());
 
+	if (!is_path_exists(inputMask)) {
+		cout << "Input mask image is not provided. Please, stop program and provide mask file if you need it." << endl;
+		return EXIT_SUCCESS;
+	}
+
 	if (ext_vol.compare("nhdr")) {
 		if (ext_vol.compare("nrrd")) {
 			cout << "NDHR or NRRD file formats only! Please, check file type." << endl;
 			return EXIT_FAILURE;
 		}
-	}
-	if (!is_path_exists(inputMask)) {
-		cout << "Input mask image is not exists! Please, check the path and file name." << endl;
-		return EXIT_FAILURE;
 	}
 
 	// Get image
