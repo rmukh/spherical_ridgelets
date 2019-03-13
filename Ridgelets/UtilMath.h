@@ -16,6 +16,7 @@ public:
 	void fura(MatrixType& Lmd, unsigned n);
 	void polyleg(MatrixType& P, MatrixType x, unsigned n);
 	MatrixType convhulln(MatrixType & u, double tol);
+	MatrixType convhull3_1(MatrixType & u);
 	void unique_rows(vector<int>& uniques, MatrixType & U);
 	void unique_sorted(vector<unsigned>& uniques, MatrixType & U);
 	void ind_sort(MatrixType & matrix, multimap<double, unsigned>& indx, unsigned col_n);

@@ -262,7 +262,7 @@ void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MaskImagePointer &mask,
 	}
 }
 
-void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MatrixType &arr) {
+void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask, MatrixType &arr) {
 	unsigned n_of_components = arr.rows();
 
 	VariableVectorType vec_to_fill;
@@ -274,19 +274,55 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MatrixType &arr) {
 	it.GoToBegin();
 	unsigned vox = 0;
 
-	while (!it.IsAtEnd())
-	{
-		while (!it.IsAtEndOfLine())
-		{
-			for (unsigned i = 0; i < n_of_components; ++i) {
-				vec_to_fill[i] = arr(i, vox);
-			}
+	if (mask != nullptr) {
+		// Make a vector of zeros
+		VariableVectorType zeros_vec;
+		zeros_vec.SetSize(n_of_components);
+		for (unsigned i = 0; i < n_of_components; ++i) {
+			zeros_vec[i] = 0;
+		}
 
-			it.Set(vec_to_fill);
+		// Mask iterator
+		MaskIterator it_m(mask, mask->GetRequestedRegion());
+
+		it_m.SetDirection(0);
+		it_m.GoToBegin();
+
+		while (!it.IsAtEnd())
+		{
+			while (!it.IsAtEndOfLine())
+			{
+				if (it_m.Get() == 1) {
+					for (unsigned i = 0; i < n_of_components; ++i) {
+						vec_to_fill[i] = arr(i, vox);
+					}
+					it.Set(vec_to_fill);
+				}
+				else {
+					it.Set(zeros_vec);
+				}
+			}
 			++it;
-			++vox;
+			++it_m;
 		}
 		it.NextLine();
+		it_m.NextLine();
+	}
+	else {
+		while (!it.IsAtEnd())
+		{
+			while (!it.IsAtEndOfLine())
+			{
+				for (unsigned i = 0; i < n_of_components; ++i) {
+					vec_to_fill[i] = arr(i, vox);
+				}
+
+				it.Set(vec_to_fill);
+				++it;
+				++vox;
+			}
+			it.NextLine();
+		}
 	}
 }
 

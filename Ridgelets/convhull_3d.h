@@ -57,7 +57,6 @@
 extern "C" {
 #endif
 
-    
 #ifdef CONVHULL_3D_USE_FLOAT_PRECISION
 typedef float CH_FLOAT;
 #else

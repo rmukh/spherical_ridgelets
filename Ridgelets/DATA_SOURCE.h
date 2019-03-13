@@ -17,7 +17,7 @@ public:
 	void testFNC();
 	void readTestData(MatrixType & g, MatrixType & s);
 	void DWI2Matrix(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & signal, unsigned & nGradImgs, unsigned & nOfImgs);
-	void Matrix2DWI(DiffusionImagePointer & img, MatrixType & arr);
+	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);
 	void matrixToFile(const string & fname, MatrixType & matrix);
 	void fileToMatrix(const string & fname, MatrixType & arr);
 	template<typename D>

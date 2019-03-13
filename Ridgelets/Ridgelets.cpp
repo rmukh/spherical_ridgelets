@@ -107,6 +107,10 @@ int main()
 	//ODF
 	MatrixType Q = ridg.QBasis(nu); //Build a Q basis
 	MatrixType ODF = C * Q.transpose(); //Computer ODF
+	
+	// Save to file what user requested through command line
+	data.Matrix2DWI(dMRI_new, A);
+	data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\test.nhdr", dMRI_new, false);
 
 	//vector<vector<unsigned>> conn;
 	//m.FindConnectivity(conn, fcs, nu.rows());

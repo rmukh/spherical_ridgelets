@@ -23,8 +23,6 @@
 #include <itkImageLinearIteratorWithIndex.h>
 #include <Eigen/Dense>
 
-#include <convhull_3d.h>
-
 #include <omp.h>
 #include <chrono>
 #include <thread>
