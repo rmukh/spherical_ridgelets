@@ -98,7 +98,7 @@ void UtilMath::polyleg(MatrixType& P, MatrixType x, unsigned n)
 	}
 }
 
-MatrixType UtilMath::convhulln(MatrixType& u) {
+MatrixType UtilMath::convhulln(MatrixType& u, double tol = 0.001) {
 	/* 
 	Convex hull (might be a conflict between VTK 7 and 8 versions)
 	*/
@@ -114,6 +114,9 @@ MatrixType UtilMath::convhulln(MatrixType& u) {
 
 	// Create the convex hull of the pointcloud
 	vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer<vtkDelaunay3D>::New();
+	//delaunay->SetTolerance(tol);
+
+	cout << delaunay->GetTolerance() << " " << delaunay->GetBoundingTriangulation() << " " << delaunay->GetOffset() << endl;
 	delaunay->SetInputData(polydata);
 	delaunay->Update();
 
@@ -126,7 +129,6 @@ MatrixType UtilMath::convhulln(MatrixType& u) {
 	vtkSmartPointer<vtkPolyData> polyPoints = geometryFilter->GetOutput();
 
 	unsigned NCells = polyPoints->GetNumberOfCells();
-	cout << "Output has " << NCells << " cells." << endl;
 
 	// Convert to Eigen matrix
 	MatrixType fcs(NCells, 3);
@@ -257,6 +259,29 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 	if (level > 0) {
 		for (unsigned lev = 1; lev <= level; ++lev) {
 			MatrixType fcs = convhulln(u);
+
+			cout << fcs << endl;
+
+			int n = 936;
+			ch_vertex* vertices;
+			vertices = (ch_vertex*)malloc(n * sizeof(ch_vertex));
+			for (int i = 0; i < n; i++) {
+				float elev = rand() / (float)RAND_MAX * PI * 2.0;
+				float azi = rand() / (float)RAND_MAX * PI * 2.0;
+				vertices[i].x = cos(azi) * cos(elev) * rand() / (float)RAND_MAX;
+				vertices[i].y = sin(azi) * cos(elev) * rand() / (float)RAND_MAX;
+				vertices[i].z = sin(elev);
+			}
+
+			int* faceIndices = NULL;
+			int nFaces;
+			convhull_3d_build(vertices, n, &faceIndices, &nFaces);
+
+			cout << "test new conv hull" << endl << faceIndices << endl;
+
+			free(vertices);
+			free(faceIndices);
+
 			unsigned N = fcs.rows();
 			MatrixType U = MatrixType::Zero(3 * N, 3);
 			MatrixType A;
@@ -319,7 +344,7 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 	// Normalize
 	u = u.array().colwise() / (u.rowwise().norm().array() + 2.2204e-16);
 
-	faces = convhulln(u);
+	faces = convhulln(u, 1);
 }
 
 void UtilMath::index_and_flat(MatrixType& u, vector<Eigen::Index>& a, MatrixType& fcs, unsigned sz, unsigned col) {

@@ -117,6 +117,5 @@ MatrixType SPH_RIDG::normBasis(MatrixType B) {
 	SelfAdjointEigenSolver<MatrixType> eigensolver(B.rows());
 	eigensolver.compute(e, EigenvaluesOnly);
 	double lVal = eigensolver.eigenvalues()[B.rows() - 1];
-	cout << "Largest eigenval " << lVal << endl;
 	return (1 / sqrt(lVal)) * B;
 }

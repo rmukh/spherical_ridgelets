@@ -164,6 +164,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="convhull_3d.h" />
+    <ClInclude Include="D:\quickhull\Types.hpp" />
     <ClInclude Include="DATA_SOURCE.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="rdgls_types.h" />

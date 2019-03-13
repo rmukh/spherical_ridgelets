@@ -74,7 +74,7 @@ int DATA_SOURCE::readVolume(
 	// Normalize directions
 	GradientDirections.rowwise().normalize();
 
-	cout << "Number of gradient images: " << nGradImgs << " and the number of reference images: " << nOfImgs - nGradImgs << endl;
+	cout << "Number of gradient images: " << nGradImgs << ". Number of reference images: " << nOfImgs - nGradImgs << endl;
 	cout << "b-value " << b0 << endl;
 	if (!is_b0)
 	{
@@ -118,7 +118,7 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 		cerr << "Can't read input mask file! Please, check that file is not corrupted." << endl;
 		return EXIT_FAILURE;
 	}
-
+	cout << "Mask file loaded" << endl;
 	return EXIT_SUCCESS;
 }
 
