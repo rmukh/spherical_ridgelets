@@ -10,11 +10,16 @@
 #include "SPH_RIDG.h"
 #include "DATA_SOURCE.h"
 
-int main()
+int main(int argc, char* argv[])
 {
 	Eigen::initParallel();
-
 	DATA_SOURCE data;
+
+	// Parse input parameters from CLI
+	DATA_SOURCE::input_parse input_args;
+	data.CLI(argc, argv, input_args);
+
+	/* 
 	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
 	DiffusionImagePointer dMRI;
 	unsigned nGradImgs = 0; // Number of gradient images
@@ -83,6 +88,6 @@ int main()
 	//MatrixType ex;
 	//MatrixType d;
 	//m.FindODFMaxima(ex, d, W, conn, nu);
-
+	*/
 	return 0;
 }

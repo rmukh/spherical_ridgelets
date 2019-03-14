@@ -10,6 +10,10 @@
 class DATA_SOURCE
 {
 public:
+	struct input_parse {
+		string input_dmri, input_mask, output_ridgelets, output_qs, output_fiber_dirs, output_fiber_volumes;
+	};
+	int CLI(int argc, char * argv[], input_parse & output);
 	int readVolume(string inputVolume, MatrixType & GradientDirections, DiffusionImagePointer & image, unsigned & nGradImgs, unsigned & nOfImgs);
 	int readMask(string inputMask, MaskImagePointer & image);
 	void copy_header(DiffusionImagePointer & src, DiffusionImagePointer & dest);

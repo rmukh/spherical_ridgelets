@@ -1,6 +1,34 @@
 #include "pch.h"
 #include "DATA_SOURCE.h"
 
+int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
+	input_parse ar;
+
+	if (argc < 3)
+	{
+		cerr << "Usage: Ridgelets -i dMRI_file" << endl;
+		cerr << "Optional input arguments: -m mask_file" << endl;
+		cerr << "Optional output argumets: -r ridgelet_file -q Q coefficients -o ODF_values -f fiber_directions -v fiber volume" << endl;
+		return EXIT_SUCCESS;
+	}
+	
+	for (int i = 0; i < argc; ++i) {
+		if (!strcmp(argv[i], "-i"))
+			output.input_dmri = argv[i + 1];
+		if (!strcmp(argv[i], "-m"))
+			output.input_mask = argv[i + 1];
+		if (!strcmp(argv[i], "-r"))
+			output.output_ridgelets = argv[i + 1];
+		if (!strcmp(argv[i], "-q"))
+			output.output_qs = argv[i + 1];
+		if (!strcmp(argv[i], "-f"))
+			output.output_fiber_dirs = argv[i + 1];
+		if (!strcmp(argv[i], "-v"))
+			output.output_fiber_volumes = argv[i + 1];
+	}
+	return 0;
+}
+
 int DATA_SOURCE::readVolume(
 	string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image,
 	unsigned &nGradImgs, unsigned &nOfImgs) {
