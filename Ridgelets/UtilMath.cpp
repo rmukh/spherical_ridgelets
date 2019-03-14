@@ -101,51 +101,6 @@ void UtilMath::polyleg(MatrixType& P, MatrixType x, unsigned n)
 	}
 }
 
-MatrixType UtilMath::convhulln(MatrixType& u, double tol = 0.001) {
-	/* 
-	Convex hull (might be a conflict between VTK 7 and 8 versions)
-	*/
-
-	// Convert from Eigen MatrixType to vtkPoints (probably make as an function)
-	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-	for (unsigned i = 0; i < u.rows(); ++i)
-		points->InsertNextPoint(u(i, 0), u(i, 1), u(i, 2));
-
-	// Dataset to represent verticies (points)
-	vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
-	polydata->SetPoints(points);
-
-	// Create the convex hull of the pointcloud
-	vtkSmartPointer<vtkDelaunay3D> delaunay = vtkSmartPointer<vtkDelaunay3D>::New();
-	//delaunay->SetTolerance(tol);
-
-	cout << delaunay->GetTolerance() << " " << delaunay->GetBoundingTriangulation() << " " << delaunay->GetOffset() << endl;
-	delaunay->SetInputData(polydata);
-	delaunay->Update();
-
-	// Convert to polygonal type
-	vtkSmartPointer<vtkUnstructuredGrid> raw = delaunay->GetOutput();
-	vtkSmartPointer<vtkGeometryFilter> geometryFilter = vtkSmartPointer<vtkGeometryFilter>::New();
-	geometryFilter->SetInputData(raw);
-	geometryFilter->Update();
-
-	vtkSmartPointer<vtkPolyData> polyPoints = geometryFilter->GetOutput();
-
-	unsigned NCells = polyPoints->GetNumberOfCells();
-
-	// Convert to Eigen matrix
-	MatrixType fcs(NCells, 3);
-	for (vtkIdType i = 0; i < NCells; ++i) {
-		vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
-		polyPoints->GetCellPoints(i, cellPointIds);
-
-		for (vtkIdType j = 0; j < cellPointIds->GetNumberOfIds(); ++j)
-			fcs(i, j) = cellPointIds->GetId(j);
-	}
-
-	return fcs;
-}
-
 MatrixType UtilMath::convhull3_1(MatrixType& u) {
 	unsigned n = u.rows();
 	ch_vertex* vertices;

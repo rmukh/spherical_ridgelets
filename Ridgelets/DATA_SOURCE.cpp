@@ -4,9 +4,9 @@
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -r, -q, -o, -f, -v" << endl;
+		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -ridg, -odf, -om, -or" << endl;
 		cerr << "Optional input arguments: -m mask_file" << endl;
-		cerr << "Possible output argumet(s): -r ridgelet_file -q Q coefficients -o ODF_values -f fiber_directions -v fiber volume" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -om ODF_maxima -or orientations " << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -20,19 +20,19 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		if (!strcmp(argv[i], "-m")) {
 			output.input_mask = argv[i + 1];
 		}
-		if (!strcmp(argv[i], "-r")) {
+		if (!strcmp(argv[i], "-ridg")) {
 			output.output_ridgelets = argv[i + 1];
 			out1 = true;
 		}
-		if (!strcmp(argv[i], "-q")) {
+		if (!strcmp(argv[i], "-odf")) {
 			output.output_qs = argv[i + 1];
 			out1 = true;
 		}
-		if (!strcmp(argv[i], "-f")) {
+		if (!strcmp(argv[i], "-om")) {
 			output.output_fiber_dirs = argv[i + 1];
 			out1 = true;
 		}
-		if (!strcmp(argv[i], "-v")) {
+		if (!strcmp(argv[i], "-or")) {
 			output.output_fiber_volumes = argv[i + 1];
 			out1 = true;
 		}

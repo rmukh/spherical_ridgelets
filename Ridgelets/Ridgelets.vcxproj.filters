@@ -33,9 +33,6 @@
     <ClInclude Include="rdgls_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\quickhull\Types.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="convhull_3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>

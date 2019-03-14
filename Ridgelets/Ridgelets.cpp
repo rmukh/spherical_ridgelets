@@ -20,7 +20,6 @@ int main(int argc, char* argv[])
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 
-	// Start main computational part
 	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
 	DiffusionImagePointer dMRI;
 	unsigned nGradImgs = 0; // Number of gradient images
@@ -38,6 +37,7 @@ int main(int argc, char* argv[])
 	MatrixType signal;
 	data.DWI2Matrix(dMRI, mask, signal, nGradImgs, nOfImgs);
 
+	// Beginming of the main computational part
 	SPH_RIDG ridg(2, 0.5);
 	MatrixType A = ridg.RBasis(GradientDirections);
 	A = ridg.normBasis(A);
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	m.icosahedron(nu, fcs, 4);
 
 	MatrixType Q = ridg.QBasis(nu); //Build a Q basis
-	MatrixType ODF = C.transpose() * Q.transpose(); //Computer ODF - Might need transpose!!!
+	MatrixType ODF = C.transpose() * Q.transpose();
 
 	cout << ODF.rows() << " " << ODF.cols() << endl;
 	
