@@ -6,12 +6,14 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	{
 		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -ridg, -odf, -om, -or" << endl;
 		cerr << "Optional input arguments: -m mask_file" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -om ODF_maxima -or orientations " << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -om ODF_maxima -or orientations -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
 	bool inp1 = false;
 	bool out1 = false;
+	output.is_compress = false;
+
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -25,16 +27,19 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-odf")) {
-			output.output_qs = argv[i + 1];
+			output.output_odf = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-om")) {
-			output.output_fiber_dirs = argv[i + 1];
+			output.output_fiber_max_odf = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-or")) {
-			output.output_fiber_volumes = argv[i + 1];
+			output.output_dirs = argv[i + 1];
 			out1 = true;
+		}
+		if (!strcmp(argv[i], "-c")) {
+			output.is_compress = true;
 		}
 	}
 	if (!inp1 || !out1) {

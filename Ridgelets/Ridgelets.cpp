@@ -48,49 +48,42 @@ int main(int argc, char* argv[])
 	//ODF
 	UtilMath m;
 
-	MatrixType fcs;
+ 	MatrixType fcs;
 	MatrixType nu;
 	m.icosahedron(nu, fcs, 4);
 
 	MatrixType Q = ridg.QBasis(nu); //Build a Q basis
-	MatrixType ODF = C.transpose() * Q.transpose();
-
-	cout << ODF.rows() << " " << ODF.cols() << endl;
+	MatrixType ODF = (C.transpose() * Q.transpose()).transpose();
 	
-	//// Save to file what user requested through command line
-	//// R coefficients
-	//DiffusionImagePointer R_coeff = DiffusionImageType::New();
-	//data.copy_header(dMRI, R_coeff);
-	//R_coeff->SetNumberOfComponentsPerPixel(C.rows());
-	//R_coeff->Allocate();
+	// Save to file what user requested through command line
+	// Ridgelets coefficients
+	if (!input_args.output_ridgelets.empty()) {
+		DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
+		data.copy_header(dMRI, Ridg_coeff);
+		Ridg_coeff->SetNumberOfComponentsPerPixel(C.rows());
+		Ridg_coeff->Allocate();
 
-	//data.Matrix2DWI(R_coeff, mask, C);
-	//data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\R_coeff.nhdr", R_coeff, false);
+		data.Matrix2DWI(Ridg_coeff, mask, C);
+		data.save_to_file<DiffusionImageType>(input_args.output_ridgelets, Ridg_coeff, input_args.is_compress);
+	}
 
-	//// Q coefficients
-	//DiffusionImagePointer Q_coeff = DiffusionImageType::New();
-	//data.copy_header(dMRI, Q_coeff);
-	//Q_coeff->SetNumberOfComponentsPerPixel(Q.rows());
-	//Q_coeff->Allocate();
+	// ODF volume
+	if (!input_args.output_odf.empty()) {
+		DiffusionImagePointer ODF_vals = DiffusionImageType::New();
+		data.copy_header(dMRI, ODF_vals);
+		ODF_vals->SetNumberOfComponentsPerPixel(Q.rows());
+		ODF_vals->Allocate();
 
-	//data.Matrix2DWI(Q_coeff, mask, Q);
-	//data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\Q_coeff.nhdr", Q_coeff, false);
+		data.Matrix2DWI(ODF_vals, mask, ODF);
+		data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
+	}
 
-	//// ODF values
-	//DiffusionImagePointer ODF_vals = DiffusionImageType::New();
-	//data.copy_header(dMRI, ODF_vals);
-	//ODF_vals->SetNumberOfComponentsPerPixel(ODF.rows());
-	//ODF_vals->Allocate();
+	vector<vector<unsigned>> conn;
+	m.FindConnectivity(conn, fcs, nu.rows());
 
-	//data.Matrix2DWI(ODF_vals, mask, ODF);
-	//data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\ODF_vals.nhdr", ODF_vals, false);
-
-	//vector<vector<unsigned>> conn;
-	//m.FindConnectivity(conn, fcs, nu.rows());
-
-	//MatrixType ex;
-	//MatrixType d;
-	//m.FindODFMaxima(ex, d, W, conn, nu);
+	MatrixType ex;
+	MatrixType d;
+	m.FindODFMaxima(ex, d, W, conn, nu);
 	
 	return 0;
 }
