@@ -2,29 +2,44 @@
 #include "DATA_SOURCE.h"
 
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
-	input_parse ar;
-
-	if (argc < 3)
+	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI_file" << endl;
+		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -r, -q, -o, -f, -v" << endl;
 		cerr << "Optional input arguments: -m mask_file" << endl;
-		cerr << "Optional output argumets: -r ridgelet_file -q Q coefficients -o ODF_values -f fiber_directions -v fiber volume" << endl;
-		return EXIT_SUCCESS;
+		cerr << "Possible output argumet(s): -r ridgelet_file -q Q coefficients -o ODF_values -f fiber_directions -v fiber volume" << endl;
+		return EXIT_FAILURE;
 	}
-	
+
+	bool inp1 = false;
+	bool out1 = false;
 	for (int i = 0; i < argc; ++i) {
-		if (!strcmp(argv[i], "-i"))
+		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
-		if (!strcmp(argv[i], "-m"))
+			inp1 = true;
+		}
+		if (!strcmp(argv[i], "-m")) {
 			output.input_mask = argv[i + 1];
-		if (!strcmp(argv[i], "-r"))
+		}
+		if (!strcmp(argv[i], "-r")) {
 			output.output_ridgelets = argv[i + 1];
-		if (!strcmp(argv[i], "-q"))
+			out1 = true;
+		}
+		if (!strcmp(argv[i], "-q")) {
 			output.output_qs = argv[i + 1];
-		if (!strcmp(argv[i], "-f"))
+			out1 = true;
+		}
+		if (!strcmp(argv[i], "-f")) {
 			output.output_fiber_dirs = argv[i + 1];
-		if (!strcmp(argv[i], "-v"))
+			out1 = true;
+		}
+		if (!strcmp(argv[i], "-v")) {
 			output.output_fiber_volumes = argv[i + 1];
+			out1 = true;
+		}
+	}
+	if (!inp1 || !out1) {
+		cerr << "Please, provide at least one input AND one output file names" << endl;
+		return EXIT_FAILURE;
 	}
 	return 0;
 }
@@ -124,7 +139,7 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 	string ext_vol = inputMask.substr(inputMask.length() - 4, inputMask.length());
 
 	if (!is_path_exists(inputMask)) {
-		cout << "Input mask image is not provided. Please, stop program and provide mask file if you need it." << endl;
+		cout << "Input mask image is not provided. Please, stop program and provide mask file if you forget to include it." << endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -173,7 +188,7 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, b
 }
 
 void DATA_SOURCE::copy_header(DiffusionImagePointer& src, DiffusionImagePointer& dest) {
-	dest->SetMetaDataDictionary(src->GetMetaDataDictionary());
+	//dest->SetMetaDataDictionary(src->GetMetaDataDictionary());
 	dest->SetSpacing(src->GetSpacing());
 	dest->SetDirection(src->GetDirection());
 	dest->SetOrigin(src->GetOrigin());
