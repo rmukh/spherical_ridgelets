@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 
-	// Start main computation part
+	// Start main computational part
 	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
 	DiffusionImagePointer dMRI;
 	unsigned nGradImgs = 0; // Number of gradient images
