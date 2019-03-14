@@ -223,6 +223,7 @@ void DATA_SOURCE::testFNC() {
 }
 
 void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
+	// Works only on my local PC!
 	fileToMatrix("D:\\test\\bvec.txt", g);
 	fileToMatrix("D:\\test\\sign.txt", s);
 

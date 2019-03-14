@@ -18,6 +18,7 @@
 #include <thread>
 #include <unordered_map>
 #include <sys/stat.h>
+#include <numeric>
 
 // Necessary types defenitions
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixType;

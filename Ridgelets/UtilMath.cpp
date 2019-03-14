@@ -192,9 +192,9 @@ void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, un
 		indx.insert(make_pair(*it, it - uc3.begin()));
 }
 
-void UtilMath::ind_sort_vec(MatrixType& vec, multimap<double, unsigned>& indx) {
+void UtilMath::ind_sort_vec(MatrixType& vec, vector<size_t> & indx) {
 	/*
-	Return indexies indx in ascending order of sorted vector
+	Return indexies indx in descending order of sorted vector
 	*/
 	// Matrix to std vector
 	vector<double> uc3;
@@ -202,9 +202,12 @@ void UtilMath::ind_sort_vec(MatrixType& vec, multimap<double, unsigned>& indx) {
 	uc3.resize(orig_size);
 	VectorXd::Map(&uc3[0], orig_size) = vec;
 
-	// Mapping from value to index and so make sort ascending
-	for (auto it = uc3.begin(); it != uc3.end(); ++it)
-		indx.insert(make_pair(*it, it - uc3.begin()));
+	// initialize original index locations
+	indx.resize(uc3.size());
+	iota(indx.begin(), indx.end(), 0);
+
+	// sort indexes based on comparing values in v
+	sort(indx.rbegin(), indx.rend(), [&uc3](size_t i1, size_t i2) {return uc3[i1] < uc3[i2]; });
 }
 
 void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
@@ -365,7 +368,7 @@ void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
 }
 
 void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
-	vector<vector<unsigned>>& conn, MatrixType& u, float thresh = 0.7) 
+	vector<vector<unsigned>>& conn, MatrixType& u, float thresh) 
 {
 	// Standart min-max normalization
 	double W_min = W.minCoeff();
@@ -447,43 +450,36 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	MatrixType W_e(u_extrema_length, 1);
 	for (unsigned i = 0; i < u_extrema_length; ++i)
 		W_e(i) = W(u_extrema.at(i));
+	// Checked up to that point
 
-	multimap<double, unsigned> idxies;
-	ind_sort_vec(W_e, idxies);
+	vector<size_t> idx;
+	ind_sort_vec(W_e, idx);
 
-	// Go in reverse order to get descend order as needed in that part of code
-	unsigned i = 0;
-	vector<unsigned> idx;
 	MatrixType directions_sorted(directions.rows(), directions.cols());
-	for (multimap<double, unsigned>::reverse_iterator it = idxies.rbegin(); it != idxies.rend(); ++it) {
-		directions_sorted.row(i) = directions.row(it->second);
-		idx.push_back(it->second);
-		i += 1;
+	for (unsigned i = 0; i < directions.rows(); ++i) {
+		directions_sorted.row(i) = directions.row(idx.at(i));
 	}
-
-	//reverse idx to make in right order
-	reverse(idx.begin(), idx.end());
 
 	d = MatrixType::Zero(unsigned(extrema.size() / 2) * 2, 3);
 	ex = MatrixType::Zero(d.rows(), 1);
-	i = 0;
+	unsigned i = 0;
 	ct = 0;
 	while (true) {
-		d.row(ct) = directions.row(i);
-		d.row(ct + 1) = -1 * directions.row(i);
+		d.row(ct) = directions_sorted.row(i);
+		d.row(ct + 1) = -1 * directions_sorted.row(i);
 		ex(ct) = extrema(idx.at(i));
 		ex(ct + 1) = ex(ct);
 
 		MatrixType::Index id;
-		double tmp = (directions * d.row(ct + 1).transpose()).maxCoeff(&id);
+		double tmp = (directions_sorted * d.row(ct + 1).transpose()).maxCoeff(&id);
 		if (tmp > 0.95) {
-			remove_row(directions, id);
+			remove_row(directions_sorted, id);
 			idx.erase(idx.begin() + id);
 		}
 		i += 1;
 		ct += 2;
 
-		if (i > directions.rows() - 1)
+		if (i > directions_sorted.rows() - 1)
 			break;
 	}
 }
