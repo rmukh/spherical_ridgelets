@@ -51,6 +51,7 @@ void SPH_RIDG::init() {
 }
 
 MatrixType SPH_RIDG::RBasis(MatrixType u) {
+	cout << "Start computing R basis..." << endl;
 	MatrixType A = MatrixType::Zero(u.rows(), M0.sum());
 	MatrixType P;
 	MatrixType x;
@@ -81,6 +82,7 @@ MatrixType SPH_RIDG::RBasis(MatrixType u) {
 }
 
 MatrixType SPH_RIDG::QBasis(MatrixType u) {
+	cout << "Start computing Q basis..." << endl;
 	MatrixType Q = MatrixType::Zero(u.rows(), M0.sum());
 	MatrixType P;
 	MatrixType x;

@@ -212,7 +212,7 @@ void UtilMath::ind_sort_vec(MatrixType& vec, vector<size_t> & indx) {
 
 void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
 	/*
-	Looking for columns of MatrixType matrix. bool equal is basically to comply with matlab notation of 
+	Looking for columns of MatrixType matrix. bool equal is basically to comply with matlab notation of
 	== if true and ~= if false. So you can check if col_n equal or not to val
 	*/
 	for (Eigen::Index i = 0; i < arr.rows(); ++i) {
@@ -231,6 +231,7 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 	/*
 	Build icosahedron based sampling array and their respective faces
 	*/
+	cout << "Start computing icosahedron..." << endl;
 	double C = 1 / sqrt(1.25);
 	MatrixType t = (2 * PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
 	MatrixType u1(5, 3);
@@ -360,7 +361,7 @@ void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
 {
 	unsigned cols = a.cols();
 	unsigned rows = a.rows() - 1;
-	
+
 	if (del < rows)
 		a.block(del, 0, rows - del, cols) = a.block(del + 1, 0, rows - del, cols);
 
@@ -368,7 +369,7 @@ void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
 }
 
 void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
-	vector<vector<unsigned>>& conn, MatrixType& u, float thresh) 
+	vector<vector<unsigned>>& conn, MatrixType& u, float thresh)
 {
 	// Standart min-max normalization
 	double W_min = W.minCoeff();
@@ -412,7 +413,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 					}
 
 					// We have already traveled this path
-					if (used(conn[j][id])) 
+					if (used(conn[j][id]))
 						reached_maxima = true;
 
 					// used(conn(j).elem) = 1
@@ -433,11 +434,12 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 			}
 		}
 	}
-	
+
 	if (extrema.size() == 0) {
 		extrema.conservativeResize(1, 1);
 		extrema(0) = 1;
 	}
+
 	vector<unsigned> u_extrema;
 	unique_sorted(u_extrema, extrema);
 
@@ -450,7 +452,6 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	MatrixType W_e(u_extrema_length, 1);
 	for (unsigned i = 0; i < u_extrema_length; ++i)
 		W_e(i) = W(u_extrema.at(i));
-	// Checked up to that point
 
 	vector<size_t> idx;
 	ind_sort_vec(W_e, idx);
@@ -460,18 +461,21 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 		directions_sorted.row(i) = directions.row(idx.at(i));
 	}
 
-	d = MatrixType::Zero(unsigned(extrema.size() / 2) * 2, 3);
-	ex = MatrixType::Zero(d.rows(), 1);
+	d.resize((unsigned)(extrema.size() / 2) * 2, 3);
+	ex.resize(d.rows(), 1);
+	//d = MatrixType::Zero((unsigned)(extrema.size() / 2) * 2, 3);
+	//ex = MatrixType::Zero(d.rows(), 1);
+
 	unsigned i = 0;
-	ct = 0;
+	ct = 1;
 	while (true) {
-		d.row(ct) = directions_sorted.row(i);
-		d.row(ct + 1) = -1 * directions_sorted.row(i);
-		ex(ct) = extrema(idx.at(i));
-		ex(ct + 1) = ex(ct);
+		d.row(ct - 1) = directions_sorted.row(i);
+		d.row(ct) = -1 * directions_sorted.row(i);
+		ex(ct - 1) = extrema(idx.at(i));
+		ex(ct) = ex(ct - 1);
 
 		MatrixType::Index id;
-		double tmp = (directions_sorted * d.row(ct + 1).transpose()).maxCoeff(&id);
+		double tmp = (directions_sorted * d.row(ct).transpose()).maxCoeff(&id);
 		if (tmp > 0.95) {
 			remove_row(directions_sorted, id);
 			idx.erase(idx.begin() + id);
@@ -482,4 +486,27 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 		if (i > directions_sorted.rows() - 1)
 			break;
 	}
+}
+
+void UtilMath::FindMaxODFMaxInDMRI(MatrixType& ex, MatrixType& d, MatrixType& ODF,
+	vector<vector<unsigned>>& conn, MatrixType& nu)
+{
+	MatrixType exe = MatrixType::Zero(6, ODF.cols());
+	MatrixType dir = MatrixType::Zero(6, ODF.cols());
+	int i = 6;
+	MatrixType exe_vol;
+	MatrixType dir_vol;
+	MatrixType vol = ODF.col(i);
+	
+	FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
+	cout << "index " << i << endl;
+
+	/*for (unsigned i = 0; i < ODF.cols(); ++i) {
+		MatrixType exe_vol;
+		MatrixType dir_vol;
+
+		if (exe_vol.rows() <= 6) {
+			exe.col(i) = exe_vol;
+		}
+	}*/
 }

@@ -19,6 +19,7 @@ SOLVERS::SOLVERS(MatrixType ridgelets, MatrixType voxels, double lambda) {
 }
 
 MatrixType SOLVERS::FISTA() {
+	cout << "Start computing ridgelets coefficients..." << endl;
 	MatrixType dummyZeros = MatrixType::Zero(A.cols(), s.cols());
 	MatrixType y = dummyZeros;
 	MatrixType x_old = dummyZeros;

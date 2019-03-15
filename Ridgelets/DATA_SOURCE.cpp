@@ -315,6 +315,14 @@ void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MaskImagePointer &mask,
 void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask, MatrixType &arr) {
 	unsigned n_of_components = arr.rows();
 
+	// Make a vector of zeros
+	VariableVectorType zeros_vec;
+	zeros_vec.SetSize(n_of_components);
+	for (unsigned i = 0; i < n_of_components; ++i) {
+		zeros_vec[i] = 0;
+	}
+	img->FillBuffer(zeros_vec);
+
 	VariableVectorType vec_to_fill;
 	vec_to_fill.SetSize(n_of_components);
 
@@ -325,13 +333,6 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 	unsigned vox = 0;
 
 	if (mask != nullptr) {
-		// Make a vector of zeros
-		VariableVectorType zeros_vec;
-		zeros_vec.SetSize(n_of_components);
-		for (unsigned i = 0; i < n_of_components; ++i) {
-			zeros_vec[i] = 0;
-		}
-
 		// Mask iterator
 		MaskIterator it_m(mask, mask->GetRequestedRegion());
 
@@ -347,16 +348,14 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 						vec_to_fill[i] = arr(i, vox);
 					}
 					it.Set(vec_to_fill);
+					++vox;
 				}
-				else {
-					it.Set(zeros_vec);
-				}
+				++it;
+				++it_m;
 			}
-			++it;
-			++it_m;
+			it.NextLine();
+			it_m.NextLine();
 		}
-		it.NextLine();
-		it_m.NextLine();
 	}
 	else {
 		while (!it.IsAtEnd())
