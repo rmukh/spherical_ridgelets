@@ -461,17 +461,29 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 		directions_sorted.row(i) = directions.row(idx.at(i));
 	}
 
-	d.resize((unsigned)(extrema.size() / 2) * 2, 3);
+	unsigned extrema_size = extrema.size();
+	if (extrema_size < 2) {
+		extrema_size = 2;
+	}
+
+	d.resize((unsigned)ceil(extrema_size / 2.0) * 2, 3);
 	ex.resize(d.rows(), 1);
-	//d = MatrixType::Zero((unsigned)(extrema.size() / 2) * 2, 3);
-	//ex = MatrixType::Zero(d.rows(), 1);
+
+	d.setZero((unsigned)ceil(extrema_size / 2.0) * 2, 3);
+	ex.setZero(d.rows(), 1);
 
 	unsigned i = 0;
 	ct = 1;
 	while (true) {
+		if (ct > d.rows()) {
+			d.conservativeResize(ct + 1, d.cols());
+		}
+		if (ct > ex.rows()) {
+			ex.conservativeResize(ct + 1, 1);
+		}
 		d.row(ct - 1) = directions_sorted.row(i);
 		d.row(ct) = -1 * directions_sorted.row(i);
-		ex(ct - 1) = extrema(idx.at(i));
+		ex(ct - 1) = u_extrema.at(idx.at(i));
 		ex(ct) = ex(ct - 1);
 
 		MatrixType::Index id;
@@ -492,21 +504,29 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& ex, MatrixType& d, MatrixType& OD
 	vector<vector<unsigned>>& conn, MatrixType& nu)
 {
 	MatrixType exe = MatrixType::Zero(6, ODF.cols());
-	MatrixType dir = MatrixType::Zero(6, ODF.cols());
-	int i = 6;
-	MatrixType exe_vol;
-	MatrixType dir_vol;
-	MatrixType vol = ODF.col(i);
-	
-	FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
-	cout << "index " << i << endl;
+	MatrixType dir = MatrixType::Zero(6 * 3, ODF.cols());
 
-	/*for (unsigned i = 0; i < ODF.cols(); ++i) {
+	for (unsigned i = 0; i < ODF.cols(); ++i) {
 		MatrixType exe_vol;
 		MatrixType dir_vol;
+		MatrixType vol = ODF.col(i);
 
-		if (exe_vol.rows() <= 6) {
-			exe.col(i) = exe_vol;
-		}
-	}*/
+		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
+		cout << "index " << i << endl;
+
+		if (exe_vol.rows() <= 6)
+			for (unsigned j = 0; j < exe_vol.rows(); ++j)
+				exe(j,i) = exe_vol(j);
+		else 
+			exe.col(i) = exe_vol.block(0, 0, 6, 1);
+		
+		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);
+		if (dir_vol.rows() <= 18)
+			for (unsigned j = 0; j < dir_vol.rows(); ++j)
+				dir(j, i) = dir_vol(j);
+		else
+			dir.col(i) = dir_vol.block(0, 0, 18, 1);
+		
+	}
+	cout << dir << endl;
 }
