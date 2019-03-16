@@ -519,14 +519,13 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& ex, MatrixType& d, MatrixType& OD
 				exe(j,i) = exe_vol(j);
 		else 
 			exe.col(i) = exe_vol.block(0, 0, 6, 1);
-		
+
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);
 		if (dir_vol.rows() <= 18)
 			for (unsigned j = 0; j < dir_vol.rows(); ++j)
 				dir(j, i) = dir_vol(j);
 		else
 			dir.col(i) = dir_vol.block(0, 0, 18, 1);
-		
 	}
 	cout << dir << endl;
 }
