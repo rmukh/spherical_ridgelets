@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "UtilMath.h"
 
 #define CONVHULL_3D_ENABLE

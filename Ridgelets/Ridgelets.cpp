@@ -1,8 +1,4 @@
 // Ridgelets.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-//precompiled header
-#include "pch.h"
 
 //user defined classes
 #include "UtilMath.h"

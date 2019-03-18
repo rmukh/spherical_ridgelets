@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "SPH_RIDG.h"
 
 //Default Constructor
