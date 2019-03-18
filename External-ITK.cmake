@@ -9,7 +9,6 @@ ExternalProject_Add(ITK
   BINARY_DIR ITK-build
   CMAKE_GENERATOR ${gen}
   CMAKE_ARGS
-    ${ep_common_args}
     -DBUILD_TESTING:BOOL=OFF
     -DBUILD_EXAMPLES:BOOL=OFF
     -DITK_LEGACY_REMOVE:BOOL=ON
@@ -30,4 +29,4 @@ ExternalProject_Add(ITK
   INSTALL_COMMAND ""
 )
 
-set(ITK_DIR ${CMAKE_BINARY_DIR}/ITK-build)
+set(ITK_DIR_INSTALLED ${CMAKE_BINARY_DIR}/ITK-build)
