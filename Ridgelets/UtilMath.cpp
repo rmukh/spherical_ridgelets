@@ -503,8 +503,10 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 void UtilMath::FindMaxODFMaxInDMRI(MatrixType& ex, MatrixType& d, MatrixType& ODF,
 	vector<vector<unsigned>>& conn, MatrixType& nu)
 {
-	MatrixType exe = MatrixType::Zero(6, ODF.cols());
-	MatrixType dir = MatrixType::Zero(6 * 3, ODF.cols());
+	ex.resize(6, ODF.cols());
+	d.resize(6 * 3, ODF.cols());
+	ex.setZero(6, ODF.cols());
+	d.setZero(6 * 3, ODF.cols());
 
 	for (unsigned i = 0; i < ODF.cols(); ++i) {
 		MatrixType exe_vol;
@@ -516,16 +518,15 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& ex, MatrixType& d, MatrixType& OD
 
 		if (exe_vol.rows() <= 6)
 			for (unsigned j = 0; j < exe_vol.rows(); ++j)
-				exe(j,i) = exe_vol(j);
+				ex(j,i) = exe_vol(j);
 		else 
-			exe.col(i) = exe_vol.block(0, 0, 6, 1);
+			ex.col(i) = exe_vol.block(0, 0, 6, 1);
 
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);
 		if (dir_vol.rows() <= 18)
 			for (unsigned j = 0; j < dir_vol.rows(); ++j)
-				dir(j, i) = dir_vol(j);
+				d(j, i) = dir_vol(j);
 		else
-			dir.col(i) = dir_vol.block(0, 0, 18, 1);
+			d.col(i) = dir_vol.block(0, 0, 18, 1);
 	}
-	cout << dir << endl;
 }
