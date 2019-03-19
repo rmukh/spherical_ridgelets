@@ -10,6 +10,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 message(STATUS "${_msg} - C++${CMAKE_CXX_STANDARD}")
 
+#Enable optimization
+add_compile_options(-O3)
+add_compile_options(-march=native)
+
 # Command to output information to the console (debugging)
 message ("cxx Flags:" ${CMAKE_CXX_FLAGS})
 
