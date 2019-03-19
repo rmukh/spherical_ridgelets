@@ -5,9 +5,9 @@ Authors: Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
 
 # How to start
 
-## Easiest way to build
-1. Download or clone repository (git clone https://github.com/restearch-enthusiast/spherical_ridgelets.git) 
-2. Create empty folder inside downloaded repository. *build* in that example
+## Easiest way to build (Linux)
+1. Download or clone repository (*git clone https://github.com/restearch-enthusiast/spherical_ridgelets.git*) 
+2. Create empty folder inside downloaded repository. (*mkdir build*)
 3. Enter that directory *cd build*
 4. *cmake ..*
 5. *make*
@@ -20,4 +20,4 @@ Authors: Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
 *Possible output argumet(s)*: -ridg ridgelet_file -odf ODF_values -om ODF_maxima -or orientations -c enable compression
 
 # Notes
-For now only NRRD file formats supported (.nrrd, .nhdr)
+For now this software supports NRRD file formats only (.nrrd, .nhdr)
