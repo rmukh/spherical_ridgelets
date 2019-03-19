@@ -19,6 +19,9 @@ endif()
 
 set(PRJ_NAME Ridgelets)
 
+# On the first phase libs.cmake check if all libraries exists and pahts are defined. Download missed libraries.
+# Then in the end it calls this file recursively to run second phase. 
+# In the second phase ALL_LIBS_SET sets to true and now Ridgelets.cmake file included. This builds package itself.
 if(NOT ALL_LIBS_SET)
     message("Start buildining and configuring all dependencies")
     project(SuperBuild_ALL_LIBS)
