@@ -1,14 +1,15 @@
 #---------------------------------------------------------------------------
 # Get and build itk
 
-set( ITK_TAG "v4.13.1" )
+set(ITK_TAG "v4.13.1")
 ExternalProject_Add(ITK
   GIT_REPOSITORY "${git_protocol}://itk.org/ITK.git"
   GIT_TAG "${ITK_TAG}"
-  SOURCE_DIR ITK
-  BINARY_DIR ITK-build
+  SOURCE_DIR itk/ITK
+  BINARY_DIR itk/ITK-build
   CMAKE_GENERATOR ${gen}
   CMAKE_ARGS
+    -DCMAKE_CXX_FLAGS:STRING=-std=c++${CMAKE_CXX_STANDARD}
     -DBUILD_TESTING:BOOL=OFF
     -DBUILD_EXAMPLES:BOOL=OFF
     -DITK_LEGACY_REMOVE:BOOL=ON
@@ -29,4 +30,4 @@ ExternalProject_Add(ITK
   INSTALL_COMMAND ""
 )
 
-set(ITK_DIR_INSTALLED ${CMAKE_BINARY_DIR}/ITK-build)
+set(ITK_DIR_INSTALLED ${CMAKE_BINARY_DIR}/itk/ITK-build)

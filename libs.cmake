@@ -40,7 +40,6 @@ if(APPLE)
 endif(APPLE)
 
 include(ExternalProject)
-
 # Find ITK and build if necessary
 if(ITK_DIR)
     set(ITK_DIR_INSTALLED ${ITK_DIR})
@@ -50,18 +49,34 @@ else(ITK_DIR)
     message(STATUS "Using External Project for ITK")
 endif(ITK_DIR)
 
-set(ALL_LIBS_SET true)
+include(ExternalProject)
+# Find Eigen and build if necessary
+if(Eigen3_DIR)
+    set(Eigen3_DIR_INSTALLED ${Eigen3_DIR})
+    message(STATUS "Using specified Eigen3_DIR: ${Eigen3_DIR}")
+else(Eigen3_DIR)
+    include(${CMAKE_SOURCE_DIR}/External-Eigen.cmake)
+    message(STATUS "Using External Project for Eigen")
+endif(Eigen3_DIR)
+
+
+set(${PRJ_NAME}_DEPENDENCIES
+  Eigen3
+  ITK
+  )
 
 set(proj ${PRJ_NAME})
 # Configure and build Ridgelets
 ExternalProject_Add(${proj}
+  DEPENDS ${${PRJ_NAME}_DEPENDENCIES}
   DOWNLOAD_COMMAND ""
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
   BINARY_DIR ${PRJ_NAME}-build
   CMAKE_GENERATOR ${gen}
   CMAKE_ARGS
     -DALL_LIBS_SET:BOOL=true
-    -DITK_DIR=${ITK_DIR_INSTALLED}
+    -DITK_DIR:PATH=${ITK_DIR_INSTALLED}
+    -DEigen3_DIR:PATH=${Eigen3_DIR_INSTALLED}
     -DRUNTIME_OUTPUT_DIRECTORY:PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     -DLIBRARY_OUTPUT_DIRECTORY:PATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
     -DARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
