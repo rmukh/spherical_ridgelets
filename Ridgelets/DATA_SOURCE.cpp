@@ -173,7 +173,7 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 template<typename D>
 int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, bool is_compress) {
 	typedef itk::ImageFileWriter<D> ImageWriterType;
-	ImageWriterType::Pointer writer = ImageWriterType::New();
+	typename ImageWriterType::Pointer writer = ImageWriterType::New();
 
 	writer->SetFileName(fname);
 	writer->SetInput(image);
