@@ -22,4 +22,4 @@ The final binary file will be in *Ridgelets-build* directory named as *sphridg*
 * Possible output argumets: *-ridg [ridgelet file]* -odf *[ODF values]* -om *[ODF maxima]* *-or [orientations]* *-c* enable compression
 
 # Notes
-For now this software supports NRRD file formats only (.nrrd, .nhdr). To build this project you should have **CMake** and **git** installed. The repository contains **Visual Studio 2017** project files used for development.
+For now this software supports NRRD file formats only (.nrrd, .nhdr). To build this project you should have **CMake** and **git** installed. The repository contains **Visual Studio 2017** project files for current development purposes.
