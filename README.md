@@ -6,7 +6,7 @@ Library to compute spherical ridgelets.
 # How to start
 
 ## Easiest way to build (Linux)
-1. Download or clone repository (*git clone https://github.com/restearch-enthusiast/spherical_ridgelets.git*) 
+1. Download or clone repository (*git clone https://github.com/research-enthusiast/spherical_ridgelets.git*) 
 2. Create empty folder inside downloaded repository. (*mkdir build*)
 3. Enter that directory *cd build*
 4. *cmake ..*
