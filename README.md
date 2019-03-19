@@ -12,6 +12,8 @@ Library to compute spherical ridgelets.
 4. *cmake ..*
 5. *make*
 
+The final binary file will be in *Ridgelets-build* directory named as *sphridg*
+
 ## Basic Usage
 *./sphridg -i [dMRI file name]* and at least one output: *-ridg, -odf, -om, -or*
   
