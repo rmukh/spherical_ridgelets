@@ -61,7 +61,7 @@ Then you can pass the path in cmake command.
 
 For example:
 
-        cmake -DITK_DIR=/path/to/ITK_build -DEigen3_DIR=/path/to/Eigen ..
+    cmake -DITK_DIR=/path/to/ITK_build -DEigen3_DIR=/path/to/Eigen ..
 
 # Bugs & feautures
 
