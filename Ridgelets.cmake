@@ -1,5 +1,6 @@
 find_package(ITK REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(OpenMP)
 
 if(DEFINED ITK_DIR AND NOT EXISTS ${ITK_DIR})
   message(FATAL_ERROR "ITK_DIR variable is defined but corresponds to nonexistent directory")
@@ -28,3 +29,6 @@ Ridgelets/UtilMath.cpp
 Ridgelets/UtilMath.h)
 target_link_libraries(sphridg ${ITK_LIBRARIES})
 target_link_libraries(sphridg Eigen3::Eigen)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(sphridg OpenMP::OpenMP_CXX)
+endif()
