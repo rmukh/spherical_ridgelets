@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.13)
+cmake_minimum_required(VERSION 3.13)
 
 #use c++ 11
 set(_msg "Setting C++ standard")
@@ -15,7 +15,7 @@ add_compile_options(-O3)
 add_compile_options(-march=native)
 
 # Command to output information to the console (debugging)
-message ("cxx Flags:" ${CMAKE_CXX_FLAGS})
+message("cxx Flags:" ${CMAKE_CXX_FLAGS})
 
 if(NOT DEFINED ALL_LIBS_SET)
     set(ALL_LIBS_SET false)
