@@ -60,3 +60,7 @@ Then you can pass the path in cmake command.
 For example:
 
         cmake -DITK_DIR=/path/to/ITK_build -DEigen3_DIR=/path/to/Eigen ..
+
+# Bugs & feautures
+
+Please, open a new issue if you found any bug, error or just want to propose new features. Also, feel free to send pull requests, create new branches and send merge request. Please, provide a description of the modifications or/and improvements you made, otherwise it might take longer for me to review and accept your request.
