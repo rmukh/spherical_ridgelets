@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 		modf->Allocate();
 
 		data.Matrix2DWI(modf, mask, ex_d);
-		data.save_to_file<DiffusionImageType>(input_args.output_odf, modf, input_args.is_compress);
+		data.save_to_file<DiffusionImageType>(input_args.output_fiber_max_odf, modf, input_args.is_compress);
 	}
 
 	return EXIT_SUCCESS;
