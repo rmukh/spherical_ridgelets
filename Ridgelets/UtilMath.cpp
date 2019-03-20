@@ -511,7 +511,6 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& ODF, vector<vect
 		MatrixType vol = ODF.col(i);
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
-		cout << "index " << i << endl;
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);

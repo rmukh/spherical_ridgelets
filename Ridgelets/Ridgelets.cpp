@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 	MatrixType Q;
 	MatrixType ODF;
 
-	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty() || !input_args.output_dirs.empty()) {
+	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
 		m.icosahedron(nu, fcs, 1);
 		Q = ridg.QBasis(nu); //Build a Q basis
 		ODF = Q * C;
@@ -78,15 +78,14 @@ int main(int argc, char* argv[])
 		data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
 	}
 
-	MatrixType ex_d;
-	vector<vector<unsigned>> conn;
-
-	if (!input_args.output_fiber_max_odf.empty() || !input_args.output_dirs.empty()) {
-		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex_d, ODF, conn, nu);
-	}
 
 	if (!input_args.output_fiber_max_odf.empty()) {
+		MatrixType ex_d;
+		vector<vector<unsigned>> conn;
+
+		m.FindConnectivity(conn, fcs, nu.rows());
+		m.FindMaxODFMaxInDMRI(ex_d, ODF, conn, nu);
+
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();
 		data.copy_header(dMRI, modf);
