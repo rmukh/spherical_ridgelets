@@ -41,20 +41,20 @@ For example:
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 
 # Important notes
-For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have **CMake** and **git** installed. The repository contains **Visual Studio 2017** project files for current development purposes. Currently **gcc** compiler adequately supported. Possibly **clang** works fine, but have not been tested yet.
+For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake** and *git* installed. The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet.
 
 # Advanced users
 
 ## Speed
-All cmake files created in a way that during the building cmake will automatically determine if you have OpenMP installed and use it during compilation. This gives a significant speedup. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc.
+All cmake files created in a way that during the building cmake will automatically determine if you have *OpenMP* installed and use it during compilation. This gives a significant speedup. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc.
 
 ## Custom build
-This package mainly depends on two libraries: ITK and Eigen. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:
+This package mainly depends on two libraries: *ITK* and *Eigen*. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:
 * You have them preinstalled in your system and want to save time on the compilation process;
 * You want to test some specific version for performance comparasion.
 Then you can pass the path in cmake command.
-* For ITK pass -DITK_DIR
-* For Eigen pass -DEigen3_DIR
+* For *ITK* use *-DITK_DIR*
+* For *Eigen* use *-DEigen3_DIR*
 
 For example:
 
