@@ -41,12 +41,14 @@ For example:
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 
 # Important notes
-For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake** and *git* installed. The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet.
+For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed. The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet. This package was tested on *Linux* only! MacOS and Windows compatibility is not guaranteed for now.
 
 # Advanced users
 
 ## Speed
-All cmake files created in a way that during the building cmake will automatically determine if you have *OpenMP* installed and use it during compilation. This gives a significant speedup. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc.
+All cmake files created in a way that during the building cmake will automatically determine if you have *OpenMP* installed and use it during compilation. This gives a significant speedup. So, if you don't have it installed, consider its installation. [Google](https://www.google.com/) and [this page](https://www.openmp.org/resources/openmp-compilers-tools/) are excellent sources of information on *OpenMP*. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc. 
+
+By default cmake starts building this package and all required libraries in Release mode to achieve fastest perfomance. If you want to build in Debug mode, don't forget to pass -DCMAKE_BUILD_TYPE=Debug
 
 ## Custom build
 This package mainly depends on two libraries: *ITK* and *Eigen*. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:
