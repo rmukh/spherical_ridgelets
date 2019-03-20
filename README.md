@@ -1,5 +1,5 @@
 # Overview
-Library to compute spherical ridgelets.
+Package to compute spherical ridgelets.
 
 **Authors**: Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
 
@@ -21,7 +21,9 @@ The final binary file will be in *Ridgelets-build* directory named as *sphridg*
 
 **Should** be at least at least input dMRI file and one output file.
 
-For example: *./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd*
+For example:
+
+    ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 
 # Notes
 For now this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have **CMake** and **git** installed. The repository contains **Visual Studio 2017** project files for current development purposes.
