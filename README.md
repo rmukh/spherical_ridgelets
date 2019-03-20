@@ -15,11 +15,11 @@ Library to compute spherical ridgelets.
 The final binary file will be in *Ridgelets-build* directory named as *sphridg*
 
 ## Basic Usage
-*./sphridg -i [dMRI file name]* and at least one output: *-ridg, -odf, -om, -or*
+*./sphridg -i [dMRI file name]* and at least one output: *-ridg, -odf, -omd*
   
 * Optional input arguments: *-m [mask file]*
 
-* Possible output argumets: *-ridg [ridgelet file]* -odf *[ODF values]* -om *[ODF maxima]* *-or [orientations]* *-c* enable compression
+* Possible output argumets: *-ridg [ridgelet file]* -odf *[ODF values]* -omd *[ODF maxima directions and values]* *-c* enable compression
 
 # Notes
 For now this software supports NRRD file formats only (.nrrd, .nhdr). To build this project you should have **CMake** and **git** installed. The repository contains **Visual Studio 2017** project files for current development purposes.
