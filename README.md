@@ -6,15 +6,25 @@ Package to compute spherical ridgelets.
 # How to start
 
 ## Easiest way to build (Linux)
-1. Download or clone repository 
+1. Download or clone repository
+
     git clone https://github.com/research-enthusiast/spherical_ridgelets.git
-2. Create empty folder inside downloaded repository. 
+
+2. Create empty folder inside downloaded repository.
+    
+    cd spherical_ridgelets
     mkdir build
-3. Enter that directory 
+
+3. Enter that directory
+
     cd build
-4. 
+
+4. Generate make files
+
     cmake ..
-5. 
+
+5. Build
+
     make
 
 The final binary file will be in *Ridgelets-build* directory named as *sphridg*
