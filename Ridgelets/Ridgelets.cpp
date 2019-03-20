@@ -1,4 +1,15 @@
 // Ridgelets.cpp : This file contains the 'main' function. Program execution begins and ends there.
+/*
+ Copyright (c) 2019 Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
+ 
+ * Description:
+ *     A C++ implementation of spherical ridgelets and orientation distribution function.
+ *     To find spherical ridgelets coefficients A Fast Iterative Shrinkage-Thresholding Algorithm (FISTA) used.
+ * Dependencies:
+ *     ITK, Eigen
+ * Authors:
+ *     Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
+*/
 
 //user defined classes
 #include "UtilMath.h"
