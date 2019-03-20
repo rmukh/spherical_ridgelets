@@ -52,6 +52,7 @@ All cmake files created in a way that during the building cmake will automatical
 This package mainly depends on two libraries: *ITK* and *Eigen*. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:
 * You have them preinstalled in your system and want to save time on the compilation process;
 * You want to test some specific version for performance comparasion.
+
 Then you can pass the path in cmake command.
 * For *ITK* use *-DITK_DIR*
 * For *Eigen* use *-DEigen3_DIR*
