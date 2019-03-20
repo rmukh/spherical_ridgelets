@@ -78,40 +78,24 @@ int main(int argc, char* argv[])
 		data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
 	}
 
-	MatrixType ex;
-	MatrixType d;
+	MatrixType ex_d;
 	vector<vector<unsigned>> conn;
 
 	if (!input_args.output_fiber_max_odf.empty() || !input_args.output_dirs.empty()) {
 		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex, d, ODF, conn, nu);
+		m.FindMaxODFMaxInDMRI(ex_d, ODF, conn, nu);
 	}
 
 	if (!input_args.output_fiber_max_odf.empty()) {
-		cout << "Saving maxima ODF..." << endl;
-		MatrixType max_odf = MatrixType::Zero(ex.rows(), ex.cols());
-		for (unsigned i = 0; i < ex.cols(); ++i)
-			for (unsigned j = 0; j < ex.rows(); ++j)
-				max_odf(j, i) = ODF(ex(j, i), i);
-
+		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();
 		data.copy_header(dMRI, modf);
-		modf->SetNumberOfComponentsPerPixel(max_odf.rows());
+		modf->SetNumberOfComponentsPerPixel(ex_d.rows());
 		modf->Allocate();
 
-		data.Matrix2DWI(modf, mask, max_odf);
+		data.Matrix2DWI(modf, mask, ex_d);
 		data.save_to_file<DiffusionImageType>(input_args.output_odf, modf, input_args.is_compress);
 	}
 
-	if (!input_args.output_dirs.empty()) {
-		cout << "Saving directions..." << endl;
-		DiffusionImagePointer dirs = DiffusionImageType::New();
-		data.copy_header(dMRI, dirs);
-		dirs->SetNumberOfComponentsPerPixel(d.rows());
-		dirs->Allocate();
-
-		data.Matrix2DWI(dirs, mask, d);
-		data.save_to_file<DiffusionImageType>(input_args.output_odf, dirs, input_args.is_compress);
-	}
 	return EXIT_SUCCESS;
 }

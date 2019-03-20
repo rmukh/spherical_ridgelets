@@ -3,9 +3,9 @@
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -ridg, -odf, -om, -or" << endl;
+		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -ridg, -odf, -omd" << endl;
 		cerr << "Optional input arguments: -m mask_file" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -om ODF_maxima -or orientations -c enable compression" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -omd ODF_maxima_dir_&_value -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -29,12 +29,8 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 			output.output_odf = argv[i + 1];
 			out1 = true;
 		}
-		if (!strcmp(argv[i], "-om")) {
+		if (!strcmp(argv[i], "-omd")) {
 			output.output_fiber_max_odf = argv[i + 1];
-			out1 = true;
-		}
-		if (!strcmp(argv[i], "-or")) {
-			output.output_dirs = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-c")) {
