@@ -51,9 +51,11 @@ void SPH_RIDG::init() {
 		M0(i, 0) = (int)pow((pow(2, i) * m0 + 1), 2);
 }
 
-MatrixType SPH_RIDG::RBasis(MatrixType u) {
+void SPH_RIDG::RBasis(MatrixType& A, MatrixType& u) {
 	cout << "Start computing R basis..." << endl;
-	MatrixType A = MatrixType::Zero(u.rows(), M0.sum());
+	A.resize(u.rows(), M0.sum());
+	A.setZero();
+
 	MatrixType P;
 	MatrixType x;
 
@@ -79,12 +81,13 @@ MatrixType SPH_RIDG::RBasis(MatrixType u) {
 		}
 		I += K;
 	}
-	return A;
 }
 
-MatrixType SPH_RIDG::QBasis(MatrixType u) {
+void SPH_RIDG::QBasis(MatrixType& Q, MatrixType& u) {
 	cout << "Start computing Q basis..." << endl;
-	MatrixType Q = MatrixType::Zero(u.rows(), M0.sum());
+	Q.resize(u.rows(), M0.sum());
+	Q.setZero();
+
 	MatrixType P;
 	MatrixType x;
 
@@ -112,13 +115,12 @@ MatrixType SPH_RIDG::QBasis(MatrixType u) {
 		}
 		I += K;
 	}
-	return Q;
 }
 
-MatrixType SPH_RIDG::normBasis(MatrixType B) {
-	MatrixType e = B * B.transpose();
-	SelfAdjointEigenSolver<MatrixType> eigensolver(B.rows());
+void SPH_RIDG::normBasis(MatrixType& mat) {
+	MatrixType e = mat * mat.transpose();
+	SelfAdjointEigenSolver<MatrixType> eigensolver(mat.rows());
 	eigensolver.compute(e, EigenvaluesOnly);
-	double lVal = eigensolver.eigenvalues()[B.rows() - 1];
-	return (1 / sqrt(lVal)) * B;
+	double lVal = eigensolver.eigenvalues()[mat.rows() - 1];
+	mat = (1 / sqrt(lVal)) * mat;
 }

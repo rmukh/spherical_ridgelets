@@ -227,10 +227,11 @@ void DATA_SOURCE::testFNC() {
 	UtilMath UM = UtilMath();
 	MatrixType g;
 	UM.spiralsample(g, 2, 100);
-	MatrixType A = test.RBasis(g);
-	MatrixType normA = test.normBasis(A);
+	MatrixType A;
+	test.RBasis(A, g);
+	test.normBasis(A);
 
-	test.normBasis(normA);
+	test.normBasis(A);
 }
 
 void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {

@@ -59,8 +59,9 @@ int main(int argc, char* argv[])
 
 	// Beginning of the main computational part
 	SPH_RIDG ridg(2, 0.5);
-	MatrixType A = ridg.RBasis(GradientDirections);
-	A = ridg.normBasis(A);
+	MatrixType A;
+	ridg.RBasis(A, GradientDirections);
+	ridg.normBasis(A);
 
 	SOLVERS slv(A, signal, 0.1);
 	MatrixType C = slv.FISTA();
@@ -86,7 +87,7 @@ int main(int argc, char* argv[])
 
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
 		m.icosahedron(nu, fcs, input_args.lvl);
-		Q = ridg.QBasis(nu); //Build a Q basis
+		ridg.QBasis(Q, nu); //Build a Q basis
 		ODF = Q * C;
 	}
 	cout << "odf output path " << input_args.output_fiber_max_odf << endl;
