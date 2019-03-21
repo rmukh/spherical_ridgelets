@@ -11,7 +11,8 @@ class DATA_SOURCE
 {
 public:
 	struct input_parse {
-		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf, output_dirs, output_odf;
+		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf, output_odf;
+		unsigned lvl;
 		bool is_compress;
 	};
 	int CLI(int argc, char * argv[], input_parse & output);

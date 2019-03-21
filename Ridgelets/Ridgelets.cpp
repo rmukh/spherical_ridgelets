@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	MatrixType ODF;
 
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
-		m.icosahedron(nu, fcs, 4);
+		m.icosahedron(nu, fcs, input_args.lvl);
 		Q = ridg.QBasis(nu); //Build a Q basis
 		ODF = Q * C;
 	}

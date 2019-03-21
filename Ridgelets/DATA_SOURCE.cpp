@@ -12,7 +12,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	bool inp1 = false;
 	bool out1 = false;
 	output.is_compress = false;
-
+	output.lvl = 4;
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -20,6 +20,18 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-m")) {
 			output.input_mask = argv[i + 1];
+		}
+		if (!strcmp(argv[i], "-lvl")) {
+			float order = stof(argv[i + 1]);
+			if (order == floor(order) && order > 0) {
+				output.lvl = order;
+			}
+			else {
+				cout << "The value for icosahedron "
+					"tesselation provided is in the wrong "
+					"format (must be a positive integer). "
+					"So default value 4 used." << endl;
+			}
 		}
 		if (!strcmp(argv[i], "-ridg")) {
 			output.output_ridgelets = argv[i + 1];
