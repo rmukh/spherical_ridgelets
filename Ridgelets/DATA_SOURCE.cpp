@@ -28,7 +28,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 			}
 			else {
 				cout << "The value for icosahedron "
-					"tesselation provided is in the wrong "
+					"tesselation order provided is in the wrong "
 					"format (must be a positive integer). "
 					"So default value 4 used." << endl;
 			}
