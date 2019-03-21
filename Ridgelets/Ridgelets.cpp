@@ -40,9 +40,22 @@ int main(int argc, char* argv[])
 	if (res_mask)
 		return EXIT_SUCCESS;
 
+	// Estimate dMRI Eigen matrix size
+	DiffusionImageType::SizeType dmri_size = dMRI->GetLargestPossibleRegion().GetSize();
+	long unsigned int dmri_memory = dmri_size[0] * dmri_size[1] * dmri_size[2] 
+		* dMRI->GetNumberOfComponentsPerPixel() * sizeof(double);
+	
+	// Estimate memory consumption by FISTA solver
+
+	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
+	}
+
+	cout << "To successfully finish computations you need at least " << dmri_memory / pow(1024, 3) << " GB of RAM and virtual memory combined" << endl;
+
 	//4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
 	data.DWI2Matrix(dMRI, mask, signal, nGradImgs, nOfImgs);
+	dMRI = nullptr;
 
 	// Beginning of the main computational part
 	SPH_RIDG ridg(2, 0.5);
@@ -76,6 +89,7 @@ int main(int argc, char* argv[])
 		Q = ridg.QBasis(nu); //Build a Q basis
 		ODF = Q * C;
 	}
+	cout << "odf output path " << input_args.output_fiber_max_odf << endl;
 
 	// ODF volume
 	if (!input_args.output_odf.empty()) {
@@ -88,14 +102,15 @@ int main(int argc, char* argv[])
 		data.Matrix2DWI(ODF_vals, mask, ODF);
 		data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
 	}
-
-
+	
 	if (!input_args.output_fiber_max_odf.empty()) {
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
 
+		MatrixType c;
+
 		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex_d, ODF, conn, nu);
+		m.FindMaxODFMaxInDMRI(ex_d, c, ODF, conn, nu);
 
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();
@@ -105,6 +120,15 @@ int main(int argc, char* argv[])
 
 		data.Matrix2DWI(modf, mask, ex_d);
 		data.save_to_file<DiffusionImageType>(input_args.output_fiber_max_odf, modf, input_args.is_compress);
+
+		//
+		DiffusionImagePointer co = DiffusionImageType::New();
+		data.copy_header(dMRI, co);
+		co->SetNumberOfComponentsPerPixel(c.rows());
+		co->Allocate();
+
+		data.Matrix2DWI(co, mask, c);
+		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\count.nrrd", co, input_args.is_compress);
 	}
 
 	return EXIT_SUCCESS;

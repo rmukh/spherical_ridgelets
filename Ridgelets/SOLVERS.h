@@ -12,6 +12,8 @@ public:
 	double lmd; //labmda parameter for FISTA training
 
 	SOLVERS();
+	~SOLVERS();
+
 	SOLVERS(MatrixType ridgelets, MatrixType voxels);
 	SOLVERS(MatrixType ridgelets, MatrixType voxels, double lambda);
 	MatrixType FISTA();

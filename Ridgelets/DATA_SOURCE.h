@@ -15,6 +15,10 @@ public:
 		unsigned lvl;
 		bool is_compress;
 	};
+
+	DATA_SOURCE();
+	~DATA_SOURCE();
+
 	int CLI(int argc, char * argv[], input_parse & output);
 	int readVolume(string inputVolume, MatrixType & GradientDirections, DiffusionImagePointer & image, unsigned & nGradImgs, unsigned & nOfImgs);
 	int readMask(string inputMask, MaskImagePointer & image);

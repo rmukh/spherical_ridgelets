@@ -8,6 +8,8 @@ SPH_RIDG::SPH_RIDG()
 	init();
 }
 
+SPH_RIDG::~SPH_RIDG() { cout << "SPH_RIDG destructed" << endl; }
+
 SPH_RIDG::SPH_RIDG(unsigned JIn, double rhoIn) {
 	J = JIn;
 	rho = rhoIn;

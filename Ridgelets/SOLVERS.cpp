@@ -5,6 +5,8 @@ SOLVERS::SOLVERS() {
 		"The last parameter - lambda value is optional.\n";
 }
 
+SOLVERS::~SOLVERS() { cout << "SOLVER destructed" << endl; }
+
 SOLVERS::SOLVERS(MatrixType ridgelets, MatrixType voxels) {
 	lmd = 0.1;
 	A = ridgelets;

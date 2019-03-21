@@ -16,6 +16,8 @@ public:
 	MatrixType C;
 
 	SPH_RIDG();
+	~SPH_RIDG();
+
 	SPH_RIDG(unsigned JIn, double rhoIn);
 	void init(); //pre-compute all necessary matricies/vectors
 

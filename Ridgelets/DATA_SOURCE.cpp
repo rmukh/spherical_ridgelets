@@ -1,5 +1,8 @@
 #include "DATA_SOURCE.h"
 
+DATA_SOURCE::DATA_SOURCE() {}
+DATA_SOURCE::~DATA_SOURCE() { cout << "DATA_SOURCE destructed" << endl; }
+
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
@@ -68,6 +71,7 @@ int DATA_SOURCE::readVolume(
 
 	// Another way to store image data
 	ImageReaderType::Pointer reader = ImageReaderType::New();
+	reader->ReleaseDataFlagOn();
 
 	// Make some inputfiles checks
 	string ext_vol = inputVolume.substr(inputVolume.length() - 4, inputVolume.length());
@@ -148,12 +152,12 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 	MaskReaderType::Pointer reader = MaskReaderType::New();
 
 	// Make some inputfiles checks
-	string ext_vol = inputMask.substr(inputMask.length() - 4, inputMask.length());
-
 	if (!is_path_exists(inputMask)) {
 		cout << "Input mask image is not provided. Please, stop program and provide mask file if you forget to include it." << endl;
 		return EXIT_SUCCESS;
 	}
+
+	string ext_vol = inputMask.substr(inputMask.length() - 4, inputMask.length());
 
 	if (ext_vol.compare("nhdr")) {
 		if (ext_vol.compare("nrrd")) {

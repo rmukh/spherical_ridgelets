@@ -3,6 +3,9 @@
 #define CONVHULL_3D_ENABLE
 #include "convhull_3d.h"
 
+UtilMath::UtilMath() {}
+UtilMath::~UtilMath() { cout << "UtilMath desctructed" << endl; }
+
 void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 {
 	/*
@@ -499,10 +502,13 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	}
 }
 
-void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& ODF, vector<vector<unsigned>>& conn, MatrixType& nu)
+void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType& ODF, vector<vector<unsigned>>& conn, MatrixType& nu)
 {
 	fin.resize((6 * 3) + 6, ODF.cols());
 	fin.setZero((6 * 3) + 6, ODF.cols());
+
+	cnt.resize(1, ODF.cols());
+	cnt.setZero(1, ODF.cols());
 
 	for (unsigned i = 0; i < ODF.cols(); ++i) 
 	{
@@ -511,6 +517,8 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& ODF, vector<vect
 		MatrixType vol = ODF.col(i);
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
+
+		cnt(i) = exe_vol.rows();
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);
