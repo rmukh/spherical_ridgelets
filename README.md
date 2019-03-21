@@ -30,9 +30,9 @@ Package to compute spherical ridgelets.
 The final binary file will be in *Ridgelets-build* directory named as *sphridg*
 
 ## Basic Usage
-* Mandatory input argument: *-i [dMRI file name]*
-* Optional input arguments: *-m [mask file]*
-* Output arguments: *-ridg [ridgelet file name]* -odf *[ODF values file name]* -omd *[ODF maxima directions and values file name]* *-c* enable compression of output files
+* Mandatory input argument: -i *[dMRI file name]*
+* Optional input arguments: -m *[mask file]* -lvl *[icosahedron tesselation order, 4 by default]*
+* Output arguments: -ridg *[ridgelet file name]* -odf *[ODF values file name]* -omd *[ODF maxima directions and values file name]* -c *enable compression of output files*
 
 **Should** be at least input dMRI file and one output file.
 
