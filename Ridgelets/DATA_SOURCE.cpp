@@ -68,6 +68,7 @@ int DATA_SOURCE::readVolume(
 
 	// Another way to store image data
 	ImageReaderType::Pointer reader = ImageReaderType::New();
+	reader->ReleaseDataFlagOn();
 
 	// Make some inputfiles checks
 	string ext_vol = inputVolume.substr(inputVolume.length() - 4, inputVolume.length());
