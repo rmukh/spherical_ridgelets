@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
 	//4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
 	data.DWI2Matrix(dMRI, mask, signal, nGradImgs, nOfImgs);
+	dMRI = nullptr;
 
 	// Beginning of the main computational part
 	SPH_RIDG ridg(2, 0.5);
