@@ -148,12 +148,12 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 	MaskReaderType::Pointer reader = MaskReaderType::New();
 
 	// Make some inputfiles checks
-	string ext_vol = inputMask.substr(inputMask.length() - 4, inputMask.length());
-
 	if (!is_path_exists(inputMask)) {
 		cout << "Input mask image is not provided. Please, stop program and provide mask file if you forget to include it." << endl;
 		return EXIT_SUCCESS;
 	}
+
+	string ext_vol = inputMask.substr(inputMask.length() - 4, inputMask.length());
 
 	if (ext_vol.compare("nhdr")) {
 		if (ext_vol.compare("nrrd")) {
