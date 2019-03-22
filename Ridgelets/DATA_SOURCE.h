@@ -3,9 +3,7 @@
 
 #include "UtilMath.h"
 #include "SPH_RIDG.h"
-
-#include <string>
-#include <fstream>
+#include "SIGNAL_GENERATOR.h"
 
 class DATA_SOURCE
 {
@@ -20,13 +18,12 @@ public:
 	~DATA_SOURCE();
 
 	int CLI(int argc, char * argv[], input_parse & output);
-	int readVolume(string inputVolume, MatrixType & GradientDirections, DiffusionImagePointer & image, unsigned & nGradImgs, unsigned & nOfImgs);
 	int readMask(string inputMask, MaskImagePointer & image);
-	void copy_header(DiffusionImagePointer & src, DiffusionImagePointer & dest);
+	void set_header(DiffusionImagePointer & dest);
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType & g, MatrixType & s);
-	void DWI2Matrix(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & signal, unsigned & nGradImgs, unsigned & nOfImgs);
+	int DWI2Matrix(string & dmri_file, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);
 	void matrixToFile(const string & fname, MatrixType & matrix);
 	void fileToMatrix(const string & fname, MatrixType & arr);

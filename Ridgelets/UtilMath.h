@@ -1,7 +1,6 @@
 #ifndef UTILMATH_H
 #define UTILMATH_H
 
-#include <iostream>
 #include "rdgls_types.h"
 
 using namespace std;

@@ -27,24 +27,22 @@ int main(int argc, char* argv[])
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 
-	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
-	DiffusionImagePointer dMRI;
-	unsigned nGradImgs = 0; // Number of gradient images
-	unsigned nOfImgs = 0; // Total number of images (including b0)
-	int res_dmri = data.readVolume(input_args.input_dmri, GradientDirections, dMRI, nGradImgs, nOfImgs);
-	if (res_dmri)
-		return EXIT_SUCCESS;
-
 	MaskImagePointer mask;
 	int res_mask = data.readMask(input_args.input_mask, mask);
 	if (res_mask)
 		return EXIT_SUCCESS;
 
+	//4D dMRI image to Eigen 2D Matrix
+	MatrixType signal;
+	MatrixType GradientDirections; // Matrix with dMRI image gradient directions
+	int res_dmri = data.DWI2Matrix(input_args.input_dmri, mask, signal, GradientDirections);
+
+	if (res_dmri)
+		return EXIT_SUCCESS;
+
 	// Estimate dMRI Eigen matrix size
-	DiffusionImageType::SizeType dmri_size = dMRI->GetLargestPossibleRegion().GetSize();
-	long unsigned int dmri_memory = dmri_size[0] * dmri_size[1] * dmri_size[2] 
-		* dMRI->GetNumberOfComponentsPerPixel() * sizeof(double);
-	
+	long unsigned int dmri_memory = signal.size() * sizeof(double);
+
 	// Estimate memory consumption by FISTA solver
 
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
@@ -52,18 +50,13 @@ int main(int argc, char* argv[])
 
 	cout << "To successfully finish computations you need at least " << dmri_memory / pow(1024, 3) << " GB of RAM and virtual memory combined" << endl;
 
-	//4D dMRI image to Eigen 2D Matrix
-	MatrixType signal;
-	data.DWI2Matrix(dMRI, mask, signal, nGradImgs, nOfImgs);
-	dMRI = nullptr;
-
 	// Beginning of the main computational part
 	SPH_RIDG ridg(2, 0.5);
 	MatrixType A;
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
 
-	SOLVERS slv(A, signal, 0.1);
+	SOLVERS slv(A, signal, 0.1); //Need to optimize here!
 	MatrixType C = slv.FISTA();
 
 	// Save to file what user requested through command line
@@ -71,7 +64,7 @@ int main(int argc, char* argv[])
 	if (!input_args.output_ridgelets.empty()) {
 		cout << "Saving ridgelets coefficients..." << endl;
 		DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
-		data.copy_header(dMRI, Ridg_coeff);
+		data.set_header(Ridg_coeff);
 		Ridg_coeff->SetNumberOfComponentsPerPixel(C.rows());
 		Ridg_coeff->Allocate();
 
@@ -90,13 +83,12 @@ int main(int argc, char* argv[])
 		ridg.QBasis(Q, nu); //Build a Q basis
 		ODF = Q * C;
 	}
-	cout << "odf output path " << input_args.output_fiber_max_odf << endl;
 
 	// ODF volume
 	if (!input_args.output_odf.empty()) {
 		cout << "Saving ODF values..." << endl;
 		DiffusionImagePointer ODF_vals = DiffusionImageType::New();
-		data.copy_header(dMRI, ODF_vals);
+		data.set_header(ODF_vals);
 		ODF_vals->SetNumberOfComponentsPerPixel(Q.rows());
 		ODF_vals->Allocate();
 
@@ -115,7 +107,7 @@ int main(int argc, char* argv[])
 
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();
-		data.copy_header(dMRI, modf);
+		data.set_header(modf);
 		modf->SetNumberOfComponentsPerPixel(ex_d.rows());
 		modf->Allocate();
 
@@ -124,7 +116,7 @@ int main(int argc, char* argv[])
 
 		//
 		DiffusionImagePointer co = DiffusionImageType::New();
-		data.copy_header(dMRI, co);
+		data.set_header(co);
 		co->SetNumberOfComponentsPerPixel(c.rows());
 		co->Allocate();
 
