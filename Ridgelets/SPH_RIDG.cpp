@@ -57,6 +57,7 @@ void SPH_RIDG::RBasis(MatrixType& A, MatrixType& u) {
 	A.setZero();
 
 	MatrixType P;
+	MatrixType X;
 	MatrixType x;
 
 	MatrixType v;
@@ -72,10 +73,10 @@ void SPH_RIDG::RBasis(MatrixType& A, MatrixType& u) {
 		vv = v.topRows(K);
 
 		r = C.cwiseProduct(psi.col(i));
+		P = MatrixType::Ones(u.rows(), mcut + 1);
+		X = u * vv.transpose();
 		for (int k = 0; k < K; ++k) {
-			x = u * vv.row(k).transpose();
-			unsigned N = (unsigned)x.rows();
-			P = MatrixType::Ones(N, mcut + 1);
+			x = X.col(k);
 			UM.polyleg(P, x, mcut);
 			A.col(k + I) = P * r;
 		}

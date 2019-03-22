@@ -36,7 +36,6 @@ int main(int argc, char* argv[])
 	MatrixType signal;
 	MatrixType GradientDirections; // Matrix with dMRI image gradient directions
 	int res_dmri = data.DWI2Matrix(input_args.input_dmri, mask, signal, GradientDirections);
-
 	if (res_dmri)
 		return EXIT_SUCCESS;
 

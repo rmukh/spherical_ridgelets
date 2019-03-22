@@ -76,7 +76,7 @@ void UtilMath::fura(MatrixType& Lmd, unsigned n)
 	//Lmd = Lmd * (2 * PI);
 }
 
-void UtilMath::polyleg(MatrixType& P, MatrixType x, unsigned n)
+void UtilMath::polyleg(MatrixType& P, MatrixType& x, unsigned n)
 {
 	//from polyleg.m
 
