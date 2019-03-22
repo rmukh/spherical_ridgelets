@@ -15,11 +15,7 @@ public:
 	int ExtractMatrix(MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	unsigned nGradImgs = 0; // Number of gradient images
 	unsigned nOfImgs = 0; // Total number of images (including b0)
-	//src->GetSpacing());
-	//dest->SetDirection(src->GetDirection());
-	//dest->SetOrigin(src->GetOrigin());
-	//dest->SetRegions(src->GetLargestPossibleRegion());
-	//dest->SetNumberOfComponentsPerPixel(src->GetNumberOfComponentsPerPixel());
+	dMRI_h_info h;
 
 private:
 	const string & inputVolume;

@@ -53,6 +53,12 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 	}
 
 	// Get and process header information
+	h.spc_h = image->GetSpacing();
+	h.dirs_h = image->GetDirection();
+	h.orig_h = image->GetOrigin();
+	h.reg_h = image->GetLargestPossibleRegion();
+	h.comp_h = image->GetNumberOfComponentsPerPixel();
+
 	itk::MetaDataDictionary imgMetaDictionary = image->GetMetaDataDictionary();
 	vector<string> imgMetaKeys = imgMetaDictionary.GetKeys();
 	vector<string>::const_iterator itKey = imgMetaKeys.begin();

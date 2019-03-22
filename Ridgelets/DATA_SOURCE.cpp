@@ -121,12 +121,13 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, b
 }
 
 void DATA_SOURCE::set_header(DiffusionImagePointer& dest) {
+	// Commented header information might be utilized in future
 	//dest->SetMetaDataDictionary(src->GetMetaDataDictionary());
-	//dest->SetSpacing(src->GetSpacing());
-	//dest->SetDirection(src->GetDirection());
-	//dest->SetOrigin(src->GetOrigin());
-	//dest->SetRegions(src->GetLargestPossibleRegion());
-	//dest->SetNumberOfComponentsPerPixel(src->GetNumberOfComponentsPerPixel());
+	//dest->SetNumberOfComponentsPerPixel(h.comp_h);
+	dest->SetSpacing(h.spc_h);
+	dest->SetDirection(h.dirs_h);
+	dest->SetOrigin(h.orig_h);
+	dest->SetRegions(h.reg_h);
 }
 
 bool DATA_SOURCE::is_path_exists(const string &s)
@@ -166,6 +167,7 @@ int DATA_SOURCE::DWI2Matrix(string &dmri_file, MaskImagePointer &mask, MatrixTyp
 {
 	SIGNAL_GENERATOR sg(dmri_file);
 	int res_dmri = sg.ExtractMatrix(mask, signal, grad_dirs);
+	h = sg.h;
 	if (res_dmri)
 		return EXIT_FAILURE;
 	return EXIT_SUCCESS;

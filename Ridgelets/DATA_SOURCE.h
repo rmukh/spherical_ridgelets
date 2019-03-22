@@ -31,6 +31,7 @@ public:
 	int save_to_file(const string & fname, typename D::Pointer & image, bool is_compress);
 	template<typename T>
 	void printVec(const string & name, vector<T>& v);
+	dMRI_h_info h;
 };
 
 #endif
