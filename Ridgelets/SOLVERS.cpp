@@ -21,9 +21,13 @@ MatrixType SOLVERS::FISTA() {
 	double t = 0;
 	double e_old = 1e32;
 	double e;
-
+	MatrixType tmp;
 	for (int iter = 0; iter < 10; ++iter) {
-		x = y + A->transpose() * (*s - *A * y);
+		//Make speed and values tests of this part
+		tmp = *s;
+		tmp.noalias() -= *A * y;
+		x = y;
+		x.noalias() += A->transpose() * tmp;
 		//Soft thresholding
 		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
 
