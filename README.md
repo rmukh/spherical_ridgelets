@@ -41,7 +41,7 @@ For example:
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 
 # Important notes
-For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed. The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet. This package was tested on *Linux* only! *MacOS* and *Windows* compatibility is not guaranteed for now.
+For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed. The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet. This package was tested on *Linux* only! *MacOS* and *Windows* compatibility is not guaranteed for now. When saving **ODF values** you may experience problems with that if you don't have enough **RAM memory** and saving operation might **fail**.
 
 # Advanced users
 
