@@ -28,7 +28,7 @@ public:
 	void FindConnectivity(vector<vector<unsigned>>& conn, MatrixType & fcs, unsigned N);
 	void remove_row(MatrixType & a, MatrixType::Index del);
 	void FindODFMaxima(MatrixType & ex, MatrixType & d, MatrixType & W, vector<vector<unsigned>>& conn, MatrixType & u, float thresh = 0.7);
-	void FindMaxODFMaxInDMRI(MatrixType & fin, MatrixType& cnt, MatrixType & ODF, vector<vector<unsigned>>& conn, MatrixType & nu);
+	void FindMaxODFMaxInDMRI(MatrixType & fin, MatrixType& cnt, MatrixType & Q, MatrixType & C, vector<vector<unsigned>>& conn, MatrixType & nu);
 };
 
 #endif // ! UTILMATH_H

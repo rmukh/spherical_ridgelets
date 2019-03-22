@@ -502,19 +502,20 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	}
 }
 
-void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType& ODF, vector<vector<unsigned>>& conn, MatrixType& nu)
+void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType& Q, 
+	MatrixType& C, vector<vector<unsigned>>& conn, MatrixType& nu)
 {
-	fin.resize((6 * 3) + 6, ODF.cols());
-	fin.setZero((6 * 3) + 6, ODF.cols());
+	fin.resize((6 * 3) + 6, C.cols());
+	fin.setZero((6 * 3) + 6, C.cols());
 
-	cnt.resize(1, ODF.cols());
-	cnt.setZero(1, ODF.cols());
+	cnt.resize(1, C.cols());
+	cnt.setZero(1, C.cols());
 
-	for (unsigned i = 0; i < ODF.cols(); ++i) 
+	for (unsigned i = 0; i < C.cols(); ++i) 
 	{
 		MatrixType exe_vol;
 		MatrixType dir_vol;
-		MatrixType vol = ODF.col(i);
+		MatrixType vol = Q * C.col(i);
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
 

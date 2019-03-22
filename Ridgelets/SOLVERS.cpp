@@ -11,7 +11,7 @@ SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels) : A(&ridgelets), s(&
 
 SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels, double lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
 
-MatrixType SOLVERS::FISTA() {
+void SOLVERS::FISTA(MatrixType& x) {
 	cout << "Start computing ridgelets coefficients..." << endl;
 
 	MatrixType y = MatrixType::Zero(A->cols(), s->cols());
@@ -23,11 +23,8 @@ MatrixType SOLVERS::FISTA() {
 	double e;
 	MatrixType tmp;
 	for (int iter = 0; iter < 10; ++iter) {
-		//Make speed and values tests of this part
-		tmp = *s;
-		tmp.noalias() -= *A * y;
-		x = y;
-		x.noalias() += A->transpose() * tmp;
+		x = y + A->transpose() * (*s - *A * y);
+
 		//Soft thresholding
 		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
 
@@ -46,5 +43,4 @@ MatrixType SOLVERS::FISTA() {
 		t_old = t;
 		// cout << "Iteration " << iter << " finished\n";
 	}
-	return x;
 }

@@ -55,8 +55,11 @@ int main(int argc, char* argv[])
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
 
-	SOLVERS slv(A, signal, 0.1); //Need to optimize here!
-	MatrixType C = slv.FISTA();
+	MatrixType C;
+	{
+		SOLVERS slv(A, signal, 0.1); //Need to optimize here!
+		slv.FISTA(C);
+	}
 
 	// Save to file what user requested through command line
 	// Ridgelets coefficients
@@ -80,11 +83,12 @@ int main(int argc, char* argv[])
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
 		m.icosahedron(nu, fcs, input_args.lvl);
 		ridg.QBasis(Q, nu); //Build a Q basis
-		ODF = Q * C;
 	}
 
 	// ODF volume
 	if (!input_args.output_odf.empty()) {
+		ODF = Q * C;
+
 		cout << "Saving ODF values..." << endl;
 		DiffusionImagePointer ODF_vals = DiffusionImageType::New();
 		data.set_header(ODF_vals);
@@ -102,7 +106,7 @@ int main(int argc, char* argv[])
 		MatrixType c;
 
 		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex_d, c, ODF, conn, nu);
+		m.FindMaxODFMaxInDMRI(ex_d, c, Q, C, conn, nu);
 
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();
