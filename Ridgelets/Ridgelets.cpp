@@ -39,26 +39,18 @@ int main(int argc, char* argv[])
 	if (res_dmri)
 		return EXIT_SUCCESS;
 
-	// Estimate dMRI Eigen matrix size
-	long unsigned int dmri_memory = signal.size() * sizeof(double);
-
-	// Estimate memory consumption by FISTA solver
-
-	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
-	}
-
-	cout << "To successfully finish computations you need at least " << dmri_memory / pow(1024, 3) << " GB of RAM and virtual memory combined" << endl;
-
 	// Beginning of the main computational part
 	SPH_RIDG ridg(2, 0.5);
 	MatrixType A;
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
 
+	data.estimate_memory(signal, A);
+
 	MatrixType C;
 	{
-		SOLVERS slv(A, signal, 0.1); //Need to optimize here!
-		slv.FISTA(C);
+		SOLVERS slv(A, signal, 0.1);
+		slv.FISTA(C);  //have a potentinal for optimization
 	}
 
 	// Save to file what user requested through command line
@@ -124,7 +116,7 @@ int main(int argc, char* argv[])
 		co->Allocate();
 
 		data.Matrix2DWI(co, mask, c);
-		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\count.nrrd", co, input_args.is_compress);
+		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\to_compare\\count.nrrd", co, input_args.is_compress);
 	}
 
 	return EXIT_SUCCESS;

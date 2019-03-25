@@ -163,6 +163,17 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 		g.row(i) = g.row(i) / gnorm(i);
 }
 
+void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A) {
+	// Estimate dMRI Eigen matrix size
+	unsigned long long int dmri_memory = s.size() * sizeof(double);
+
+	// Estimate memory consumption by FISTA solver
+	unsigned long long int fista_memory = 4 * (s.cols() * A.cols() * sizeof(double));
+
+	cout << "IMPORTANT! To successfully finish computations you need at least ";
+	cout << (fista_memory + dmri_memory) / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
+}
+
 int DATA_SOURCE::DWI2Matrix(string &dmri_file, MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
 {
 	SIGNAL_GENERATOR sg(dmri_file);

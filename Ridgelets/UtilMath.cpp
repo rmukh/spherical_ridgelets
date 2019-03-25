@@ -519,7 +519,10 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType&
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
 
-		cnt(i) = exe_vol.rows();
+		if (exe_vol.rows() < 16)
+			cnt(i) = exe_vol.rows();
+		else
+			cnt(i) = 0;
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);
