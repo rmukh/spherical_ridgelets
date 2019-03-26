@@ -170,7 +170,7 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A) {
 	// Estimate memory consumption by FISTA solver
 	unsigned long long int fista_memory = 4 * (s.cols() * A.cols() * sizeof(double));
 
-	cout << "IMPORTANT! To successfully finish computations you need at least ";
+	cout << "IMPORTANT! To successfully finish computations you need approximately ";
 	cout << (fista_memory + dmri_memory) / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
 }
 
@@ -185,12 +185,13 @@ int DATA_SOURCE::DWI2Matrix(string &dmri_file, MaskImagePointer &mask, MatrixTyp
 }
 
 void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask, MatrixType &arr) {
-	unsigned n_of_components = arr.rows();
+	int n_of_components = arr.rows();
 
 	// Make a vector of zeros
 	VariableVectorType zeros_vec;
 	zeros_vec.SetSize(n_of_components);
-	for (unsigned i = 0; i < n_of_components; ++i) {
+	#pragma omp parallel for
+	for (int i = 0; i < n_of_components; ++i) {
 		zeros_vec[i] = 0;
 	}
 	img->FillBuffer(zeros_vec);
@@ -216,7 +217,7 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 			while (!it.IsAtEndOfLine())
 			{
 				if (it_m.Get() == 1) {
-					for (unsigned i = 0; i < n_of_components; ++i) {
+					for (int i = 0; i < n_of_components; ++i) {
 						vec_to_fill[i] = arr(i, vox);
 					}
 					it.Set(vec_to_fill);
@@ -234,7 +235,7 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 		{
 			while (!it.IsAtEndOfLine())
 			{
-				for (unsigned i = 0; i < n_of_components; ++i) {
+				for (int i = 0; i < n_of_components; ++i) {
 					vec_to_fill[i] = arr(i, vox);
 				}
 

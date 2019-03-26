@@ -50,8 +50,26 @@ int main(int argc, char* argv[])
 	MatrixType C;
 	{
 		SOLVERS slv(A, signal, 0.1);
+		high_resolution_clock::time_point t1 = high_resolution_clock::now(); //start timer point
 		slv.FISTA(C);  //have a potentinal for optimization
+		high_resolution_clock::time_point u2 = high_resolution_clock::now();
+		auto duration = duration_cast<seconds>(u2 - t1).count();
+		cout << "Execution time 1 : " << duration << " seconds" << endl;
 	}
+
+	MatrixType C2;
+	{
+		SOLVERS slv(A, signal, 0.1);
+		high_resolution_clock::time_point t1 = high_resolution_clock::now(); //start timer point
+		slv.FISTA2(C2);  //have a potentinal for optimization
+		high_resolution_clock::time_point u2 = high_resolution_clock::now();
+		auto duration = duration_cast<seconds>(u2 - t1).count();
+		cout << "Execution time 2 : " << duration << " seconds" << endl;
+	}
+
+	cout << "first comp" << endl;
+	for (int i = 0; i < C.rows(); ++i)
+		cout << C(i, 530000) << " " << C2(i, 530000) << " " << C2(i, 530000 + 1) << " " << C2(i, 530000 - 1) << endl;
 
 	// Save to file what user requested through command line
 	// Ridgelets coefficients
