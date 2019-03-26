@@ -11,6 +11,7 @@ public:
 	struct input_parse {
 		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf, output_odf;
 		unsigned lvl;
+		int n_splits;
 		bool is_compress;
 	};
 
@@ -23,7 +24,7 @@ public:
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType & g, MatrixType & s);
-	void estimate_memory(MatrixType & s, MatrixType & A);
+	void estimate_memory(MatrixType & s, MatrixType & A, int n_splits);
 	int DWI2Matrix(string & dmri_file, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);
 	void matrixToFile(const string & fname, MatrixType & matrix);

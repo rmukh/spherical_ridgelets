@@ -7,7 +7,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
 		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -ridg, -odf, -omd" << endl;
-		cerr << "Optional input arguments: -m mask_file" << endl;
+		cerr << "Optional input arguments: -m mask_file -lvl ridgelets_order -nspl splits" << endl;
 		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -omd ODF_maxima_dir_&_value -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
@@ -16,6 +16,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	bool out1 = false;
 	output.is_compress = false;
 	output.lvl = 4;
+	output.n_splits = 16;
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -34,6 +35,18 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 					"tesselation order provided is in the wrong "
 					"format (must be a positive integer). "
 					"So default value 4 used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-nspl")) {
+			float splt = stof(argv[i + 1]);
+			if (splt == floor(splt) && splt > 0) {
+				output.n_splits = splt;
+			}
+			else {
+				cout << "The value for number of ridgelet "
+					"coefficients splits provided is in "
+					"the wrong format (must be a positive integer). "
+					"So default value 16 used." << endl;
 			}
 		}
 		if (!strcmp(argv[i], "-ridg")) {
@@ -163,15 +176,22 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 		g.row(i) = g.row(i) / gnorm(i);
 }
 
-void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A) {
+void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, int n_splits) {
+	// Get the number of threads
+	unsigned n_threads = Eigen::nbThreads();
+
 	// Estimate dMRI Eigen matrix size
 	unsigned long long int dmri_memory = s.size() * sizeof(double);
 
 	// Estimate memory consumption by FISTA solver
-	unsigned long long int fista_memory = 4 * (s.cols() * A.cols() * sizeof(double));
+	unsigned long long int fista_memory_x = s.cols() * A.cols() * sizeof(double);
+	unsigned long long int fista_memory_loop = n_threads * 4 * (s.cols() / n_splits) * A.cols() * sizeof(double);
+	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
 
 	cout << "IMPORTANT! To successfully finish computations you need approximately ";
-	cout << (fista_memory + dmri_memory) / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
+	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
+	cout << "If you want to reduce memory consumption, please, increase the value of -nspl parameter (16 by default). "
+		"Preferably should be multiple of 2. " << endl;
 }
 
 int DATA_SOURCE::DWI2Matrix(string &dmri_file, MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
