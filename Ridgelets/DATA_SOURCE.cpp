@@ -7,7 +7,8 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
 		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -odf, -omd" << endl;
-		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits coefficient, -mth maxima ODF threshold" << endl;
+		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
+			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho" << endl;
 		cerr << "Possible output argumet(s): -ridg ridgelet_file, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
@@ -19,6 +20,8 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	output.n_splits = -1;
 	output.max_odf_thresh = 0.7;
 	output.fista_lambda = 0.01;
+	output.sph_J = 2;
+	output.sph_rho = 3.125;
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -26,6 +29,30 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-m")) {
 			output.input_mask = argv[i + 1];
+		}
+		if (!strcmp(argv[i], "-sj")) {
+			float sj = stof(argv[i + 1]);
+			if (sj == floor(sj) && sj > 0) {
+				output.sph_J = sj;
+			}
+			else {
+				cout << "The J value of spherical ridgelets  "
+					"basis provided is in the wrong "
+					"format (must be a positive integer). "
+					"So, default value 2 used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-srho")) {
+			float rho = stof(argv[i + 1]);
+			if (rho > 0) {
+				output.sph_rho = rho;
+			}
+			else {
+				cout << "The maxima ODF search threshold "
+					"coefficient provided is in the wrong "
+					"format (must be float point number > 0). "
+					"So, the default value 3.125 used." << endl;
+			}
 		}
 		if (!strcmp(argv[i], "-lvl")) {
 			float order = stof(argv[i + 1]);
@@ -101,8 +128,10 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 void DATA_SOURCE::short_summary(input_parse& params) {
 	// Show summary on parameters will be used during computations
 
-	cout << "Summary on used parameters" << endl;
+	cout << "Summary on parameters" << endl;
 	cout << "-----------------------------------" << endl;
+	cout << "Spherical ridgelets J: " << params.sph_J << endl;
+	cout << "Spherical ridgelets rho: " << params.sph_rho << endl;
 	cout << "Icosahedron tesselation order: " << params.lvl << endl;
 	cout << "Maxima ODF threshold: " << params.max_odf_thresh << endl;
 	cout << "FISTA lambda parameter: " << params.fista_lambda << endl;

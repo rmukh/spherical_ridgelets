@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 
 	// Beginning of the main computational part
-	SPH_RIDG ridg(2, 0.32);
+	SPH_RIDG ridg(input_args.sph_J, 1/input_args.sph_rho);
 	MatrixType A;
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
