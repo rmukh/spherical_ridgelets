@@ -110,7 +110,10 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 		return EXIT_FAILURE;
 
 	int N_of_voxels = 0;
+
 	if (mask != nullptr) {
+		//If mask provided
+
 		MaskIterator m_it(mask, mask->GetRequestedRegion());
 
 		m_it.SetDirection(0);
@@ -151,10 +154,23 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 		{
 			while (!it_i.IsAtEndOfLine())
 			{
+				// Take pixels only within the mask region
 				if (it_m.Get() == 1) {
 					voxel_content = it_i.Get();
-					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
+
+					// Calculate average b0 value for the voxel
+					double avrgb0_sum = 0;
+					for (unsigned i = 0; i < first_grad_image_index; ++i) {
 						double vol = voxel_content.GetElement(i);
+						avrgb0_sum += vol;
+					}
+					double avrg_b0 = avrgb0_sum / first_grad_image_index;
+					if (avrg_b0 == 0)
+						avrg_b0 = 1;
+
+					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
+						// Get diffusion pixel and normalize to b0
+						double vol = voxel_content.GetElement(i) / avrg_b0;
 						// Remove negative values
 						if (vol > 0)
 							signal(i - first_grad_image_index, vox) = vol;
@@ -178,8 +194,20 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 			while (!it.IsAtEndOfLine())
 			{
 				voxel_content = it.Get();
-				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
+				
+				// Calculate average b0 value for the voxel
+				double avrgb0_sum = 0;
+				for (unsigned i = 0; i < first_grad_image_index; ++i) {
 					double vol = voxel_content.GetElement(i);
+					avrgb0_sum += vol;
+				}
+				double avrg_b0 = avrgb0_sum / first_grad_image_index;
+				if (avrg_b0 == 0)
+					avrg_b0 = 1;
+
+				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
+					// Get diffusion pixel and normalize to b0
+					double vol = voxel_content.GetElement(i) / avrg_b0;
 					// Remove negative values
 					if (vol > 0)
 						signal(i - first_grad_image_index, vox) = vol;

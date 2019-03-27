@@ -40,16 +40,16 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 
 	// Beginning of the main computational part
-	SPH_RIDG ridg(2, 0.5);
+	SPH_RIDG ridg(2, 0.32);
 	MatrixType A;
 	ridg.RBasis(A, GradientDirections);
+	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\A.txt", A);
 	ridg.normBasis(A);
-
 	data.estimate_memory(signal, A, input_args.n_splits);
 
 	MatrixType C;
 	{
-		SOLVERS slv(A, signal, 0.1);
+		SOLVERS slv(A, signal, 0.01);
 		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
 	}
 
@@ -70,7 +70,9 @@ int main(int argc, char* argv[])
 	MatrixType fcs;
 	MatrixType nu;
 	MatrixType Q;
-	MatrixType ODF;
+
+	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\nu.txt", nu);
+	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\fcs.txt", fcs);
 
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
 		m.icosahedron(nu, fcs, input_args.lvl);
@@ -79,7 +81,7 @@ int main(int argc, char* argv[])
 
 	// ODF volume
 	if (!input_args.output_odf.empty()) {
-		ODF = Q * C;
+		MatrixType ODF = Q * C;
 
 		cout << "Saving ODF values..." << endl;
 		DiffusionImagePointer ODF_vals = DiffusionImageType::New();
@@ -116,7 +118,7 @@ int main(int argc, char* argv[])
 		co->Allocate();
 
 		data.Matrix2DWI(co, mask, c);
-		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\to_compare\\count.nrrd", co, input_args.is_compress);
+		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\to_compare\\count4.nrrd", co, input_args.is_compress);
 	}
 
 	return EXIT_SUCCESS;
