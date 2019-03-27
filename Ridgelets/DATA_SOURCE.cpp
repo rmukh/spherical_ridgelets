@@ -6,9 +6,9 @@ DATA_SOURCE::~DATA_SOURCE() { cout << "DATA_SOURCE destructed" << endl; }
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -ridg, -odf, -omd" << endl;
-		cerr << "Optional input arguments: -m mask_file -lvl ridgelets_order -nspl splits" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -omd ODF_maxima_dir_&_value -c enable compression" << endl;
+		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -odf, -omd" << endl;
+		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits coefficient, -mth maxima ODF threshold" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -16,7 +16,9 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	bool out1 = false;
 	output.is_compress = false;
 	output.lvl = 4;
-	output.n_splits = 16;
+	output.n_splits = -1;
+	output.max_odf_thresh = 0.7;
+	output.fista_lambda = 0.01;
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -34,7 +36,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 				cout << "The value for icosahedron "
 					"tesselation order provided is in the wrong "
 					"format (must be a positive integer). "
-					"So default value 4 used." << endl;
+					"So, default value 4 used." << endl;
 			}
 		}
 		if (!strcmp(argv[i], "-nspl")) {
@@ -43,10 +45,34 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 				output.n_splits = splt;
 			}
 			else {
-				cout << "The value for number of ridgelet "
-					"coefficients splits provided is in "
-					"the wrong format (must be a positive integer). "
-					"So default value 16 used." << endl;
+				cout << "The split coefficient for the ridgelets "
+					"computation provided is in the wrong "
+					"format (must be a positive integer). "
+					"So, the default value (available CPU threads * 2) used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-mth")) {
+			float th = stof(argv[i + 1]);
+			if (th > 0 && th < 1) {
+				output.max_odf_thresh = th;
+			}
+			else {
+				cout << "The maxima ODF search threshold "
+					"coefficient provided is in the wrong "
+					"format (must be in (0, 1)). "
+					"So, the default value 0.7 used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-lmd")) {
+			float lmd = stof(argv[i + 1]);
+			if (lmd > 0 && lmd < 1) {
+				output.fista_lambda = lmd;
+			}
+			else {
+				cout << "The lambda parameter of FISTA "
+					"provided is in the wrong "
+					"format (must be in (0, 1)). "
+					"So, the default value 0.01 used." << endl;
 			}
 		}
 		if (!strcmp(argv[i], "-ridg")) {
@@ -72,6 +98,20 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	return 0;
 }
 
+void DATA_SOURCE::short_summary(input_parse& params) {
+	// Show summary on parameters will be used during computations
+
+	cout << "Summary on used parameters" << endl;
+	cout << "-----------------------------------" << endl;
+	cout << "Icosahedron tesselation order: " << params.lvl << endl;
+	cout << "Maxima ODF threshold: " << params.max_odf_thresh << endl;
+	cout << "FISTA lambda parameter: " << params.fista_lambda << endl;
+	cout << "Number of splits: " << params.n_splits << endl;
+	cout << "File(s) compression enabled: ";
+	params.is_compress ? cout << "yes" : cout << "no" << endl;
+	cout << "-----------------------------------" << endl;
+}
+
 int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 	// We need mask within the main program so it is implemented in that class
 
@@ -83,7 +123,8 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 
 	// Make some inputfiles checks
 	if (!is_path_exists(inputMask)) {
-		cout << "Input mask image is not provided. Please, stop program and provide mask file if you forget to include it." << endl;
+		cout << "Input mask image is not provided. Please, stop program and provide mask file "
+			"if you forget to include it." << endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -190,8 +231,15 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, int n_splits) {
 
 	cout << "IMPORTANT! To successfully finish computations you need approximately ";
 	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
-	cout << "If you want to reduce memory consumption, please, increase the value of -nspl parameter (16 by default). "
-		"Preferably should be multiple of 2. " << endl;
+	cout << "If you want to optimize memory consumption and computation speed, feel free to "
+		"experiment with split coefficient (-nspl parameter). " << endl;
+}
+
+int DATA_SOURCE::compute_splits(unsigned s_size) {
+	unsigned n_threads = Eigen::nbThreads();
+	int s = s_size / (n_threads * 2);
+	cout << "An optimal number of splits for your dMRI image and CPU is " << s << endl;
+	return s;
 }
 
 int DATA_SOURCE::DWI2Matrix(string &dmri_file, MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
@@ -210,7 +258,7 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 	// Make a vector of zeros
 	VariableVectorType zeros_vec;
 	zeros_vec.SetSize(n_of_components);
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 0; i < n_of_components; ++i) {
 		zeros_vec[i] = 0;
 	}

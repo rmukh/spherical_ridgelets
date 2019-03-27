@@ -1,7 +1,7 @@
 // Ridgelets.cpp : This file contains the 'main' function. Program execution begins and ends there.
 /*
  Copyright (c) 2019 Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
- 
+
  * Description:
  *     A C++ implementation of spherical ridgelets and orientation distribution function.
  *     To find spherical ridgelets coefficients A Fast Iterative Shrinkage-Thresholding Algorithm (FISTA) used.
@@ -43,17 +43,21 @@ int main(int argc, char* argv[])
 	SPH_RIDG ridg(2, 0.32);
 	MatrixType A;
 	ridg.RBasis(A, GradientDirections);
-	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\A.txt", A);
 	ridg.normBasis(A);
+
+	if (input_args.n_splits == -1)
+		input_args.n_splits = data.compute_splits(signal.cols());
+
 	data.estimate_memory(signal, A, input_args.n_splits);
+	data.short_summary(input_args);
 
 	MatrixType C;
 	{
-		SOLVERS slv(A, signal, 0.01);
+		SOLVERS slv(A, signal, input_args.fista_lambda);
 		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
 	}
 
-	// Save to file what user requested through command line
+	// Save to files user requested through command line
 	// Ridgelets coefficients
 	if (!input_args.output_ridgelets.empty()) {
 		cout << "Saving ridgelets coefficients..." << endl;
@@ -70,9 +74,6 @@ int main(int argc, char* argv[])
 	MatrixType fcs;
 	MatrixType nu;
 	MatrixType Q;
-
-	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\nu.txt", nu);
-	//data.fileToMatrix("C:\\Users\\mukho\\Desktop\\fcs.txt", fcs);
 
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
 		m.icosahedron(nu, fcs, input_args.lvl);
@@ -92,7 +93,7 @@ int main(int argc, char* argv[])
 		data.Matrix2DWI(ODF_vals, mask, ODF);
 		data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
 	}
-	
+
 	if (!input_args.output_fiber_max_odf.empty()) {
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
@@ -100,7 +101,7 @@ int main(int argc, char* argv[])
 		MatrixType c;
 
 		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex_d, c, Q, C, conn, nu);
+		m.FindMaxODFMaxInDMRI(ex_d, c, Q, C, conn, nu, input_args.max_odf_thresh);
 
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();
@@ -118,7 +119,7 @@ int main(int argc, char* argv[])
 		co->Allocate();
 
 		data.Matrix2DWI(co, mask, c);
-		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\to_compare\\count4.nrrd", co, input_args.is_compress);
+		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\to_compare\\count.nrrd", co, input_args.is_compress);
 	}
 
 	return EXIT_SUCCESS;

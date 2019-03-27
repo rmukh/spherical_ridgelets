@@ -10,8 +10,9 @@ class DATA_SOURCE
 public:
 	struct input_parse {
 		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf, output_odf;
+		float max_odf_thresh, fista_lambda;
 		unsigned lvl;
-		int n_splits;
+		int n_splits;	
 		bool is_compress;
 	};
 
@@ -19,12 +20,14 @@ public:
 	~DATA_SOURCE();
 
 	int CLI(int argc, char * argv[], input_parse & output);
+	void short_summary(input_parse & params);
 	int readMask(string inputMask, MaskImagePointer & image);
 	void set_header(DiffusionImagePointer & dest);
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType & g, MatrixType & s);
 	void estimate_memory(MatrixType & s, MatrixType & A, int n_splits);
+	int compute_splits(unsigned s_size);
 	int DWI2Matrix(string & dmri_file, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);
 	void matrixToFile(const string & fname, MatrixType & matrix);

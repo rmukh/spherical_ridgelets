@@ -16,7 +16,6 @@ public:
 	SOLVERS(MatrixType& ridgelets, MatrixType& voxels);
 	SOLVERS(MatrixType& ridgelets, MatrixType& voxels, double lambda);
 	void FISTA(MatrixType & x, int N_splits);
-	void FISTA2(MatrixType & x, int spl);
 };
 
 #endif // !SOLVERS
