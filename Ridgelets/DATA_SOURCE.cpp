@@ -137,8 +137,8 @@ void DATA_SOURCE::short_summary(input_parse& params) {
 	cout << "FISTA lambda parameter: " << params.fista_lambda << endl;
 	cout << "Number of splits: " << params.n_splits << endl;
 	cout << "File(s) compression enabled: ";
-	params.is_compress ? cout << "yes" : cout << "no" << endl;
-	cout << "-----------------------------------" << endl;
+	params.is_compress ? cout << "yes" : cout << "no";
+	cout << endl << "-----------------------------------" << endl;
 }
 
 int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
@@ -347,11 +347,17 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 
 void DATA_SOURCE::matrixToFile(const string& fname, MatrixType& matrix) {
 	/*
-	Write space separated matrix of MatrixType to text type file. Useful to debugging.
+		Write space separated matrix of MatrixType to text type file. Useful to debugging.
 	*/
 	ofstream file(fname);
-	if (file.is_open())
-		file << matrix << '\n';
+	if (file.is_open()) {
+		for (int i = 0; i < matrix.rows(); ++i) {
+			for (int j = 0; j < matrix.cols(); ++j) {
+				file << matrix(i, j) << " ";
+			}
+			file << endl;
+		}
+	}
 }
 
 void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
