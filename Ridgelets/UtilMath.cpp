@@ -414,8 +414,6 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 						}
 					}
 
-					cout << maxw << " " << id + 1 << endl;
-
 					// We have already traveled this path
 					if (used(conn[j][id]))
 						reached_maxima = true;
@@ -434,9 +432,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 					extrema(ct) = j;
 					for (unsigned i = 0; i < conn_row_length; ++i) {
 						used(conn[j][i]) = 1;
-						cout << conn[j][i] + 1 << " ";
 					}
-					cout << endl;
 					ct += 1;
 				}
 			}
@@ -447,8 +443,6 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 		extrema.conservativeResize(1, 1);
 		extrema(0) = 1;
 	}
-
-	cout << "extrema " << extrema << endl;
 
 	vector<unsigned> u_extrema;
 	unique_sorted(u_extrema, extrema);
@@ -526,11 +520,7 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType&
 		MatrixType dir_vol;
 		MatrixType vol = Q * C.col(i);
 
-		//cout << "vol " << i << endl << vol << endl;
-
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh);
-
-		cout << "rows " << exe_vol.rows() << endl;
 
 		if (exe_vol.rows() < 16)
 			cnt(i) = exe_vol.rows();

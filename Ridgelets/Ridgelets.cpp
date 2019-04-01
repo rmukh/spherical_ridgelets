@@ -52,14 +52,14 @@ int main(int argc, char* argv[])
 	data.short_summary(input_args);
 
 	MatrixType C;
-	//{
-	//	SOLVERS slv(A, signal, input_args.fista_lambda);
-	//	slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
-	//}
+	{
+		SOLVERS slv(A, signal, input_args.fista_lambda);
+		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
+	}
 
 	// Save to files user requested through command line
 	// Ridgelets coefficients
-	/*if (!input_args.output_ridgelets.empty()) {
+	if (!input_args.output_ridgelets.empty()) {
 		cout << "Saving ridgelets coefficients..." << endl;
 		DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
 		data.set_header(Ridg_coeff);
@@ -68,27 +68,21 @@ int main(int argc, char* argv[])
 
 		data.Matrix2DWI(Ridg_coeff, mask, C);
 		data.save_to_file<DiffusionImageType>(input_args.output_ridgelets, Ridg_coeff, input_args.is_compress);
-	}*/
+	}
 
 	UtilMath m;
 	MatrixType fcs;
 	MatrixType nu;
 	MatrixType Q;
 
-	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\to_compare\\C_c.txt", C);
-	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\to_compare\\fcs_c.txt", fcs);
-	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\to_compare\\nu_c.txt", nu);
-	data.fileToMatrix("C:\\Users\\mukho\\Desktop\\to_compare\\Q_c.txt", Q);
-
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
 		m.icosahedron(nu, fcs, input_args.lvl);
 		ridg.QBasis(Q, nu); //Build a Q basis
 	}
 
-	//data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\C_c.txt", C);
-	//data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\fcs_c.txt", fcs);
-	//data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\nu_c.txt", nu);
-	//data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\Q_c.txt", Q);
+	data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\fcs_c.txt", fcs);
+	data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\nu_c.txt", nu);
+	data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\Q_c.txt", Q);
 
 	// ODF volume
 	if (!input_args.output_odf.empty()) {
