@@ -519,8 +519,8 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType&
 	cnt.resize(1, C.cols());
 	cnt.setZero(1, C.cols());
 
-	//#pragma omp parallel for
-	for (int i = 1; i < C.cols(); ++i)
+	#pragma omp parallel for
+	for (int i = 0; i < C.cols(); ++i)
 	{
 		MatrixType exe_vol;
 		MatrixType dir_vol;
