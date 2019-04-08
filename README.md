@@ -49,11 +49,14 @@ Output arguments:
 - *-omd* [ODF maxima directions and values file name]
 - *-c* enables compression of output files, false by default
 
-**Should** be at least input dMRI file and one output file.
+You **must** provide at least input dMRI file and one output file to make any computations possible.
 
 For example:
 
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
+
+# Notes on ODF and maximum directions
+Output file for *-omd* has a shape of input dMRI file and each voxel contains ODF directions and ODF value in that directions organized as (x y z odf_value)
 
 # Important notes
 For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed. The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet. This package was tested on *Linux* only! *MacOS* and *Windows* compatibility is not guaranteed for now. When saving **ODF values** you may experience problems with that if you don't have enough **RAM memory** and saving operation might **fail**.
