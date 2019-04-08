@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	SOLVERS slv(A, signal, 0.1);
 	MatrixType C = slv.FISTA();
 
-	// Save to file what user requested through command line
+	// Save to file(s) stuff user requested through command line
 	// Ridgelets coefficients
 	if (!input_args.output_ridgelets.empty()) {
 		cout << "Saving ridgelets coefficients..." << endl;
