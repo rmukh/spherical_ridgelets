@@ -31,8 +31,19 @@ The final binary file will be in *Ridgelets-build* directory named as *sphridg*
 
 ## Basic Usage
 * Mandatory input argument: *-i* [dMRI file name]
-* Optional input arguments: *-m* [mask file] *-lvl* [icosahedron tesselation order, 4 by default] *-nspl* [number of ridgelets coefficients splits to parallel computing, computed automatically by default based on your computer configuration] *-mth* [find maxima ODF threshold, 0.7 by default] *-lmd* [lambda parameter for FISTA solver, 0.01 by default] *-sj* [predefined integer J, which defines the highest level of 'detectable' signal details parameter of the spherical ridgelets, 2 by default] *-srho* [scaling parameter of the spherical ridgelets, 3.125 by default]
-* Output arguments: *-ridg* [ridgelet file name] *-odf* [ODF values file name] *-omd* [ODF maxima directions and values file name] *-c* enables compression of output files, false by default
+* Optional input arguments: 
+- *-m* [mask file]
+- *-lvl* [icosahedron tesselation order, 4 by default]
+- *-nspl* [number of ridgelets coefficients splits to parallel computing, computed automatically by default based on your computer configuration]
+- *-mth* [find maxima ODF threshold, 0.7 by default] 
+- *-lmd* [lambda parameter for FISTA solver, 0.01 by default] 
+- *-sj* [predefined integer J, which defines the highest level of 'detectable' signal details parameter of the spherical ridgelets, 2 by default] 
+- *-srho* [scaling parameter of the spherical ridgelets, 3.125 by default]
+* Output arguments: 
+- *-ridg* [ridgelet file name] 
+- *-odf* [ODF values file name] 
+- *-omd* [ODF maxima directions and values file name]
+- *-c* enables compression of output files, false by default
 
 **Should** be at least input dMRI file and one output file.
 
