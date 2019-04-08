@@ -98,10 +98,8 @@ int main(int argc, char* argv[])
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
 
-		MatrixType c;
-
 		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex_d, c, Q, C, conn, nu, input_args.max_odf_thresh);
+		m.FindMaxODFMaxInDMRI(ex_d, Q, C, conn, nu, input_args.max_odf_thresh);
 
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();

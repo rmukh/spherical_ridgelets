@@ -504,14 +504,11 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	}
 }
 
-void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType& Q, 
-	MatrixType& C, vector<vector<unsigned>>& conn, MatrixType& nu, float thresh)
+void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& Q, MatrixType& C,
+	vector<vector<unsigned>>& conn, MatrixType& nu, float thresh)
 {
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
-
-	cnt.resize(1, C.cols());
-	cnt.setZero(1, C.cols());
 
 	#pragma omp parallel for
 	for (int i = 0; i < C.cols(); ++i)
@@ -521,11 +518,6 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType&
 		MatrixType vol = Q * C.col(i);
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh);
-
-		if (exe_vol.rows() < 16)
-			cnt(i) = exe_vol.rows();
-		else
-			cnt(i) = 0;
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);
