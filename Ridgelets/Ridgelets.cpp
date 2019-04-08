@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
 	}
 
-	// Save to files user requested through command line
+	// Save to file(s) user requested through command line
 	// Ridgelets coefficients
 	if (!input_args.output_ridgelets.empty()) {
 		cout << "Saving ridgelets coefficients..." << endl;
@@ -79,10 +79,6 @@ int main(int argc, char* argv[])
 		m.icosahedron(nu, fcs, input_args.lvl);
 		ridg.QBasis(Q, nu); //Build a Q basis
 	}
-
-	data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\fcs_c.txt", fcs);
-	data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\nu_c.txt", nu);
-	data.matrixToFile("C:\\Users\\mukho\\Desktop\\to_compare\\Q_c.txt", Q);
 
 	// ODF volume
 	if (!input_args.output_odf.empty()) {
@@ -115,15 +111,6 @@ int main(int argc, char* argv[])
 
 		data.Matrix2DWI(modf, mask, ex_d);
 		data.save_to_file<DiffusionImageType>(input_args.output_fiber_max_odf, modf, input_args.is_compress);
-
-		//save count of directions in each voxel. Just for debugging and tests!
-		DiffusionImagePointer co = DiffusionImageType::New();
-		data.set_header(co);
-		co->SetNumberOfComponentsPerPixel(c.rows());
-		co->Allocate();
-
-		data.Matrix2DWI(co, mask, c);
-		data.save_to_file<DiffusionImageType>("C:\\Users\\mukho\\Desktop\\to_compare\\count.nhdr", co, input_args.is_compress);
 	}
 
 	return EXIT_SUCCESS;

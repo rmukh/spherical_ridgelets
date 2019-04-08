@@ -4,7 +4,7 @@ SIGNAL_GENERATOR::SIGNAL_GENERATOR() : inputVolume(NULL) {}
 
 SIGNAL_GENERATOR::SIGNAL_GENERATOR(string & iv) : inputVolume(iv) {}
 
-SIGNAL_GENERATOR::~SIGNAL_GENERATOR() { cout << "SIGNAL_GENERATOR destructed" << endl; }
+SIGNAL_GENERATOR::~SIGNAL_GENERATOR() {}
 
 bool SIGNAL_GENERATOR::is_path_exists(const string &s)
 {

@@ -1,7 +1,7 @@
 #include "DATA_SOURCE.h"
 
 DATA_SOURCE::DATA_SOURCE() {}
-DATA_SOURCE::~DATA_SOURCE() { cout << "DATA_SOURCE destructed" << endl; }
+DATA_SOURCE::~DATA_SOURCE() {}
 
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
