@@ -16,6 +16,8 @@ include_directories(Ridgelets)
 add_executable(sphridg 
 Ridgelets/Ridgelets.cpp
 Ridgelets/convhull_3d.h
+Ridgelets/SIGNAL_GENERATOR.cpp
+Ridgelets/SIGNAL_GENERATOR.h
 Ridgelets/DATA_SOURCE.cpp
 Ridgelets/DATA_SOURCE.h
 Ridgelets/packages.config
