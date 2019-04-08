@@ -16,12 +16,14 @@ public:
 	MatrixType C;
 
 	SPH_RIDG();
+	~SPH_RIDG();
+
 	SPH_RIDG(unsigned JIn, double rhoIn);
 	void init(); //pre-compute all necessary matricies/vectors
 
-	MatrixType RBasis(MatrixType u); //return spherical ridgelets basis matrix
-	MatrixType QBasis(MatrixType u); //For visualizing pupose only
-	MatrixType normBasis(MatrixType B); //normalize basis
+	void RBasis(MatrixType& A, MatrixType& u); //return spherical ridgelets basis matrix
+	void QBasis(MatrixType& Q, MatrixType& u); //For visualizing pupose only
+	void normBasis(MatrixType& mat); //normalize basis
 
 private:
 	int mcut;

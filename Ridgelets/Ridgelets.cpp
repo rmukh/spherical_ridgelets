@@ -1,7 +1,7 @@
 // Ridgelets.cpp : This file contains the 'main' function. Program execution begins and ends there.
 /*
  Copyright (c) 2019 Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
- 
+
  * Description:
  *     A C++ implementation of spherical ridgelets and orientation distribution function.
  *     To find spherical ridgelets coefficients A Fast Iterative Shrinkage-Thresholding Algorithm (FISTA) used.
@@ -27,14 +27,6 @@ int main(int argc, char* argv[])
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 
-	MatrixType GradientDirections(0, 3); // Matrix with dMRI image gradient directions
-	DiffusionImagePointer dMRI;
-	unsigned nGradImgs = 0; // Number of gradient images
-	unsigned nOfImgs = 0; // Total number of images (including b0)
-	int res_dmri = data.readVolume(input_args.input_dmri, GradientDirections, dMRI, nGradImgs, nOfImgs);
-	if (res_dmri)
-		return EXIT_SUCCESS;
-
 	MaskImagePointer mask;
 	int res_mask = data.readMask(input_args.input_mask, mask);
 	if (res_mask)
@@ -42,23 +34,35 @@ int main(int argc, char* argv[])
 
 	//4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
-	data.DWI2Matrix(dMRI, mask, signal, nGradImgs, nOfImgs);
-	dMRI = nullptr;
+	MatrixType GradientDirections; // Matrix with dMRI image gradient directions
+	int res_dmri = data.DWI2Matrix(input_args.input_dmri, mask, signal, GradientDirections);
+	if (res_dmri)
+		return EXIT_SUCCESS;
 
 	// Beginning of the main computational part
-	SPH_RIDG ridg(2, 0.5);
-	MatrixType A = ridg.RBasis(GradientDirections);
-	A = ridg.normBasis(A);
+	SPH_RIDG ridg(input_args.sph_J, 1/input_args.sph_rho);
+	MatrixType A;
+	ridg.RBasis(A, GradientDirections);
+	ridg.normBasis(A);
 
-	SOLVERS slv(A, signal, 0.1);
-	MatrixType C = slv.FISTA();
+	if (input_args.n_splits == -1)
+		input_args.n_splits = data.compute_splits(signal.cols());
 
-	// Save to file(s) stuff user requested through command line
+	data.estimate_memory(signal, A, input_args.n_splits);
+	data.short_summary(input_args);
+
+	MatrixType C;
+	{
+		SOLVERS slv(A, signal, input_args.fista_lambda);
+		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
+	}
+
+	// Save to file(s) user requested through command line
 	// Ridgelets coefficients
 	if (!input_args.output_ridgelets.empty()) {
 		cout << "Saving ridgelets coefficients..." << endl;
 		DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
-		data.copy_header(dMRI, Ridg_coeff);
+		data.set_header(Ridg_coeff);
 		Ridg_coeff->SetNumberOfComponentsPerPixel(C.rows());
 		Ridg_coeff->Allocate();
 
@@ -70,19 +74,18 @@ int main(int argc, char* argv[])
 	MatrixType fcs;
 	MatrixType nu;
 	MatrixType Q;
-	MatrixType ODF;
 
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
 		m.icosahedron(nu, fcs, input_args.lvl);
-		Q = ridg.QBasis(nu); //Build a Q basis
-		ODF = Q * C;
+		ridg.QBasis(Q, nu); //Build a Q basis
 	}
 
 	// ODF volume
 	if (!input_args.output_odf.empty()) {
+		MatrixType ODF = Q * C;
 		cout << "Saving ODF values..." << endl;
 		DiffusionImagePointer ODF_vals = DiffusionImageType::New();
-		data.copy_header(dMRI, ODF_vals);
+		data.set_header(ODF_vals);
 		ODF_vals->SetNumberOfComponentsPerPixel(Q.rows());
 		ODF_vals->Allocate();
 
@@ -90,17 +93,19 @@ int main(int argc, char* argv[])
 		data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
 	}
 
-
+	// Maximum directions and values of ODF
 	if (!input_args.output_fiber_max_odf.empty()) {
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
 
+		MatrixType c;
+
 		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex_d, ODF, conn, nu);
+		m.FindMaxODFMaxInDMRI(ex_d, c, Q, C, conn, nu, input_args.max_odf_thresh);
 
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();
-		data.copy_header(dMRI, modf);
+		data.set_header(modf);
 		modf->SetNumberOfComponentsPerPixel(ex_d.rows());
 		modf->Allocate();
 

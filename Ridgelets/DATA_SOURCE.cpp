@@ -1,11 +1,15 @@
 #include "DATA_SOURCE.h"
 
+DATA_SOURCE::DATA_SOURCE() {}
+DATA_SOURCE::~DATA_SOURCE() {}
+
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI_file and at least one output: -ridg, -odf, -omd" << endl;
-		cerr << "Optional input arguments: -m mask_file" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file -odf ODF_values -omd ODF_maxima_dir_&_value -c enable compression" << endl;
+		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -odf, -omd" << endl;
+		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
+			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -13,6 +17,11 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	bool out1 = false;
 	output.is_compress = false;
 	output.lvl = 4;
+	output.n_splits = -1;
+	output.max_odf_thresh = 0.7;
+	output.fista_lambda = 0.01;
+	output.sph_J = 2;
+	output.sph_rho = 3.125;
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -20,6 +29,30 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-m")) {
 			output.input_mask = argv[i + 1];
+		}
+		if (!strcmp(argv[i], "-sj")) {
+			float sj = stof(argv[i + 1]);
+			if (sj == floor(sj) && sj > 0) {
+				output.sph_J = sj;
+			}
+			else {
+				cout << "The J value of spherical ridgelets  "
+					"basis provided is in the wrong "
+					"format (must be a positive integer). "
+					"So, default value 2 used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-srho")) {
+			float rho = stof(argv[i + 1]);
+			if (rho > 0) {
+				output.sph_rho = rho;
+			}
+			else {
+				cout << "The maxima ODF search threshold "
+					"coefficient provided is in the wrong "
+					"format (must be float point number > 0). "
+					"So, the default value 3.125 used." << endl;
+			}
 		}
 		if (!strcmp(argv[i], "-lvl")) {
 			float order = stof(argv[i + 1]);
@@ -30,7 +63,43 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 				cout << "The value for icosahedron "
 					"tesselation order provided is in the wrong "
 					"format (must be a positive integer). "
-					"So default value 4 used." << endl;
+					"So, default value 4 used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-nspl")) {
+			float splt = stof(argv[i + 1]);
+			if (splt == floor(splt) && splt > 0) {
+				output.n_splits = splt;
+			}
+			else {
+				cout << "The split coefficient for the ridgelets "
+					"computation provided is in the wrong "
+					"format (must be a positive integer). "
+					"So, the default value (available CPU threads * 2) used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-mth")) {
+			float th = stof(argv[i + 1]);
+			if (th > 0 && th < 1) {
+				output.max_odf_thresh = th;
+			}
+			else {
+				cout << "The maxima ODF search threshold "
+					"coefficient provided is in the wrong "
+					"format (must be in (0, 1)). "
+					"So, the default value 0.7 used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-lmd")) {
+			float lmd = stof(argv[i + 1]);
+			if (lmd > 0 && lmd < 1) {
+				output.fista_lambda = lmd;
+			}
+			else {
+				cout << "The lambda parameter of FISTA "
+					"provided is in the wrong "
+					"format (must be in (0, 1)). "
+					"So, the default value 0.01 used." << endl;
 			}
 		}
 		if (!strcmp(argv[i], "-ridg")) {
@@ -56,92 +125,25 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	return 0;
 }
 
-int DATA_SOURCE::readVolume(
-	string inputVolume, MatrixType &GradientDirections, DiffusionImagePointer &image,
-	unsigned &nGradImgs, unsigned &nOfImgs) {
-	bool is_b0 = false;
-	double b0 = 0;
-	double x, y, z;
+void DATA_SOURCE::short_summary(input_parse& params) {
+	// Show summary on parameters will be used during computations
 
-	// Temporary register factories cause don't use cmake
-	itk::NrrdImageIOFactory::RegisterOneFactory();
-
-	// Another way to store image data
-	ImageReaderType::Pointer reader = ImageReaderType::New();
-	reader->ReleaseDataFlagOn();
-
-	// Make some inputfiles checks
-	string ext_vol = inputVolume.substr(inputVolume.length() - 4, inputVolume.length());
-
-	if (ext_vol.compare("nhdr")) {
-		if (ext_vol.compare("nrrd")) {
-			cout << "NDHR or NRRD file formats only! Please, check file type." << endl;
-			return EXIT_FAILURE;
-		}
-	}
-	if (!is_path_exists(inputVolume)) {
-		cout << "Input dMRI image is not exists! Please, check the path and file name." << endl;
-		return EXIT_FAILURE;
-	}
-
-	// Get image
-	reader->SetFileName(inputVolume);
-	try
-	{
-		reader->Update();
-		image = reader->GetOutput();
-	}
-	catch (itk::ExceptionObject)
-	{
-		cerr << "Can't read input dMRI file! Please, check that file is not corrupted." << endl;
-		return EXIT_FAILURE;
-	}
-
-	// Get and process header information
-	itk::MetaDataDictionary imgMetaDictionary = image->GetMetaDataDictionary();
-	vector<string> imgMetaKeys = imgMetaDictionary.GetKeys();
-	vector<string>::const_iterator itKey = imgMetaKeys.begin();
-	string metaString;
-
-	for (; itKey != imgMetaKeys.end(); ++itKey)
-	{
-		itk::ExposeMetaData<string>(imgMetaDictionary, *itKey, metaString);
-		if (itKey->find("DWMRI_gradient") != string::npos)
-		{
-			//cout << *itKey << " -> " << metaString << endl;
-			sscanf(metaString.c_str(), "%lf %lf %lf\n", &x, &y, &z);
-
-			++nOfImgs;
-			// If the direction is 0.0, this is a reference image
-			if (x == 0.0 && y == 0.0 && z == 0.0)
-				continue;
-
-			GradientDirections.conservativeResize(GradientDirections.rows() + 1, GradientDirections.cols());
-			GradientDirections.row(GradientDirections.rows() - 1) << x, y, z;
-			++nGradImgs;
-		}
-		else if (itKey->find("DWMRI_b-value") != string::npos)
-		{
-			//cout << *itKey << " -> " << metaString << endl;
-			is_b0 = true;
-			b0 = stod(metaString.c_str());
-		}
-	}
-	// Normalize directions
-	GradientDirections.rowwise().normalize();
-
-	cout << "Number of gradient images: " << nGradImgs << ". Number of reference images: " << nOfImgs - nGradImgs << endl;
-	cout << "b-value " << b0 << endl;
-	if (!is_b0)
-	{
-		cerr << "b-value not specified in file's header." << endl;
-		return EXIT_FAILURE;
-	}
-
-	return EXIT_SUCCESS;
+	cout << "Summary on parameters" << endl;
+	cout << "-----------------------------------" << endl;
+	cout << "Spherical ridgelets J: " << params.sph_J << endl;
+	cout << "Spherical ridgelets rho: " << params.sph_rho << endl;
+	cout << "Icosahedron tesselation order: " << params.lvl << endl;
+	cout << "Maxima ODF threshold: " << params.max_odf_thresh << endl;
+	cout << "FISTA lambda parameter: " << params.fista_lambda << endl;
+	cout << "Number of splits: " << params.n_splits << endl;
+	cout << "File(s) compression enabled: ";
+	params.is_compress ? cout << "yes" : cout << "no";
+	cout << endl << "-----------------------------------" << endl;
 }
 
 int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
+	// We need mask within the main program so it is implemented in that class
+
 	// Temporary register factories cause don't use cmake
 	itk::NrrdImageIOFactory::RegisterOneFactory();
 
@@ -150,7 +152,8 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 
 	// Make some inputfiles checks
 	if (!is_path_exists(inputMask)) {
-		cout << "Input mask image is not provided. Please, stop program and provide mask file if you forget to include it." << endl;
+		cout << "Input mask image is not provided. Please, stop program and provide mask file "
+			"if you forget to include it." << endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -200,13 +203,14 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, b
 	return EXIT_SUCCESS;
 }
 
-void DATA_SOURCE::copy_header(DiffusionImagePointer& src, DiffusionImagePointer& dest) {
+void DATA_SOURCE::set_header(DiffusionImagePointer& dest) {
+	// Commented header information might be utilized in future
 	//dest->SetMetaDataDictionary(src->GetMetaDataDictionary());
-	dest->SetSpacing(src->GetSpacing());
-	dest->SetDirection(src->GetDirection());
-	dest->SetOrigin(src->GetOrigin());
-	dest->SetRegions(src->GetLargestPossibleRegion());
-	dest->SetNumberOfComponentsPerPixel(src->GetNumberOfComponentsPerPixel());
+	//dest->SetNumberOfComponentsPerPixel(h.comp_h);
+	dest->SetSpacing(h.spc_h);
+	dest->SetDirection(h.dirs_h);
+	dest->SetOrigin(h.orig_h);
+	dest->SetRegions(h.reg_h);
 }
 
 bool DATA_SOURCE::is_path_exists(const string &s)
@@ -224,10 +228,11 @@ void DATA_SOURCE::testFNC() {
 	UtilMath UM = UtilMath();
 	MatrixType g;
 	UM.spiralsample(g, 2, 100);
-	MatrixType A = test.RBasis(g);
-	MatrixType normA = test.normBasis(A);
+	MatrixType A;
+	test.RBasis(A, g);
+	test.normBasis(A);
 
-	test.normBasis(normA);
+	test.normBasis(A);
 }
 
 void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
@@ -241,92 +246,49 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 		g.row(i) = g.row(i) / gnorm(i);
 }
 
-void DATA_SOURCE::DWI2Matrix(DiffusionImagePointer &img, MaskImagePointer &mask,
-	MatrixType &signal, unsigned &nGradImgs, unsigned &nOfImgs)
+void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, int n_splits) {
+	// Get the number of threads
+	unsigned n_threads = Eigen::nbThreads();
+
+	// Estimate dMRI Eigen matrix size
+	unsigned long long int dmri_memory = s.size() * sizeof(double);
+
+	// Estimate memory consumption by FISTA solver
+	unsigned long long int fista_memory_x = s.cols() * A.cols() * sizeof(double);
+	unsigned long long int fista_memory_loop = n_threads * 4 * (s.cols() / n_splits) * A.cols() * sizeof(double);
+	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
+
+	cout << "IMPORTANT! To successfully finish computations you need approximately ";
+	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
+	cout << "If you want to optimize memory consumption and computation speed, feel free to "
+		"experiment with split coefficient (-nspl parameter). " << endl;
+}
+
+int DATA_SOURCE::compute_splits(unsigned s_size) {
+	unsigned n_threads = Eigen::nbThreads();
+	int s = s_size / (n_threads * 2);
+	cout << "An optimal number of splits for your dMRI image and CPU is " << s << endl;
+	return s;
+}
+
+int DATA_SOURCE::DWI2Matrix(string &dmri_file, MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
 {
-	int N_of_voxels = 0;
-	if (mask != nullptr) {
-		MaskIterator m_it(mask, mask->GetRequestedRegion());
-
-		m_it.SetDirection(0);
-		m_it.GoToBegin();
-		while (!m_it.IsAtEnd())
-		{
-			while (!m_it.IsAtEndOfLine())
-			{
-				if (m_it.Get() == 1) {
-					N_of_voxels += 1;
-				}
-				++m_it;
-			}
-			m_it.NextLine();
-		}
-	}
-	else {
-		DiffusionImageType::SizeType sz = img->GetLargestPossibleRegion().GetSize();
-		N_of_voxels = sz[0] * sz[1] * sz[2];
-	}
-
-	unsigned first_grad_image_index = nOfImgs - nGradImgs;
-	signal = MatrixType::Zero(nGradImgs, N_of_voxels);
-	DiffusionImageType::PixelType voxel_content;
-
-	// Iterate over all voxels
-	if (mask != nullptr) {
-		ConstIterator it_i(img, img->GetRequestedRegion());
-		MaskIterator it_m(mask, mask->GetRequestedRegion());
-		unsigned vox = 0;
-
-		it_i.SetDirection(0);
-		it_i.GoToBegin();
-		it_m.SetDirection(0);
-		it_m.GoToBegin();
-
-		while (!it_i.IsAtEnd())
-		{
-			while (!it_i.IsAtEndOfLine())
-			{
-				if (it_m.Get() == 1) {
-					voxel_content = it_i.Get();
-					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i)
-						signal(i - first_grad_image_index, vox) = voxel_content.GetElement(i);
-					++vox;
-				}
-				++it_i;
-				++it_m;
-			}
-			it_i.NextLine();
-			it_m.NextLine();
-		}
-	}
-	else {
-		ConstIterator it(img, img->GetRequestedRegion());
-		unsigned vox = 0;
-		it.SetDirection(0);
-		it.GoToBegin();
-		while (!it.IsAtEnd())
-		{
-			while (!it.IsAtEndOfLine())
-			{
-				voxel_content = it.Get();
-				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i)
-					signal(i - first_grad_image_index, vox) = voxel_content.GetElement(i);
-
-				++vox;
-				++it;
-			}
-			it.NextLine();
-		}
-	}
+	SIGNAL_GENERATOR sg(dmri_file);
+	int res_dmri = sg.ExtractMatrix(mask, signal, grad_dirs);
+	h = sg.h;
+	if (res_dmri)
+		return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
 
 void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask, MatrixType &arr) {
-	unsigned n_of_components = arr.rows();
+	int n_of_components = arr.rows();
 
 	// Make a vector of zeros
 	VariableVectorType zeros_vec;
 	zeros_vec.SetSize(n_of_components);
-	for (unsigned i = 0; i < n_of_components; ++i) {
+#pragma omp parallel for
+	for (int i = 0; i < n_of_components; ++i) {
 		zeros_vec[i] = 0;
 	}
 	img->FillBuffer(zeros_vec);
@@ -352,7 +314,7 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 			while (!it.IsAtEndOfLine())
 			{
 				if (it_m.Get() == 1) {
-					for (unsigned i = 0; i < n_of_components; ++i) {
+					for (int i = 0; i < n_of_components; ++i) {
 						vec_to_fill[i] = arr(i, vox);
 					}
 					it.Set(vec_to_fill);
@@ -370,7 +332,7 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 		{
 			while (!it.IsAtEndOfLine())
 			{
-				for (unsigned i = 0; i < n_of_components; ++i) {
+				for (int i = 0; i < n_of_components; ++i) {
 					vec_to_fill[i] = arr(i, vox);
 				}
 
@@ -385,11 +347,17 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 
 void DATA_SOURCE::matrixToFile(const string& fname, MatrixType& matrix) {
 	/*
-	Write space separated matrix of MatrixType to text type file. Useful to debugging.
+		Write space separated matrix of MatrixType to text type file. Useful to debugging.
 	*/
 	ofstream file(fname);
-	if (file.is_open())
-		file << matrix << '\n';
+	if (file.is_open()) {
+		for (int i = 0; i < matrix.rows(); ++i) {
+			for (int j = 0; j < matrix.cols(); ++j) {
+				file << matrix(i, j) << " ";
+			}
+			file << endl;
+		}
+	}
 }
 
 void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)

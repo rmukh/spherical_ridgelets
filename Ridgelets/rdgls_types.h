@@ -19,6 +19,9 @@
 #include <unordered_map>
 #include <sys/stat.h>
 #include <numeric>
+#include <string>
+#include <fstream>
+#include <iostream>
 
 // Necessary types defenitions
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
@@ -46,5 +49,15 @@ typedef itk::ImageLinearConstIteratorWithIndex<MaskImageType> MaskIterator;
 using namespace Eigen;
 using namespace std;
 using namespace std::chrono;
+
+// Useful structures
+struct dMRI_h_info
+{
+	DiffusionImageType::SpacingType spc_h;
+	DiffusionImageType::DirectionType dirs_h;
+	DiffusionImageType::PointType orig_h;
+	DiffusionImageType::RegionType reg_h;
+	unsigned comp_h;
+};
 
 #endif

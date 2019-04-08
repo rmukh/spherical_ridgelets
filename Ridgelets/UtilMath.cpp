@@ -3,6 +3,9 @@
 #define CONVHULL_3D_ENABLE
 #include "convhull_3d.h"
 
+UtilMath::UtilMath() {}
+UtilMath::~UtilMath() { cout << "UtilMath desctructed" << endl; }
+
 void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 {
 	/*
@@ -73,7 +76,7 @@ void UtilMath::fura(MatrixType& Lmd, unsigned n)
 	//Lmd = Lmd * (2 * PI);
 }
 
-void UtilMath::polyleg(MatrixType& P, MatrixType x, unsigned n)
+void UtilMath::polyleg(MatrixType& P, MatrixType& x, unsigned n)
 {
 	//from polyleg.m
 
@@ -403,7 +406,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 				if (if_any) {
 					// [maxw id] = max(W(conn(j).elem))
 					unsigned id = 0;
-					unsigned maxw = 0;
+					double maxw = 0;
 					for (unsigned i = 0; i < conn_row_length; i++) {
 						if (W(conn[j][i]) > maxw) {
 							maxw = W(conn[j][i]);
@@ -416,8 +419,9 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 						reached_maxima = true;
 
 					// used(conn(j).elem) = 1
-					for (unsigned i = 0; i < conn_row_length; ++i)
+					for (unsigned i = 0; i < conn_row_length; ++i) {
 						used(conn[j][i]) = 1;
+					}
 
 					// j = conn(j).elem(id)
 					j = conn[j][id];
@@ -426,8 +430,9 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 					reached_maxima = true;
 					extrema.conservativeResize(1, extrema.cols() + 1);
 					extrema(ct) = j;
-					for (unsigned i = 0; i < conn_row_length; ++i)
+					for (unsigned i = 0; i < conn_row_length; ++i) {
 						used(conn[j][i]) = 1;
+					}
 					ct += 1;
 				}
 			}
@@ -499,18 +504,28 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	}
 }
 
-void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& ODF, vector<vector<unsigned>>& conn, MatrixType& nu)
+void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType& Q, 
+	MatrixType& C, vector<vector<unsigned>>& conn, MatrixType& nu, float thresh)
 {
-	fin.resize((6 * 3) + 6, ODF.cols());
-	fin.setZero((6 * 3) + 6, ODF.cols());
+	fin.resize((6 * 3) + 6, C.cols());
+	fin.setZero((6 * 3) + 6, C.cols());
 
-	for (unsigned i = 0; i < ODF.cols(); ++i) 
+	cnt.resize(1, C.cols());
+	cnt.setZero(1, C.cols());
+
+	#pragma omp parallel for
+	for (int i = 0; i < C.cols(); ++i)
 	{
 		MatrixType exe_vol;
 		MatrixType dir_vol;
-		MatrixType vol = ODF.col(i);
+		MatrixType vol = Q * C.col(i);
 
-		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu);
+		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh);
+
+		if (exe_vol.rows() < 16)
+			cnt(i) = exe_vol.rows();
+		else
+			cnt(i) = 0;
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);

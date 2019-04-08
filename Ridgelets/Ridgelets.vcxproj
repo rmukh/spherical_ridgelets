@@ -171,6 +171,7 @@
     <ClInclude Include="convhull_3d.h" />
     <ClInclude Include="DATA_SOURCE.h" />
     <ClInclude Include="rdgls_types.h" />
+    <ClInclude Include="SIGNAL_GENERATOR.h" />
     <ClInclude Include="SOLVERS.h" />
     <ClInclude Include="SPH_RIDG.h" />
     <ClInclude Include="UtilMath.h" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClCompile Include="DATA_SOURCE.cpp" />
     <ClCompile Include="Ridgelets.cpp" />
+    <ClCompile Include="SIGNAL_GENERATOR.cpp" />
     <ClCompile Include="SOLVERS.cpp" />
     <ClCompile Include="SPH_RIDG.cpp" />
     <ClCompile Include="UtilMath.cpp" />

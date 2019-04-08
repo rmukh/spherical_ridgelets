@@ -8,6 +8,8 @@ SPH_RIDG::SPH_RIDG()
 	init();
 }
 
+SPH_RIDG::~SPH_RIDG() {}
+
 SPH_RIDG::SPH_RIDG(unsigned JIn, double rhoIn) {
 	J = JIn;
 	rho = rhoIn;
@@ -49,10 +51,13 @@ void SPH_RIDG::init() {
 		M0(i, 0) = (int)pow((pow(2, i) * m0 + 1), 2);
 }
 
-MatrixType SPH_RIDG::RBasis(MatrixType u) {
+void SPH_RIDG::RBasis(MatrixType& A, MatrixType& u) {
 	cout << "Start computing R basis..." << endl;
-	MatrixType A = MatrixType::Zero(u.rows(), M0.sum());
+	A.resize(u.rows(), M0.sum());
+	A.setZero();
+
 	MatrixType P;
+	MatrixType X;
 	MatrixType x;
 
 	MatrixType v;
@@ -68,21 +73,22 @@ MatrixType SPH_RIDG::RBasis(MatrixType u) {
 		vv = v.topRows(K);
 
 		r = C.cwiseProduct(psi.col(i));
+		P = MatrixType::Ones(u.rows(), mcut + 1);
+		X = u * vv.transpose();
 		for (int k = 0; k < K; ++k) {
-			x = u * vv.row(k).transpose();
-			unsigned N = (unsigned)x.rows();
-			P = MatrixType::Ones(N, mcut + 1);
+			x = X.col(k);
 			UM.polyleg(P, x, mcut);
 			A.col(k + I) = P * r;
 		}
 		I += K;
 	}
-	return A;
 }
 
-MatrixType SPH_RIDG::QBasis(MatrixType u) {
+void SPH_RIDG::QBasis(MatrixType& Q, MatrixType& u) {
 	cout << "Start computing Q basis..." << endl;
-	MatrixType Q = MatrixType::Zero(u.rows(), M0.sum());
+	Q.resize(u.rows(), M0.sum());
+	Q.setZero();
+
 	MatrixType P;
 	MatrixType x;
 
@@ -110,13 +116,12 @@ MatrixType SPH_RIDG::QBasis(MatrixType u) {
 		}
 		I += K;
 	}
-	return Q;
 }
 
-MatrixType SPH_RIDG::normBasis(MatrixType B) {
-	MatrixType e = B * B.transpose();
-	SelfAdjointEigenSolver<MatrixType> eigensolver(B.rows());
+void SPH_RIDG::normBasis(MatrixType& mat) {
+	MatrixType e = mat * mat.transpose();
+	SelfAdjointEigenSolver<MatrixType> eigensolver(mat.rows());
 	eigensolver.compute(e, EigenvaluesOnly);
-	double lVal = eigensolver.eigenvalues()[B.rows() - 1];
-	return (1 / sqrt(lVal)) * B;
+	double lVal = eigensolver.eigenvalues()[mat.rows() - 1];
+	mat = (1 / sqrt(lVal)) * mat;
 }
