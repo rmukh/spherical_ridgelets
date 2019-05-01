@@ -27,7 +27,7 @@ Package to compute spherical ridgelets.
 
         make
 
-5.1. You can also use *make* with multi-threading option in a way:
+Note: You can also use *make* with multi-threading option in a way:
 
         make -j#of_threads, e.g make -j4
 
