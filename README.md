@@ -27,6 +27,10 @@ Package to compute spherical ridgelets.
 
         make
 
+5.1. You can also use *make* with multi-threading option in a way:
+
+        make -j#of_threads, e.g make -j4
+
 The final binary file will be in *Ridgelets-build* directory named as *sphridg*
 
 ## Basic Usage
