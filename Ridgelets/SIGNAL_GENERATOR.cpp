@@ -1,8 +1,8 @@
 #include "SIGNAL_GENERATOR.h"
 
-SIGNAL_GENERATOR::SIGNAL_GENERATOR() : inputVolume(NULL) {}
+SIGNAL_GENERATOR::SIGNAL_GENERATOR() : inputVolume(NULL), nGradImgs(0), nOfImgs(0) {}
 
-SIGNAL_GENERATOR::SIGNAL_GENERATOR(string & iv) : inputVolume(iv) {}
+SIGNAL_GENERATOR::SIGNAL_GENERATOR(string & iv) : inputVolume(iv), nGradImgs(0), nOfImgs(0) {}
 
 SIGNAL_GENERATOR::~SIGNAL_GENERATOR() {}
 
@@ -111,7 +111,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 
 	int N_of_voxels = 0;
 
-	if (mask != nullptr) {
+	if (mask) {
 		//If mask provided
 
 		MaskIterator m_it(mask, mask->GetRequestedRegion());
@@ -140,7 +140,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 	DiffusionImageType::PixelType voxel_content;
 
 	// Iterate over all voxels
-	if (mask != nullptr) {
+	if (mask) {
 		ConstIterator it_i(img, img->GetRequestedRegion());
 		MaskIterator it_m(mask, mask->GetRequestedRegion());
 		unsigned vox = 0;
@@ -219,6 +219,6 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 			it.NextLine();
 		}
 	}
-	img = nullptr;
+	img = NULL;
 	return EXIT_SUCCESS;
 }

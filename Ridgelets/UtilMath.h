@@ -7,13 +7,26 @@ using namespace std;
 
 class UtilMath {
 public:
-	//Useful constants
-	const double PI = atan(1.0) * 4.0;
+	struct cmp_v
+	{
+    		const vector<double> & value_vector;
+
+    		cmp_v(const vector<double> & val_vec):
+        		value_vector(val_vec) {}
+
+    		bool operator()(size_t i1, size_t i2)
+    		{   
+        		return value_vector[i1] < value_vector[i2];
+    		}
+	};
+
+	// Useful constants
+	static const double PI;
 
 	UtilMath();
 	~UtilMath();
 
-	//Functions
+	// Functions
 	void spiralsample(MatrixType & u, unsigned flg, unsigned N);
 	void fura(MatrixType & Lmd, unsigned n);
 	void polyleg(MatrixType & P, MatrixType & x, unsigned n);

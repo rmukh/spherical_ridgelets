@@ -5,6 +5,7 @@ SPH_RIDG::SPH_RIDG()
 {
 	J = 2;
 	rho = 0.5;
+	UM = UtilMath();
 	init();
 }
 
@@ -13,6 +14,7 @@ SPH_RIDG::~SPH_RIDG() {}
 SPH_RIDG::SPH_RIDG(unsigned JIn, double rhoIn) {
 	J = JIn;
 	rho = rhoIn;
+	UM = UtilMath();
 	init();
 }
 

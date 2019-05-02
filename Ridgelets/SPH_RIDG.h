@@ -12,7 +12,7 @@ public:
 	*/
 	int J; //J value
 	double rho; //rho value
-	UtilMath UM = UtilMath(); //Object of UtilMath class
+	UtilMath UM; //Object of UtilMath class
 	MatrixType C;
 
 	SPH_RIDG();

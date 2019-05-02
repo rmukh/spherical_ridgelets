@@ -302,7 +302,7 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 	it.GoToBegin();
 	unsigned vox = 0;
 
-	if (mask != nullptr) {
+	if (mask) {
 		// Mask iterator
 		MaskIterator it_m(mask, mask->GetRequestedRegion());
 
@@ -408,8 +408,9 @@ void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
 template <typename T>
 void DATA_SOURCE::printVec(const string& name, vector<T>& v) {
 	cout << name << endl;
-	for (auto i : v)
-		std::cout << i << ' ';
+	for (auto it = v.cbegin(); it != v.cend(); ++it)
+		std::cout << *it << ' ';
+
 	cout << endl;
 }
 

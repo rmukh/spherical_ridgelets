@@ -3,6 +3,7 @@
 #define CONVHULL_3D_ENABLE
 #include "convhull_3d.h"
 
+const double UtilMath::PI = std::atan(1.0) * 4.0;
 UtilMath::UtilMath() {}
 UtilMath::~UtilMath() { cout << "UtilMath desctructed" << endl; }
 
@@ -141,7 +142,7 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 
 	// Preallocate string for faster string concatenation
 	string key;
-	size_t added_length = nCols * to_string(U(0, 0)).length();
+	size_t added_length = nCols * to_string(static_cast<long double>(U(0, 0))).length();
 	key.reserve(key.length() + added_length);
 
 	// Iterate over matrix
@@ -149,7 +150,7 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 		// Create unique key from row valuse
 		key.clear();
 		for (unsigned j = 0; j < nCols; ++j) {
-			key.append(to_string(U(i, j)));
+			key.append(to_string(static_cast<long double>(U(i, j))));
 		}
 
 		// If element not exists in hash table
@@ -207,9 +208,9 @@ void UtilMath::ind_sort_vec(MatrixType& vec, vector<size_t> & indx) {
 	// initialize original index locations
 	indx.resize(uc3.size());
 	iota(indx.begin(), indx.end(), 0);
-
+	sort(indx.rbegin(), indx.rend(), cmp_v(uc3));
 	// sort indexes based on comparing values in v
-	sort(indx.rbegin(), indx.rend(), [&uc3](size_t i1, size_t i2) {return uc3[i1] < uc3[i2]; });
+	//sort(indx.rbegin(), indx.rend(), [&uc3](size_t i1, size_t i2) {return uc3[i1] < uc3[i2]; });
 }
 
 void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {

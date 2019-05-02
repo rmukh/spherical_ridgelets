@@ -1,6 +1,6 @@
 #include "SOLVERS.h"
 
-SOLVERS::SOLVERS() : A(nullptr), s(nullptr) {
+SOLVERS::SOLVERS() : A(0), s(0) {
 	cerr << "Minimal set of argumets: ridgelets basis, full DWI array or matrix/vector with voxel(s). "
 		"The last parameter - lambda value is optional.\n";
 }
