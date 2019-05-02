@@ -63,14 +63,18 @@ For example:
 Output file for *-omd* has a shape of input dMRI file and each voxel contains ODF directions and ODF values in that directions organized as (x y z odf_value) for each direction. Now maximum number of directions fixed to 6.
 
 # Important notes
-For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed. The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet. This package was tested on *Linux* only! *MacOS* and *Windows* compatibility is not guaranteed for now. When saving **ODF values** you may experience problems with that if you don't have enough **RAM memory** and saving operation might **fail**.
+For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed.
+
+Input diffusion MRI image expected to be in the shape of (size_x, size_y, size_z, #_of_gradient directions), while mask file expected to be in the shape of (size_x, size_y, size_z, 1).
+
+The repository contains *Visual Studio 2017* project files for current development purposes. Currently *gcc* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet. This package was tested on *Linux* only! *MacOS* and *Windows* compatibility is not guaranteed for now. When saving **ODF values** you may experience problems with that if you don't have enough **RAM memory** and saving operation might **fail**.
 
 # Advanced users
 
 ## Speed
 All cmake files created in a way that during the building cmake will automatically determine if you have *OpenMP* installed and use it during compilation. This gives a significant speedup. So, if you don't have it installed, consider its installation. [Google](https://www.google.com/) and [this page](https://www.openmp.org/resources/openmp-compilers-tools/) are excellent sources of information on *OpenMP*. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc.
 
-By default *-nspl* parameter is computed in a way which provides the highest possible level of parallelization for that implementation. It was tested on Intel CPUs. If you feel that the default value is not optimal for your case, feel free to experiment with that parameter.
+By default *-nspl* parameter is computed in a way which provides the highest possible level of parallelization for that implementation. It was tested on Intel CPUs. If you feel that the default value is not optimal for your case, feel free to experiment with that parameter. You can increase default value of *-nspl* to reduce RAM consumption.
 
 By default cmake starts building this package and all required libraries in Release mode to achieve fastest perfomance. If you want to build in Debug mode, don't forget to pass -DCMAKE_BUILD_TYPE=Debug
 

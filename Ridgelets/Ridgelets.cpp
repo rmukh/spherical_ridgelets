@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 	if (res_mask)
 		return EXIT_SUCCESS;
 
-	//4D dMRI image to Eigen 2D Matrix
+	// 4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
 	MatrixType GradientDirections; // Matrix with dMRI image gradient directions
 	int res_dmri = data.DWI2Matrix(input_args.input_dmri, mask, signal, GradientDirections);
