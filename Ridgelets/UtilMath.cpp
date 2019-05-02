@@ -209,8 +209,6 @@ void UtilMath::ind_sort_vec(MatrixType& vec, vector<size_t> & indx) {
 	indx.resize(uc3.size());
 	iota(indx.begin(), indx.end(), 0);
 	sort(indx.rbegin(), indx.rend(), cmp_v(uc3));
-	// sort indexes based on comparing values in v
-	//sort(indx.rbegin(), indx.rend(), [&uc3](size_t i1, size_t i2) {return uc3[i1] < uc3[i2]; });
 }
 
 void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
