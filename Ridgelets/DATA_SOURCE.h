@@ -26,7 +26,7 @@ public:
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType & g, MatrixType & s);
-	void estimate_memory(MatrixType & s, MatrixType & A, int n_splits);
+	void estimate_memory(MatrixType & s, MatrixType & A, input_parse & params);
 	int compute_splits(unsigned s_size);
 	int DWI2Matrix(string & dmri_file, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);

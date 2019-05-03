@@ -14,6 +14,8 @@ SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels, double lambda) : A(&
 void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 	cout << "Start computing ridgelets coefficients..." << endl;
 
+	auto start = high_resolution_clock::now();
+
 	x.resize(A->cols(), s->cols());
 	unsigned split_size = floor(s->cols() / N_splits);
 
@@ -55,4 +57,9 @@ void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 		}
 		x.block(0, it * split_size, x_block.rows(), x_block.cols()) = x_block;
 	}
+
+	auto stop = high_resolution_clock::now();
+	auto ds = duration_cast<seconds>(stop - start);
+	auto dm = duration_cast<minutes>(stop - start);
+	cout << "Computations took " << ds.count() << " seconds ~ " << dm.count() << "+ minutes" << endl;
 }

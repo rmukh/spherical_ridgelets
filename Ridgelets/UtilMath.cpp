@@ -5,7 +5,7 @@
 
 const double UtilMath::PI = std::atan(1.0) * 4.0;
 UtilMath::UtilMath() {}
-UtilMath::~UtilMath() { cout << "UtilMath desctructed" << endl; }
+UtilMath::~UtilMath() {}
 
 void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 {

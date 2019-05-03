@@ -47,8 +47,8 @@ int main(int argc, char* argv[])
 
 	if (input_args.n_splits == -1)
 		input_args.n_splits = data.compute_splits(signal.cols());
-
-	data.estimate_memory(signal, A, input_args.n_splits);
+	
+	data.estimate_memory(signal, A, input_args);
 	data.short_summary(input_args);
 
 	MatrixType C;

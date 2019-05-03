@@ -88,11 +88,14 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 			b0 = stod(metaString.c_str());
 		}
 	}
-	// Normalize directions
+	// Normalize gradients
 	GradientDirections.rowwise().normalize();
 
+	itk::Size<3> img_size = image->GetLargestPossibleRegion().GetSize();
+	cout << "Image size: (" << img_size[0] << " " << img_size[1] << " " << img_size[2] << "). ";
 	cout << "Number of gradient images: " << nGradImgs << ". Number of reference images: " << nOfImgs - nGradImgs << endl;
 	cout << "b-value " << b0 << endl;
+
 	if (!is_b0)
 	{
 		cerr << "b-value not specified in file's header." << endl;
@@ -241,6 +244,8 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 			it.NextLine();
 		}
 	}
+
+	cout << "Total number of voxels to process (with mask): " << signal.cols() << endl << endl;
 	img = NULL;
 	return EXIT_SUCCESS;
 }

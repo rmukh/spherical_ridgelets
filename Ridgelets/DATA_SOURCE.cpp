@@ -246,9 +246,12 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 		g.row(i) = g.row(i) / gnorm(i);
 }
 
-void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, int n_splits) {
+void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, input_parse& params) {
+	int n_splits = params.n_splits;
+
 	// Get the number of threads
 	unsigned n_threads = Eigen::nbThreads();
+	cout << "The number of available threads: " << n_threads << endl;
 
 	// Estimate dMRI Eigen matrix size
 	unsigned long long int dmri_memory = s.size() * sizeof(double);
@@ -259,9 +262,24 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, int n_splits) {
 	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
 
 	cout << "IMPORTANT! To successfully finish computations you need approximately ";
-	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
+	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined to compute spherical ridgelets." << endl;
+	
+	// Estimate memory consumption to save ridgelets
+	if (!params.output_ridgelets.empty()) {
+		unsigned long long int orig_img_size = h.reg_h.GetSize()[0] * h.reg_h.GetSize()[1] * h.reg_h.GetSize()[2];
+		unsigned long long int ridg_save = orig_img_size * A.cols() * sizeof(double);
+		cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save ridgelets coefficients." << endl;
+	}
+
+	// Estimate memory consumption to save ODF max values and directions
+	if (!params.output_fiber_max_odf.empty()) {
+		unsigned long long int orig_img_size = h.reg_h.GetSize()[0] * h.reg_h.GetSize()[1] * h.reg_h.GetSize()[2];
+		unsigned long long int ridg_save = orig_img_size * 24 * sizeof(double);
+		cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save ODF max." << endl;
+	}
+
 	cout << "If you want to optimize memory consumption and computation speed, feel free to "
-		"experiment with split coefficient (-nspl parameter). " << endl;
+		"experiment with split coefficient (-nspl parameter). " << endl << endl;
 }
 
 int DATA_SOURCE::compute_splits(unsigned s_size) {
