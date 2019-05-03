@@ -28,8 +28,10 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 
 	// Set number of threads
-	omp_set_num_threads(input_args.nth);
-	Eigen::setNbThreads(input_args.nth);
+	if (input_args.nth != -1) {
+		omp_set_num_threads(input_args.nth);
+		Eigen::setNbThreads(input_args.nth);
+	}
 
 	// Read mask
 	MaskImagePointer mask;
