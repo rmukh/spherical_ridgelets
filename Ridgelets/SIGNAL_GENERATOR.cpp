@@ -134,8 +134,12 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 		DiffusionImageType::SizeType sz = img->GetLargestPossibleRegion().GetSize();
 		N_of_voxels = sz[0] * sz[1] * sz[2];
 	}
-
+	double avrg_b0;
 	unsigned first_grad_image_index = nOfImgs - nGradImgs;
+	if (first_grad_image_index == 0) {
+		cout << "Warning! There is no baseline image in the input file!" << endl;
+		avrg_b0 = 0.0;
+	}
 	signal = MatrixType::Zero(nGradImgs, N_of_voxels);
 	DiffusionImageType::PixelType voxel_content;
 
@@ -159,18 +163,27 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 					voxel_content = it_i.Get();
 
 					// Calculate average b0 value for the voxel
-					double avrgb0_sum = 0;
-					for (unsigned i = 0; i < first_grad_image_index; ++i) {
-						double vol = voxel_content.GetElement(i);
-						avrgb0_sum += vol;
+					if (avrg_b0 == 0.0) 
+					{
+						avrg_b0 = 1.0;
 					}
-					double avrg_b0 = avrgb0_sum / first_grad_image_index;
-					if (avrg_b0 == 0)
-						avrg_b0 = 1;
-
+					else 
+					{
+						double avrgb0_sum = 0;
+						for (unsigned i = 0; i < first_grad_image_index; ++i) {
+							double vol = voxel_content.GetElement(i);
+							avrgb0_sum += vol;
+						}
+						avrg_b0 = avrgb0_sum / first_grad_image_index;
+					}
+					
 					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
 						// Get diffusion pixel and normalize to b0
-						double vol = voxel_content.GetElement(i) / avrg_b0;
+						double vol;
+						if (avrg_b0 == 0.0)
+							vol = 1e-10;
+						else
+							vol = voxel_content.GetElement(i) / avrg_b0;
 						// Remove negative values
 						if (vol > 0)
 							signal(i - first_grad_image_index, vox) = vol;
@@ -196,18 +209,27 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 				voxel_content = it.Get();
 				
 				// Calculate average b0 value for the voxel
-				double avrgb0_sum = 0;
-				for (unsigned i = 0; i < first_grad_image_index; ++i) {
-					double vol = voxel_content.GetElement(i);
-					avrgb0_sum += vol;
+				if (avrg_b0 == 0.0) 
+				{
+					avrg_b0 = 1.0;
 				}
-				double avrg_b0 = avrgb0_sum / first_grad_image_index;
-				if (avrg_b0 == 0)
-					avrg_b0 = 1;
+				else 
+				{
+					double avrgb0_sum = 0;
+					for (unsigned i = 0; i < first_grad_image_index; ++i) {
+						double vol = voxel_content.GetElement(i);
+						avrgb0_sum += vol;
+					}
+					avrg_b0 = avrgb0_sum / first_grad_image_index;
+				}
 
 				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
 					// Get diffusion pixel and normalize to b0
-					double vol = voxel_content.GetElement(i) / avrg_b0;
+					double vol;
+					if (avrg_b0 == 0.0)
+						vol = 1e-10;
+					else
+						vol = voxel_content.GetElement(i) / avrg_b0;
 					// Remove negative values
 					if (vol > 0)
 						signal(i - first_grad_image_index, vox) = vol;
