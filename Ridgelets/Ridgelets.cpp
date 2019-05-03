@@ -27,6 +27,11 @@ int main(int argc, char* argv[])
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 
+	// Set number of threads
+	omp_set_num_threads(input_args.nth);
+	Eigen::setNbThreads(input_args.nth);
+
+	// Read mask
 	MaskImagePointer mask;
 	int res_mask = data.readMask(input_args.input_mask, mask);
 	if (res_mask)

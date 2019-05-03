@@ -8,7 +8,8 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	{
 		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -odf, -omd" << endl;
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
-			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho" << endl;
+			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, "
+			"-srho Spherical ridgelets rho, -nth number of threads to use" << endl;
 		cerr << "Possible output argumet(s): -ridg ridgelet_file, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
@@ -22,6 +23,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	output.fista_lambda = 0.01;
 	output.sph_J = 2;
 	output.sph_rho = 3.125;
+	output.nth = -1;
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -116,6 +118,18 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-c")) {
 			output.is_compress = true;
+		}
+		if (!strcmp(argv[i], "-nth")) {
+			float n_threads = stof(argv[i + 1]);
+			if (n_threads == floor(n_threads) && n_threads > 0) {
+				output.nth = n_threads;
+			}
+			else {
+				cout << "The value for number of threads "
+					"provided is in the wrong format "
+					"(must be a positive integer). "
+					"So, will be computed automatically." << endl;
+			}
 		}
 	}
 	if (!inp1 || !out1) {
@@ -247,7 +261,7 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 }
 
 void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, input_parse& params) {
-	int n_splits = params.n_splits;
+	unsigned n_splits = params.n_splits;
 
 	// Get the number of threads
 	unsigned n_threads = Eigen::nbThreads();
