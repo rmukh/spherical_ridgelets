@@ -94,7 +94,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-lmd")) {
 			float lmd = stof(argv[i + 1]);
-			if (lmd > 0 && lmd < 1) {
+			if (lmd > 0) {
 				output.fista_lambda = lmd;
 			}
 			else {
