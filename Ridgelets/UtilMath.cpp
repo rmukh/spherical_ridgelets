@@ -1,6 +1,4 @@
 #include "UtilMath.h"
-
-#define CONVHULL_3D_ENABLE
 #include "convhull_3d.h"
 
 const precisionType UtilMath::PI = std::atan(1.0) * 4.0;

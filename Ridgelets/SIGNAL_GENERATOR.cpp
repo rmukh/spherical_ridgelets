@@ -138,7 +138,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 		DiffusionImageType::SizeType sz = img->GetLargestPossibleRegion().GetSize();
 		N_of_voxels = sz[0] * sz[1] * sz[2];
 	}
-	precisionType avrg_b0;
+	precisionType avrg_b0 = -1.0;
 	unsigned first_grad_image_index = nOfImgs - nGradImgs;
 	if (first_grad_image_index == 0) {
 		cout << "Warning! There is no baseline image in the input file!" << endl;
