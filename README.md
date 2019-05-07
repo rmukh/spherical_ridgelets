@@ -39,16 +39,17 @@ Mandatory input argument:
 - *-i* [dMRI file name]
 
 Optional input arguments:
-- *-m* [mask file]
+- *-m* [Mask file]
 - *-lvl* [icosahedron tesselation order, 4 by default]
-- *-nspl* [number of ridgelets coefficients splits to parallel computing, computed automatically by default based on your computer configuration]
-- *-mth* [find maxima ODF threshold, 0.7 by default] 
-- *-lmd* [lambda parameter for FISTA solver, 0.01 by default] 
-- *-sj* [predefined integer J, which defines the highest level of 'detectable' signal details parameter of the spherical ridgelets, 2 by default] 
-- *-srho* [scaling parameter of the spherical ridgelets, 3.125 by default]
+- *-nspl* [The number of ridgelets coefficients splits to parallel computing, computed automatically by default based on your computer configuration]
+- *-mth* [Find maxima ODF threshold, 0.7 by default] 
+- *-lmd* [Lambda parameter for FISTA solver, 0.01 by default] 
+- *-sj* [Predefined integer J, which defines the highest level of 'detectable' signal details parameter of the spherical ridgelets, 2 by default] 
+- *-srho* [Scaling parameter of the spherical ridgelets, 3.125 by default]
+- *-nth* [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
 
 Output arguments:
-- *-ridg* [ridgelet file name] 
+- *-ridg* [Ridgelet file name] 
 - *-odf* [ODF values file name] 
 - *-omd* [ODF maxima directions and values file name]
 - *-c* enables compression of output files, false by default
