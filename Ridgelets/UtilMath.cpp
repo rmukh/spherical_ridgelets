@@ -140,8 +140,8 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 
 	// Preallocate string for faster string concatenation
 	string key;
-
-	size_t added_length = nCols * to_string(static_cast<precisionType>(U(0, 0))).length();
+	// long double always for to_string function
+	size_t added_length = nCols * to_string(static_cast<long double>(U(0, 0))).length();
 
 	key.reserve(key.length() + added_length);
 
@@ -150,7 +150,7 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 		// Create unique key from row values
 		key.clear();
 		for (unsigned j = 0; j < nCols; ++j) {
-			key.append(to_string(static_cast<precisionType>(U(i, j))));
+			key.append(to_string(static_cast<long double>(U(i, j))));
 		}
 
 		// If element not exists in hash table
