@@ -49,7 +49,8 @@ Optional input arguments:
 - *-nth* [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
 
 Output arguments:
-- *-ridg* [Ridgelet file name] 
+- *-ridg* [Ridgelet file name]
+- *-sr* [Signal reconstruction]
 - *-odf* [ODF values file name] 
 - *-omd* [ODF maxima directions and values file name]
 - *-c* enables compression of output files, false by default
