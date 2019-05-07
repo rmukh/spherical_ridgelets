@@ -9,7 +9,7 @@ SOLVERS::~SOLVERS() {}
 
 SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
 
-SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels, double lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
+SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels, precisionType lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
 
 void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 	cout << "Start computing ridgelets coefficients..." << endl;
@@ -30,10 +30,10 @@ void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 		y = MatrixType::Zero(A->cols(), s_block.cols());
 		x_old = MatrixType::Zero(A->cols(), s_block.cols());
 
-		double t_old = 1;
-		double t = 0;
-		double e_old = 1e32;
-		double e;
+		precisionType t_old = 1;
+		precisionType t = 0;
+		precisionType e_old = 1e32;
+		precisionType e;
 
 		for (int iter = 0; iter < 2000; ++iter) {
 			x_block = y + A->transpose() * (s_block - *A * y);

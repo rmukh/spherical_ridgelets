@@ -15,8 +15,8 @@ bool SIGNAL_GENERATOR::is_path_exists(const string &s)
 int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImagePointer & image) {
 	GradientDirections.resize(0, 3);
 	bool is_b0 = false;
-	double b0 = 0;
-	double x, y, z;
+	precisionType b0 = 0;
+	precisionType x, y, z;
 
 	// Temporary register factories cause don't use cmake
 	itk::NrrdImageIOFactory::RegisterOneFactory();
@@ -70,7 +70,8 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 		if (itKey->find("DWMRI_gradient") != string::npos)
 		{
 			//cout << *itKey << " -> " << metaString << endl;
-			sscanf(metaString.c_str(), "%lf %lf %lf\n", &x, &y, &z);
+			istringstream ss(metaString.c_str());
+			ss >> x; ss >> y; ss >> z;
 
 			++nOfImgs;
 			// If the direction is 0.0, this is a reference image
@@ -137,7 +138,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 		DiffusionImageType::SizeType sz = img->GetLargestPossibleRegion().GetSize();
 		N_of_voxels = sz[0] * sz[1] * sz[2];
 	}
-	double avrg_b0;
+	precisionType avrg_b0;
 	unsigned first_grad_image_index = nOfImgs - nGradImgs;
 	if (first_grad_image_index == 0) {
 		cout << "Warning! There is no baseline image in the input file!" << endl;
@@ -166,23 +167,23 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 					voxel_content = it_i.Get();
 
 					// Calculate average b0 value for the voxel
-					if (avrg_b0 == 0.0) 
+					if (avrg_b0 == 0.0)
 					{
 						avrg_b0 = 1.0;
 					}
-					else 
+					else
 					{
-						double avrgb0_sum = 0;
+						precisionType avrgb0_sum = 0;
 						for (unsigned i = 0; i < first_grad_image_index; ++i) {
-							double vol = voxel_content.GetElement(i);
+							precisionType vol = voxel_content.GetElement(i);
 							avrgb0_sum += vol;
 						}
 						avrg_b0 = avrgb0_sum / first_grad_image_index;
 					}
-					
+
 					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
 						// Get diffusion pixel and normalize to b0
-						double vol;
+						precisionType vol;
 						if (avrg_b0 == 0.0)
 							vol = 1e-10;
 						else
@@ -210,17 +211,17 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 			while (!it.IsAtEndOfLine())
 			{
 				voxel_content = it.Get();
-				
+
 				// Calculate average b0 value for the voxel
-				if (avrg_b0 == 0.0) 
+				if (avrg_b0 == 0.0)
 				{
 					avrg_b0 = 1.0;
 				}
-				else 
+				else
 				{
-					double avrgb0_sum = 0;
+					precisionType avrgb0_sum = 0;
 					for (unsigned i = 0; i < first_grad_image_index; ++i) {
-						double vol = voxel_content.GetElement(i);
+						precisionType vol = voxel_content.GetElement(i);
 						avrgb0_sum += vol;
 					}
 					avrg_b0 = avrgb0_sum / first_grad_image_index;
@@ -228,7 +229,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 
 				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
 					// Get diffusion pixel and normalize to b0
-					double vol;
+					precisionType vol;
 					if (avrg_b0 == 0.0)
 						vol = 1e-10;
 					else

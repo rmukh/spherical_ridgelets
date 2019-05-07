@@ -22,17 +22,26 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <sstream>
+
+//#define USE_FLOAT 1
+#if USE_FLOAT
+typedef float precisionType;
+#define CONVHULL_3D_USE_FLOAT_PRECISION 1
+#else
+typedef double precisionType;
+#endif
 
 // Necessary types defenitions
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
+typedef Eigen::Matrix<precisionType, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
+typedef Eigen::Matrix<precisionType, Eigen::Dynamic, 1> VectorType;
 /* Alternate way to define dMRI volume
 typedef itk::Vector<signed short, 59>   VectorType;
 typedef itk::Image<VectorType, 3>	    DiffusionImageType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 */
-typedef double                          VectorType;
-typedef itk::VectorImage<VectorType, 3>	DiffusionImageType;
-typedef itk::VariableLengthVector<VectorType> VariableVectorType;
+typedef itk::VectorImage<precisionType, 3>	DiffusionImageType;
+typedef itk::VariableLengthVector<precisionType> VariableVectorType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 typedef itk::ImageFileReader<DiffusionImageType> ImageReaderType;
 typedef itk::ImageLinearConstIteratorWithIndex<DiffusionImageType> ConstIterator;

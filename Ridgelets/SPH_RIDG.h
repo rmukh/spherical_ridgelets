@@ -11,14 +11,14 @@ public:
 	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3073602/
 	*/
 	int J; //J value
-	double rho; //rho value
+	precisionType rho; //rho value
 	UtilMath UM; //Object of UtilMath class
 	MatrixType C;
 
 	SPH_RIDG();
 	~SPH_RIDG();
 
-	SPH_RIDG(unsigned JIn, double rhoIn);
+	SPH_RIDG(unsigned JIn, precisionType rhoIn);
 	void init(); //pre-compute all necessary matricies/vectors
 
 	void RBasis(MatrixType& A, MatrixType& u); //return spherical ridgelets basis matrix
@@ -31,7 +31,7 @@ private:
 	MatrixType psi;
 	MatrixType t;
 	MatrixType Lmd;
-	double tau;
+	precisionType tau;
 	int m0;
 	VectorXi M0;
 };

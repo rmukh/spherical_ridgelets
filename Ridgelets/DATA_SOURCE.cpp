@@ -266,7 +266,7 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 
 void DATA_SOURCE::data_saving_info_out(unsigned long int coef_size, string name) {
 	unsigned long long int orig_img_size = h.reg_h.GetSize()[0] * h.reg_h.GetSize()[1] * h.reg_h.GetSize()[2];
-	unsigned long long int ridg_save = orig_img_size * coef_size * sizeof(double);
+	unsigned long long int ridg_save = orig_img_size * coef_size * sizeof(precisionType);
 	cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save " << name << endl;
 }
 
@@ -278,11 +278,11 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, input_parse& par
 	cout << "The number of available threads: " << n_threads << endl;
 
 	// Estimate dMRI Eigen matrix size
-	unsigned long long int dmri_memory = s.size() * sizeof(double);
+	unsigned long long int dmri_memory = s.size() * sizeof(precisionType);
 
 	// Estimate memory consumption by FISTA solver
-	unsigned long long int fista_memory_x = s.cols() * A.cols() * sizeof(double);
-	unsigned long long int fista_memory_loop = n_threads * 4 * (s.cols() / n_splits) * A.cols() * sizeof(double);
+	unsigned long long int fista_memory_x = s.cols() * A.cols() * sizeof(precisionType);
+	unsigned long long int fista_memory_loop = n_threads * 4 * (s.cols() / n_splits) * A.cols() * sizeof(precisionType);
 	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
 
 	cout << "IMPORTANT! To successfully finish computations you need approximately ";

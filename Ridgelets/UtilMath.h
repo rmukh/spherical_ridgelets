@@ -9,9 +9,9 @@ class UtilMath {
 public:
 	struct cmp_v
 	{
-    		const vector<double> & value_vector;
+    		const vector<precisionType> & value_vector;
 
-    		cmp_v(const vector<double> & val_vec):
+    		cmp_v(const vector<precisionType> & val_vec):
         		value_vector(val_vec) {}
 
     		bool operator()(size_t i1, size_t i2)
@@ -21,7 +21,7 @@ public:
 	};
 
 	// Useful constants
-	static const double PI;
+	static const precisionType PI;
 
 	UtilMath();
 	~UtilMath();
@@ -33,7 +33,7 @@ public:
 	MatrixType convhull3_1(MatrixType & u);
 	void unique_rows(vector<int> & uniques, MatrixType & U);
 	void unique_sorted(vector<unsigned> & uniques, MatrixType & U);
-	void ind_sort(MatrixType & matrix, multimap<double, unsigned> & indx, unsigned col_n);
+	void ind_sort(MatrixType & matrix, multimap<precisionType, unsigned> & indx, unsigned col_n);
 	void ind_sort_vec(MatrixType & vec, vector<size_t> & indx);
 	void column_find(std::vector<Eigen::Index>& index, MatrixType & arr, unsigned col_n, bool equal, int val);
 	void icosahedron(MatrixType& u,MatrixType & faces, unsigned level);
