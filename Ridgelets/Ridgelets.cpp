@@ -77,6 +77,20 @@ int main(int argc, char* argv[])
 		data.save_to_file<DiffusionImageType>(input_args.output_ridgelets, Ridg_coeff, input_args.is_compress);
 	}
 
+	// A*c (signal recon)
+	if (!input_args.signal_recon.empty()) {
+		cout << "Saving signal reconstruction..." << endl;
+		MatrixType SR = A * C;
+
+		DiffusionImagePointer s_coeff = DiffusionImageType::New();
+		data.set_header(s_coeff);
+		s_coeff->SetNumberOfComponentsPerPixel(SR.rows());
+		s_coeff->Allocate();
+
+		data.Matrix2DWI(s_coeff, mask, SR);
+		data.save_to_file<DiffusionImageType>(input_args.signal_recon, s_coeff, input_args.is_compress);
+	}
+
 	UtilMath m;
 	MatrixType fcs;
 	MatrixType nu;

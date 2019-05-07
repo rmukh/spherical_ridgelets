@@ -6,11 +6,11 @@ DATA_SOURCE::~DATA_SOURCE() {}
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -odf, -omd" << endl;
+		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd" << endl;
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
 			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, "
 			"-srho Spherical ridgelets rho, -nth number of threads to use" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -106,6 +106,10 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-ridg")) {
 			output.output_ridgelets = argv[i + 1];
+			out1 = true;
+		}
+		if (!strcmp(argv[i], "-sr")) {
+			output.signal_recon = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-odf")) {
@@ -260,6 +264,12 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 		g.row(i) = g.row(i) / gnorm(i);
 }
 
+void DATA_SOURCE::data_saving_info_out(unsigned long int coef_size, string name) {
+	unsigned long long int orig_img_size = h.reg_h.GetSize()[0] * h.reg_h.GetSize()[1] * h.reg_h.GetSize()[2];
+	unsigned long long int ridg_save = orig_img_size * coef_size * sizeof(double);
+	cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save " << name << endl;
+}
+
 void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, input_parse& params) {
 	unsigned n_splits = params.n_splits;
 
@@ -279,18 +289,16 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, input_parse& par
 	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined to compute spherical ridgelets." << endl;
 	
 	// Estimate memory consumption to save ridgelets
-	if (!params.output_ridgelets.empty()) {
-		unsigned long long int orig_img_size = h.reg_h.GetSize()[0] * h.reg_h.GetSize()[1] * h.reg_h.GetSize()[2];
-		unsigned long long int ridg_save = orig_img_size * A.cols() * sizeof(double);
-		cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save ridgelets coefficients." << endl;
-	}
+	if (!params.output_ridgelets.empty())
+		data_saving_info_out(A.cols(), "ridgelets coefficients");
+
+	// Estimate memory consumption to save reconstructed signal
+	if (!params.signal_recon.empty())
+		data_saving_info_out(A.rows(), "reconstructed signal");
 
 	// Estimate memory consumption to save ODF max values and directions
-	if (!params.output_fiber_max_odf.empty()) {
-		unsigned long long int orig_img_size = h.reg_h.GetSize()[0] * h.reg_h.GetSize()[1] * h.reg_h.GetSize()[2];
-		unsigned long long int ridg_save = orig_img_size * 24 * sizeof(double);
-		cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save ODF max." << endl;
-	}
+	if (!params.output_fiber_max_odf.empty())
+		data_saving_info_out(24, "ODF max");
 
 	cout << "If you want to optimize memory consumption and computation speed, feel free to "
 		"experiment with split coefficient (-nspl parameter). " << endl << endl;
