@@ -75,13 +75,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\mukho\source\repos\SphericalRidgelet\Ridgelets\SphericalRidgelets\include;$(IncludePath)</IncludePath>
+    <SourcePath>C:\Users\mukho\source\repos\SphericalRidgelet\Ridgelets\SphericalRidgelets\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\mukho\source\repos\SphericalRidgelet\Ridgelets\SphericalRidgelets\include;$(IncludePath)</IncludePath>
+    <SourcePath>C:\Users\mukho\source\repos\SphericalRidgelet\Ridgelets\SphericalRidgelets\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -168,24 +171,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="convhull_3d.h" />
-    <ClInclude Include="DATA_SOURCE.h" />
-    <ClInclude Include="rdgls_types.h" />
-    <ClInclude Include="SIGNAL_GENERATOR.h" />
-    <ClInclude Include="SOLVERS.h" />
-    <ClInclude Include="SPH_RIDG.h" />
-    <ClInclude Include="UtilMath.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="DATA_SOURCE.cpp" />
     <ClCompile Include="Ridgelets.cpp" />
-    <ClCompile Include="SIGNAL_GENERATOR.cpp" />
-    <ClCompile Include="SOLVERS.cpp" />
-    <ClCompile Include="SPH_RIDG.cpp" />
-    <ClCompile Include="UtilMath.cpp" />
+    <ClCompile Include="SphericalRidgelets\src\DATA_SOURCE.cpp" />
+    <ClCompile Include="SphericalRidgelets\src\SIGNAL_GENERATOR.cpp" />
+    <ClCompile Include="SphericalRidgelets\src\SOLVERS.cpp" />
+    <ClCompile Include="SphericalRidgelets\src\SPH_RIDG.cpp" />
+    <ClCompile Include="SphericalRidgelets\src\UtilMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SphericalRidgelets\include\convhull_3d.h" />
+    <ClInclude Include="SphericalRidgelets\include\DATA_SOURCE.h" />
+    <ClInclude Include="SphericalRidgelets\include\rdgls_types.h" />
+    <ClInclude Include="SphericalRidgelets\include\SIGNAL_GENERATOR.h" />
+    <ClInclude Include="SphericalRidgelets\include\SOLVERS.h" />
+    <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.h" />
+    <ClInclude Include="SphericalRidgelets\include\UtilMath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
