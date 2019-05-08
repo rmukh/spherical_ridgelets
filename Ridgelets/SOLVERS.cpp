@@ -1,6 +1,6 @@
 #include "SOLVERS.h"
 
-SOLVERS::SOLVERS() : A(nullptr), s(nullptr) {
+SOLVERS::SOLVERS() : A(NULL), s(NULL) {
 	cerr << "Minimal set of argumets: ridgelets basis, full DWI array or matrix/vector with voxel(s). "
 		"The last parameter - lambda value is optional.\n";
 }
@@ -9,10 +9,12 @@ SOLVERS::~SOLVERS() {}
 
 SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
 
-SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels, double lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
+SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels, precisionType lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
 
 void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 	cout << "Start computing ridgelets coefficients..." << endl;
+
+	auto start = high_resolution_clock::now();
 
 	x.resize(A->cols(), s->cols());
 	unsigned split_size = floor(s->cols() / N_splits);
@@ -28,10 +30,10 @@ void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 		y = MatrixType::Zero(A->cols(), s_block.cols());
 		x_old = MatrixType::Zero(A->cols(), s_block.cols());
 
-		double t_old = 1;
-		double t = 0;
-		double e_old = 1e32;
-		double e;
+		precisionType t_old = 1;
+		precisionType t = 0;
+		precisionType e_old = 1e32;
+		precisionType e;
 
 		for (int iter = 0; iter < 2000; ++iter) {
 			x_block = y + A->transpose() * (s_block - *A * y);
@@ -55,4 +57,9 @@ void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 		}
 		x.block(0, it * split_size, x_block.rows(), x_block.cols()) = x_block;
 	}
+
+	auto stop = high_resolution_clock::now();
+	auto ds = duration_cast<seconds>(stop - start);
+	auto dm = duration_cast<minutes>(stop - start);
+	cout << "Computations took " << ds.count() << " seconds ~ " << dm.count() << "+ minutes" << endl;
 }

@@ -27,12 +27,19 @@ int main(int argc, char* argv[])
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 
+	// Set number of threads
+	if (input_args.nth != -1) {
+		omp_set_num_threads(input_args.nth);
+		Eigen::setNbThreads(input_args.nth);
+	}
+
+	// Read mask
 	MaskImagePointer mask;
 	int res_mask = data.readMask(input_args.input_mask, mask);
 	if (res_mask)
 		return EXIT_SUCCESS;
 
-	//4D dMRI image to Eigen 2D Matrix
+	// 4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
 	MatrixType GradientDirections; // Matrix with dMRI image gradient directions
 	int res_dmri = data.DWI2Matrix(input_args.input_dmri, mask, signal, GradientDirections);
@@ -47,8 +54,8 @@ int main(int argc, char* argv[])
 
 	if (input_args.n_splits == -1)
 		input_args.n_splits = data.compute_splits(signal.cols());
-
-	data.estimate_memory(signal, A, input_args.n_splits);
+	
+	data.estimate_memory(signal, A, input_args);
 	data.short_summary(input_args);
 
 	MatrixType C;
@@ -68,6 +75,20 @@ int main(int argc, char* argv[])
 
 		data.Matrix2DWI(Ridg_coeff, mask, C);
 		data.save_to_file<DiffusionImageType>(input_args.output_ridgelets, Ridg_coeff, input_args.is_compress);
+	}
+
+	// A*c (signal recon)
+	if (!input_args.signal_recon.empty()) {
+		cout << "Saving signal reconstruction..." << endl;
+		MatrixType SR = A * C;
+
+		DiffusionImagePointer s_coeff = DiffusionImageType::New();
+		data.set_header(s_coeff);
+		s_coeff->SetNumberOfComponentsPerPixel(SR.rows());
+		s_coeff->Allocate();
+
+		data.Matrix2DWI(s_coeff, mask, SR);
+		data.save_to_file<DiffusionImageType>(input_args.signal_recon, s_coeff, input_args.is_compress);
 	}
 
 	UtilMath m;
@@ -98,10 +119,8 @@ int main(int argc, char* argv[])
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
 
-		MatrixType c;
-
 		m.FindConnectivity(conn, fcs, nu.rows());
-		m.FindMaxODFMaxInDMRI(ex_d, c, Q, C, conn, nu, input_args.max_odf_thresh);
+		m.FindMaxODFMaxInDMRI(ex_d, Q, C, conn, nu, input_args.max_odf_thresh);
 
 		cout << "Saving maxima ODF direction and value..." << endl;
 		DiffusionImagePointer modf = DiffusionImageType::New();

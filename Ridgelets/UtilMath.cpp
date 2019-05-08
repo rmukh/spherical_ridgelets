@@ -1,10 +1,9 @@
 #include "UtilMath.h"
-
-#define CONVHULL_3D_ENABLE
 #include "convhull_3d.h"
 
+const precisionType UtilMath::PI = std::atan(1.0) * 4.0;
 UtilMath::UtilMath() {}
-UtilMath::~UtilMath() { cout << "UtilMath desctructed" << endl; }
+UtilMath::~UtilMath() {}
 
 void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 {
@@ -13,7 +12,7 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 	*/
 	//z=(1-1/N:-2/N:1/N-1)';
 	MatrixType z(N, 1);
-	double val = 1.0 - (1.0 / N);
+	precisionType val = 1.0 - (1.0 / N);
 	for (unsigned int i = 0; i < N; ++i, val += (-2.0 / N))
 		z(i) = val;
 
@@ -27,7 +26,7 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 	case 1:
 	{
 		// Long=[0; cumsum((3.6/sqrt(N))./r(1:N-1))];
-		double sqrtN = sqrt(N);
+		precisionType sqrtN = sqrt(N);
 		Long(0) = 0.0;
 		for (unsigned i = 1; i < N; ++i)
 			Long(i) = Long(i - 1) + ((3.6 / sqrtN) / r(i - 1));
@@ -36,8 +35,8 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 	case 2:
 	{
 		// Long=(pi*(3-sqrt(5)))*(0:N-1)';
-		double pref_const = UtilMath::PI * (3.0 - sqrt(5.0));
-		Long = pref_const * VectorXd::LinSpaced(N, 0, N - 1);
+		precisionType pref_const = UtilMath::PI * (3.0 - sqrt(5.0));
+		Long = pref_const * VectorType::LinSpaced(N, 0, N - 1);
 	}
 	break;
 	default:
@@ -63,12 +62,12 @@ void UtilMath::fura(MatrixType& Lmd, unsigned n)
 
 	//Lmd(2:2:n+1)=0;
 	Lmd(0) = 1.0;
-	double c;
+	precisionType c;
 
 	//for k=2:2:n
 	for (unsigned k = 2; k < n + 1; k += 2) {
 		//Lmd(k+1)=-Lmd(k-1)*(k-1)/k;
-		c = (double)k;
+		c = (precisionType)k;
 		Lmd.row(k) = -((c - 1.0) / c)*Lmd.row(k - 2);
 	}
 
@@ -96,8 +95,8 @@ void UtilMath::polyleg(MatrixType& P, MatrixType& x, unsigned n)
 		P.col(1) = x;
 		for (unsigned k = 2; k < n + 1; ++k)
 		{
-			double c1 = (2.0 * k - 1.0) / k;
-			double c2 = (k - 1.0) / k;
+			precisionType c1 = (2.0 * k - 1.0) / k;
+			precisionType c2 = (k - 1.0) / k;
 			P.col(k) = c1 * x.cwiseProduct(P.col(k - 1)) - c2 * P.col(k - 2);
 		}
 	}
@@ -141,15 +140,17 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 
 	// Preallocate string for faster string concatenation
 	string key;
-	size_t added_length = nCols * to_string(U(0, 0)).length();
+	// long double always for to_string function
+	size_t added_length = nCols * to_string(static_cast<long double>(U(0, 0))).length();
+
 	key.reserve(key.length() + added_length);
 
 	// Iterate over matrix
 	for (unsigned i = 0; i < U.rows(); ++i) {
-		// Create unique key from row valuse
+		// Create unique key from row values
 		key.clear();
 		for (unsigned j = 0; j < nCols; ++j) {
-			key.append(to_string(U(i, j)));
+			key.append(to_string(static_cast<long double>(U(i, j))));
 		}
 
 		// If element not exists in hash table
@@ -179,15 +180,15 @@ void UtilMath::unique_sorted(vector<unsigned>& uniques, MatrixType& U) {
 	sort(uniques.begin(), uniques.end());
 }
 
-void UtilMath::ind_sort(MatrixType& matrix, multimap<double, unsigned>& indx, unsigned col_n) {
+void UtilMath::ind_sort(MatrixType& matrix, multimap<precisionType, unsigned>& indx, unsigned col_n) {
 	/*
 	Return indexies indx in ascending order of sorted column col_n of the matrix
 	*/
 	// Matrix column to std vector
-	vector<double> uc3;
+	vector<precisionType> uc3;
 	unsigned orig_size = matrix.col(col_n).size();
 	uc3.resize(orig_size);
-	VectorXd::Map(&uc3[0], orig_size) = matrix.col(col_n);
+	VectorType::Map(&uc3[0], orig_size) = matrix.col(col_n);
 
 	// Mapping from value to index and so make sort ascending
 	for (auto it = uc3.begin(); it != uc3.end(); ++it)
@@ -199,17 +200,15 @@ void UtilMath::ind_sort_vec(MatrixType& vec, vector<size_t> & indx) {
 	Return indexies indx in descending order of sorted vector
 	*/
 	// Matrix to std vector
-	vector<double> uc3;
+	vector<precisionType> uc3;
 	unsigned orig_size = vec.size();
 	uc3.resize(orig_size);
-	VectorXd::Map(&uc3[0], orig_size) = vec;
+	VectorType::Map(&uc3[0], orig_size) = vec;
 
 	// initialize original index locations
 	indx.resize(uc3.size());
 	iota(indx.begin(), indx.end(), 0);
-
-	// sort indexes based on comparing values in v
-	sort(indx.rbegin(), indx.rend(), [&uc3](size_t i1, size_t i2) {return uc3[i1] < uc3[i2]; });
+	sort(indx.rbegin(), indx.rend(), cmp_v(uc3));
 }
 
 void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
@@ -234,8 +233,8 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 	Build icosahedron based sampling array and their respective faces
 	*/
 	cout << "Start computing icosahedron..." << endl;
-	double C = 1 / sqrt(1.25);
-	MatrixType t = (2 * PI / 5.0) * VectorXd::LinSpaced(5, 0, 4);
+	precisionType C = 1 / sqrt(1.25);
+	MatrixType t = (2 * PI / 5.0) * VectorType::LinSpaced(5, 0, 4);
 	MatrixType u1(5, 3);
 	u1 << C * t.array().cos(), C * t.array().sin(), C * 0.5 * MatrixType::Ones(5, 1);
 	MatrixType u2(5, 3);
@@ -273,13 +272,13 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 		}
 
 		// Sorting u by 3rd col
-		multimap<double, unsigned> ind;
+		multimap<precisionType, unsigned> ind;
 		ind_sort(u, ind, 2);
 
 		// Using indicies in reverse order gives us desired descending order
 		unsigned i = 0;
 		MatrixType u_sorted(u.rows(), 3);
-		for (multimap<double, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
+		for (multimap<precisionType, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
 			u_sorted.row(i) = u.row(it->second);
 			++i;
 		}
@@ -295,12 +294,12 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 			v.row(i) = u_sorted.row(index.at(i));
 
 		// Sort v by 2nd column
-		multimap<double, unsigned> ind_v;
+		multimap<precisionType, unsigned> ind_v;
 		ind_sort(v, ind_v, 1);
 
 		// Using indicies in reverse order gives us desired descending order
 		i = 0;
-		for (multimap<double, unsigned>::reverse_iterator it = ind_v.rbegin(); it != ind_v.rend(); ++it) {
+		for (multimap<precisionType, unsigned>::reverse_iterator it = ind_v.rbegin(); it != ind_v.rend(); ++it) {
 			u_sorted.row(index.at(i)) = v.row(it->second);
 			++i;
 		}
@@ -374,7 +373,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	vector<vector<unsigned>>& conn, MatrixType& u, float thresh)
 {
 	// Standart min-max normalization
-	double W_min = W.minCoeff();
+	precisionType W_min = W.minCoeff();
 	W = (W.array() - W_min) / (W.maxCoeff() - W_min);
 
 	// Find maxima above this point
@@ -406,7 +405,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 				if (if_any) {
 					// [maxw id] = max(W(conn(j).elem))
 					unsigned id = 0;
-					double maxw = 0;
+					precisionType maxw = 0;
 					for (unsigned i = 0; i < conn_row_length; i++) {
 						if (W(conn[j][i]) > maxw) {
 							maxw = W(conn[j][i]);
@@ -491,7 +490,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 		ex(ct) = ex(ct - 1);
 
 		MatrixType::Index id;
-		double tmp = (directions_sorted * d.row(ct).transpose()).maxCoeff(&id);
+		precisionType tmp = (directions_sorted * d.row(ct).transpose()).maxCoeff(&id);
 		if (tmp > 0.95) {
 			remove_row(directions_sorted, id);
 			idx.erase(idx.begin() + id);
@@ -504,14 +503,11 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	}
 }
 
-void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType& Q, 
-	MatrixType& C, vector<vector<unsigned>>& conn, MatrixType& nu, float thresh)
+void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& Q, MatrixType& C,
+	vector<vector<unsigned>>& conn, MatrixType& nu, float thresh)
 {
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
-
-	cnt.resize(1, C.cols());
-	cnt.setZero(1, C.cols());
 
 	#pragma omp parallel for
 	for (int i = 0; i < C.cols(); ++i)
@@ -521,11 +517,6 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& cnt, MatrixType&
 		MatrixType vol = Q * C.col(i);
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh);
-
-		if (exe_vol.rows() < 16)
-			cnt(i) = exe_vol.rows();
-		else
-			cnt(i) = 0;
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);

@@ -9,10 +9,9 @@ class DATA_SOURCE
 {
 public:
 	struct input_parse {
-		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf, output_odf;
+		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf, output_odf, signal_recon;
 		float max_odf_thresh, fista_lambda, sph_rho;
-		unsigned lvl, sph_J;
-		int n_splits;	
+		unsigned lvl, sph_J, n_splits, nth;
 		bool is_compress;
 	};
 
@@ -26,7 +25,8 @@ public:
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType & g, MatrixType & s);
-	void estimate_memory(MatrixType & s, MatrixType & A, int n_splits);
+	void data_saving_info_out(unsigned long int coef_size, string name);
+	void estimate_memory(MatrixType & s, MatrixType & A, input_parse & params);
 	int compute_splits(unsigned s_size);
 	int DWI2Matrix(string & dmri_file, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);

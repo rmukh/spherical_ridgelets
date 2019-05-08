@@ -8,13 +8,13 @@ class SOLVERS
 public:
 	MatrixType *A; //rigelets basis
 	MatrixType *s; //input voxel(s)
-	double lmd; //labmda parameter for FISTA training
+	precisionType lmd; //labmda parameter for FISTA training
 
 	SOLVERS();
 	~SOLVERS();
 
 	SOLVERS(MatrixType& ridgelets, MatrixType& voxels);
-	SOLVERS(MatrixType& ridgelets, MatrixType& voxels, double lambda);
+	SOLVERS(MatrixType& ridgelets, MatrixType& voxels, precisionType lambda);
 	void FISTA(MatrixType & x, int N_splits);
 };
 

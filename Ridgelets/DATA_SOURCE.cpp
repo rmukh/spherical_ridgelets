@@ -6,10 +6,11 @@ DATA_SOURCE::~DATA_SOURCE() {}
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -odf, -omd" << endl;
+		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd" << endl;
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
-			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
+			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, "
+			"-srho Spherical ridgelets rho, -nth number of threads to use" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -22,6 +23,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	output.fista_lambda = 0.01;
 	output.sph_J = 2;
 	output.sph_rho = 3.125;
+	output.nth = -1;
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];
@@ -92,7 +94,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-lmd")) {
 			float lmd = stof(argv[i + 1]);
-			if (lmd > 0 && lmd < 1) {
+			if (lmd > 0) {
 				output.fista_lambda = lmd;
 			}
 			else {
@@ -106,6 +108,10 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 			output.output_ridgelets = argv[i + 1];
 			out1 = true;
 		}
+		if (!strcmp(argv[i], "-sr")) {
+			output.signal_recon = argv[i + 1];
+			out1 = true;
+		}
 		if (!strcmp(argv[i], "-odf")) {
 			output.output_odf = argv[i + 1];
 			out1 = true;
@@ -116,6 +122,18 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-c")) {
 			output.is_compress = true;
+		}
+		if (!strcmp(argv[i], "-nth")) {
+			float n_threads = stof(argv[i + 1]);
+			if (n_threads == floor(n_threads) && n_threads > 0) {
+				output.nth = n_threads;
+			}
+			else {
+				cout << "The value for number of threads "
+					"provided is in the wrong format "
+					"(must be a positive integer). "
+					"So, will be computed automatically." << endl;
+			}
 		}
 	}
 	if (!inp1 || !out1) {
@@ -246,22 +264,44 @@ void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {
 		g.row(i) = g.row(i) / gnorm(i);
 }
 
-void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, int n_splits) {
+void DATA_SOURCE::data_saving_info_out(unsigned long int coef_size, string name) {
+	unsigned long long int orig_img_size = h.reg_h.GetSize()[0] * h.reg_h.GetSize()[1] * h.reg_h.GetSize()[2];
+	unsigned long long int ridg_save = orig_img_size * coef_size * sizeof(precisionType);
+	cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save " << name << endl;
+}
+
+void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, input_parse& params) {
+	unsigned n_splits = params.n_splits;
+
 	// Get the number of threads
 	unsigned n_threads = Eigen::nbThreads();
+	cout << "The number of available threads: " << n_threads << endl;
 
 	// Estimate dMRI Eigen matrix size
-	unsigned long long int dmri_memory = s.size() * sizeof(double);
+	unsigned long long int dmri_memory = s.size() * sizeof(precisionType);
 
 	// Estimate memory consumption by FISTA solver
-	unsigned long long int fista_memory_x = s.cols() * A.cols() * sizeof(double);
-	unsigned long long int fista_memory_loop = n_threads * 4 * (s.cols() / n_splits) * A.cols() * sizeof(double);
+	unsigned long long int fista_memory_x = s.cols() * A.cols() * sizeof(precisionType);
+	unsigned long long int fista_memory_loop = n_threads * 4 * (s.cols() / n_splits) * A.cols() * sizeof(precisionType);
 	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
 
 	cout << "IMPORTANT! To successfully finish computations you need approximately ";
-	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined!" << endl;
+	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined to compute spherical ridgelets." << endl;
+	
+	// Estimate memory consumption to save ridgelets
+	if (!params.output_ridgelets.empty())
+		data_saving_info_out(A.cols(), "ridgelets coefficients");
+
+	// Estimate memory consumption to save reconstructed signal
+	if (!params.signal_recon.empty())
+		data_saving_info_out(A.rows(), "reconstructed signal");
+
+	// Estimate memory consumption to save ODF max values and directions
+	if (!params.output_fiber_max_odf.empty())
+		data_saving_info_out(24, "ODF max");
+
 	cout << "If you want to optimize memory consumption and computation speed, feel free to "
-		"experiment with split coefficient (-nspl parameter). " << endl;
+		"experiment with split coefficient (-nspl parameter). " << endl << endl;
 }
 
 int DATA_SOURCE::compute_splits(unsigned s_size) {
@@ -302,7 +342,7 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 	it.GoToBegin();
 	unsigned vox = 0;
 
-	if (mask != nullptr) {
+	if (mask) {
 		// Mask iterator
 		MaskIterator it_m(mask, mask->GetRequestedRegion());
 
@@ -408,8 +448,9 @@ void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
 template <typename T>
 void DATA_SOURCE::printVec(const string& name, vector<T>& v) {
 	cout << name << endl;
-	for (auto i : v)
-		std::cout << i << ' ';
+	for (auto it = v.cbegin(); it != v.cend(); ++it)
+		std::cout << *it << ' ';
+
 	cout << endl;
 }
 

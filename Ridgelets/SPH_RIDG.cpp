@@ -5,14 +5,16 @@ SPH_RIDG::SPH_RIDG()
 {
 	J = 2;
 	rho = 0.5;
+	UM = UtilMath();
 	init();
 }
 
 SPH_RIDG::~SPH_RIDG() {}
 
-SPH_RIDG::SPH_RIDG(unsigned JIn, double rhoIn) {
+SPH_RIDG::SPH_RIDG(unsigned JIn, precisionType rhoIn) {
 	J = JIn;
 	rho = rhoIn;
+	UM = UtilMath();
 	init();
 }
 
@@ -21,7 +23,7 @@ void SPH_RIDG::init() {
 	mcut = mcut + mcut % 2;
 
 	h = MatrixType::Zero(mcut + 1, J + 1);
-	h.col(0) = VectorXd::LinSpaced(mcut + 1, 0, mcut);
+	h.col(0) = VectorType::LinSpaced(mcut + 1, 0, mcut);
 
 	for (int i = 1; i < J + 1; ++i)
 		h.col(i) = h.col(i - 1) * 0.5;
@@ -37,7 +39,7 @@ void SPH_RIDG::init() {
 	}
 
 	C = MatrixType::Zero(mcut + 1, 1);
-	C.col(0) = (2.0 * VectorXd::LinSpaced(mcut + 1, 0, mcut).array() + 1.0) / (4 * UM.PI);
+	C.col(0) = (2.0 * VectorType::LinSpaced(mcut + 1, 0, mcut).array() + 1.0) / (4 * UM.PI);
 
 	t = ((psi.cwiseProduct(psi)).transpose() * C).array().sqrt();
 	for (int i = 0; i < J + 1; ++i)
@@ -122,6 +124,6 @@ void SPH_RIDG::normBasis(MatrixType& mat) {
 	MatrixType e = mat * mat.transpose();
 	SelfAdjointEigenSolver<MatrixType> eigensolver(mat.rows());
 	eigensolver.compute(e, EigenvaluesOnly);
-	double lVal = eigensolver.eigenvalues()[mat.rows() - 1];
+	precisionType lVal = eigensolver.eigenvalues()[mat.rows() - 1];
 	mat = (1 / sqrt(lVal)) * mat;
 }

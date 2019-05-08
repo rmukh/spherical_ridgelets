@@ -13,8 +13,8 @@ public:
 	bool is_path_exists(const string & s);
 	int readVolume(MatrixType & GradientDirections, DiffusionImagePointer & image);
 	int ExtractMatrix(MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
-	unsigned nGradImgs = 0; // Number of gradient images
-	unsigned nOfImgs = 0; // Total number of images (including b0)
+	unsigned nGradImgs; // Number of gradient images
+	unsigned nOfImgs; // Total number of images (including b0)
 	dMRI_h_info h;
 
 private:
