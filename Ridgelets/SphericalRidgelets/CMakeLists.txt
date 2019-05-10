@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.6)
-include("${CMAKE_CURRENT_SOURCE_DIR}/../Common.cmake")
+project(SphericalRidgelets VERSION 1.2)
+include(GNUInstallDirs)
+
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(ITK REQUIRED)
+find_package(OpenMP)
 
 if(DEFINED BUILD_SHARED_LIBS)
     message(STATUS "Building the library of type: " ${BUILD_SHARED_LIBS})
@@ -9,51 +14,31 @@ else()
     set(LIB_BUILD_TYPE STATIC)
 endif()
 
-project(${lib_name})
-
 add_library(
-${lib_name} ${LIB_BUILD_TYPE}
-SIGNAL_GENERATOR.cpp
-DATA_SOURCE.cpp
-packages.config
-SOLVERS.cpp
-SPH_RIDG.cpp
-UtilMath.cpp
+Spherical_Ridgelets ${LIB_BUILD_TYPE}
+src/SIGNAL_GENERATOR.cpp
+src/DATA_SOURCE.cpp
+src/SOLVERS.cpp
+src/SPH_RIDG.cpp
+src/UtilMath.cpp
+include/convhull_3d.h
+include/SIGNAL_GENERATOR.h
+include/DATA_SOURCE.h
+include/rdgls_types.h
+include/SOLVERS.h
+include/SPH_RIDG.h
+include/UtilMath.h
 )
 
-set_target_properties(
-${lib_name} PROPERTIES PUBLIC_HEADER 
-Ridgelets/convhull_3d.h
-Ridgelets/SIGNAL_GENERATOR.h
-Ridgelets/DATA_SOURCE.h
-Ridgelets/rdgls_types.h
-Ridgelets/SOLVERS.h
-Ridgelets/SPH_RIDG.h
-Ridgelets/UtilMath.h
-)
-
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(ITK REQUIRED)
-find_package(OpenMP)
-
-if(DEFINED Eigen3_DIR AND NOT EXISTS ${Eigen3_DIR})
-  message(FATAL_ERROR "Eigen3_DIR variable is defined but corresponds to non-existing directory (${Eigen3_DIR})")
-endif()
-
-if(DEFINED ITK_DIR AND NOT EXISTS ${ITK_DIR})
-  message(FATAL_ERROR "ITK_DIR variable is defined but corresponds to nonexistent directory (${ITK_DIR})")
-endif()
+target_include_directories(Spherical_Ridgelets PRIVATE include)
 
 include(${ITK_USE_FILE})
-
-target_link_libraries(${lib_name} Eigen3::Eigen ${ITK_LIBRARIES}) 
-
-add_executable(sphridg Ridgelets.cpp)
-target_link_libraries(sphridg Eigen3::Eigen ${ITK_LIBRARIES} ${lib_name})
+target_link_libraries(Spherical_Ridgelets Eigen3::Eigen)
+target_link_libraries(Spherical_Ridgelets ${ITK_LIBRARIES})
 
 if(OpenMP_CXX_FOUND)
   message(STATUS "OpenMP will be linked")
-  target_link_libraries(sphridg OpenMP::OpenMP_CXX)
+  target_link_libraries(Spherical_Ridgelets OpenMP::OpenMP_CXX)
 else()
   message(STATUS "OpenMP can't be linked. Probably you use CMake < 3.9")
   message(STATUS "Attempt to link Threads package...")
@@ -68,4 +53,68 @@ if(NOT TARGET OpenMP::OpenMP_CXX)
   set_property(TARGET OpenMP::OpenMP_CXX
                PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_CXX_FLAGS} Threads::Threads)
 endif()
-target_link_libraries(sphridg OpenMP::OpenMP_CXX)
+target_link_libraries(Spherical_Ridgelets OpenMP::OpenMP_CXX)
+
+set_target_properties(Spherical_Ridgelets
+    PROPERTIES
+      OUTPUT_NAME "Spherical_Ridgelets"
+)
+
+add_library(Spherical_Ridgelets::Spherical_Ridgelets ALIAS Spherical_Ridgelets)
+
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SphericalRidgelets)
+
+target_include_directories(Spherical_Ridgelets
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+add_executable(sphridg ../Ridgelets.cpp)
+target_include_directories(sphridg PRIVATE include)
+target_link_libraries(sphridg Eigen3::Eigen ${ITK_LIBRARIES} Spherical_Ridgelets)
+
+install(
+    TARGETS
+      Spherical_Ridgelets
+    EXPORT
+      SphericalRidgeletsTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(EXPORT SphericalRidgeletsTargets
+    FILE SphericalRidgeletsTargets.cmake
+    NAMESPACE Spherical_Ridgelets::
+    DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+install(DIRECTORY include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SphericalRidgelets
+    FILES_MATCHING PATTERN "*.h*"
+)
+
+# ConfigVersion file
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/SphericalRidgeletsConfgVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_LIST_DIR}/SphericalRidgeletsConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/SphericalRidgeletsConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+# Install all the helper files
+install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/SphericalRidgeletsConfig.cmake
+      ${CMAKE_CURRENT_BINARY_DIR}/SphericalRidgeletsConfigVersion.cmake
+    DESTINATION ${INSTALL_CONFIGDIR}
+)

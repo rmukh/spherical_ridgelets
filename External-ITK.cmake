@@ -29,4 +29,4 @@ ExternalProject_Add(ITK
   INSTALL_COMMAND ""
 )
 
-set(ITK_DIR_INSTALLED ${CMAKE_BINARY_DIR}/itk/ITK-build)
+set(ITK_DIR ${CMAKE_BINARY_DIR}/itk/ITK-build)
