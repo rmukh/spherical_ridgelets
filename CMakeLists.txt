@@ -20,6 +20,8 @@ else()
   set(gen "${CMAKE_GENERATOR}" )
 endif()
 
+set(SPH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Ridgelets/SphericalRidgelets)
+
 if(JUST_BUILD)
   message(STATUS "Build Spherical Ridgelets as a standalone application")
   set(PRJ_NAME Spherical_Ridgelets)
@@ -32,14 +34,15 @@ if(JUST_BUILD)
     DEPENDS ${${PRJ_NAME}_DEPENDENCIES}
     DOWNLOAD_COMMAND ""
     INSTALL_COMMAND ""
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Ridgelets/SphericalRidgelets
+    SOURCE_DIR ${SPH_DIR}
     BINARY_DIR ${PRJ_NAME}-build
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
       -DEigen3_DIR:PATH=${Eigen3_DIR}
       -DITK_DIR:PATH=${ITK_DIR}
+      -DSPH_DIR:PATH=${SPH_DIR}
     )
 else()
-  message(STATUS "Include Spherical Ridgelets for ExternalProject_Add()")
+  message(STATUS "Include Spherical Ridgelets for ExternalProject_Add() in ${SPH_DIR}")
   include(${CMAKE_CURRENT_SOURCE_DIR}/Ridgelets/SphericalRidgelets/CMakeLists.txt)
 endif()

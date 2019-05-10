@@ -16,21 +16,21 @@ endif()
 
 add_library(
 Spherical_Ridgelets ${LIB_BUILD_TYPE}
-src/SIGNAL_GENERATOR.cpp
-src/DATA_SOURCE.cpp
-src/SOLVERS.cpp
-src/SPH_RIDG.cpp
-src/UtilMath.cpp
-include/convhull_3d.h
-include/SIGNAL_GENERATOR.h
-include/DATA_SOURCE.h
-include/rdgls_types.h
-include/SOLVERS.h
-include/SPH_RIDG.h
-include/UtilMath.h
+${SPH_DIR}/src/SIGNAL_GENERATOR.cpp
+${SPH_DIR}/src/DATA_SOURCE.cpp
+${SPH_DIR}/src/SOLVERS.cpp
+${SPH_DIR}/src/SPH_RIDG.cpp
+${SPH_DIR}/src/UtilMath.cpp
+${SPH_DIR}/include/convhull_3d.h
+${SPH_DIR}/include/SIGNAL_GENERATOR.h
+${SPH_DIR}/include/DATA_SOURCE.h
+${SPH_DIR}/include/rdgls_types.h
+${SPH_DIR}/include/SOLVERS.h
+${SPH_DIR}/include/SPH_RIDG.h
+${SPH_DIR}/include/UtilMath.h
 )
 
-target_include_directories(Spherical_Ridgelets PRIVATE include)
+target_include_directories(Spherical_Ridgelets PRIVATE ${SPH_DIR}/include)
 
 include(${ITK_USE_FILE})
 target_link_libraries(Spherical_Ridgelets Eigen3::Eigen)
@@ -70,8 +70,8 @@ target_include_directories(Spherical_Ridgelets
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-add_executable(sphridg ../Ridgelets.cpp)
-target_include_directories(sphridg PRIVATE include)
+add_executable(sphridg ${SPH_DIR}/../Ridgelets.cpp)
+target_include_directories(sphridg PRIVATE ${SPH_DIR}/include)
 target_link_libraries(sphridg Eigen3::Eigen ${ITK_LIBRARIES} Spherical_Ridgelets)
 
 install(
@@ -90,7 +90,7 @@ install(EXPORT SphericalRidgeletsTargets
     DESTINATION ${INSTALL_CONFIGDIR}
 )
 
-install(DIRECTORY include/
+install(DIRECTORY ${SPH_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SphericalRidgelets
     FILES_MATCHING PATTERN "*.h*"
 )
