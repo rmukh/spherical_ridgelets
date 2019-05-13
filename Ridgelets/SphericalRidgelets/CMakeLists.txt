@@ -74,6 +74,8 @@ add_executable(sphridg ${SPH_DIR}/../Ridgelets.cpp)
 target_include_directories(sphridg PRIVATE ${SPH_DIR}/include)
 target_link_libraries(sphridg Eigen3::Eigen ${ITK_LIBRARIES} Spherical_Ridgelets)
 
+include(CMakePackageConfigHelpers)
+
 install(
     TARGETS
       Spherical_Ridgelets
@@ -97,10 +99,8 @@ install(DIRECTORY ${SPH_DIR}/include/
 
 # ConfigVersion file
 
-include(CMakePackageConfigHelpers)
-
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/SphericalRidgeletsConfgVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/SphericalRidgeletsConfigVersion.cmake
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion
 )

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo How many threads do you want to use to build spherical ridgelets software?
-echo To use default default value = 4 just press the Enter
+echo Enter the number of threads you want to use to build the project
+echo To use a default \(4\) value just press Enter.
 
 read n_threads
 

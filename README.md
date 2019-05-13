@@ -6,6 +6,9 @@ Package to compute spherical ridgelets.
 # How to start
 
 ## The easiest way to build as a standalone application (Linux)
+
+You can run the script *linux_standalone_build.sh* to perform all steps described below.
+
 1. Download or clone repository.
 
         git clone https://github.com/research-enthusiast/spherical_ridgelets.git
