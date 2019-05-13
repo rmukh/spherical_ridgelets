@@ -438,10 +438,10 @@ void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
 	for (unsigned i = 0; i < number_of_rows; ++i)
 	{
 		getline(infile, line);
-		stringstream stream(line);
+		stringstream inner_stream(line);
 
 		for (unsigned j = 0; j < number_of_cols; ++j)
-			stream >> matrix(i, j);
+			inner_stream >> matrix(i, j);
 	}
 }
 

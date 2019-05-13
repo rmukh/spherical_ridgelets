@@ -11,7 +11,8 @@ public:
 	struct input_parse {
 		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf, output_odf, signal_recon;
 		float max_odf_thresh, fista_lambda, sph_rho;
-		unsigned lvl, sph_J, n_splits, nth;
+		unsigned lvl, sph_J;
+		int n_splits, nth;
 		bool is_compress;
 	};
 
