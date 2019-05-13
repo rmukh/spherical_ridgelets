@@ -5,7 +5,7 @@ Package to compute spherical ridgelets.
 
 # How to start
 
-## The easiest way to build (Linux)
+## The easiest way to build as a standalone application (Linux)
 1. Download or clone repository.
 
         git clone https://github.com/research-enthusiast/spherical_ridgelets.git
@@ -21,7 +21,7 @@ Package to compute spherical ridgelets.
 
 4. Generate make files.
 
-        cmake ..
+        cmake .. -DJUST_BUILD=1
 
 5. Build package.
 
@@ -65,6 +65,8 @@ For example:
 Output file for *-omd* has a shape of input dMRI file and each voxel contains ODF directions and ODF values in that directions organized as (x y z odf_value) for each direction. Now maximum number of directions fixed to 6.
 
 # Important notes
+It is very important to build it with flag *-DJUST_BUILD=1*. Otherwise, the CMakeLists.txt will include files necessary to build this package as a library.
+
 For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed.
 
 Input diffusion MRI image expected to be in the shape of (size_x, size_y, size_z, #_of_gradient directions), while mask file expected to be in the shape of (size_x, size_y, size_z, 1).
