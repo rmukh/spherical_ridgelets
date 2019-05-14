@@ -15,49 +15,49 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UtilMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOLVERS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SPH_RIDG.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DATA_SOURCE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rdgls_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="convhull_3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SIGNAL_GENERATOR.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Ridgelets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UtilMath.cpp">
+    <ClCompile Include="SphericalRidgelets\src\DATA_SOURCE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SOLVERS.cpp">
+    <ClCompile Include="SphericalRidgelets\src\SIGNAL_GENERATOR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SPH_RIDG.cpp">
+    <ClCompile Include="SphericalRidgelets\src\SOLVERS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DATA_SOURCE.cpp">
+    <ClCompile Include="SphericalRidgelets\src\SPH_RIDG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SIGNAL_GENERATOR.cpp">
+    <ClCompile Include="SphericalRidgelets\src\UtilMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SphericalRidgelets\include\convhull_3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\DATA_SOURCE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\rdgls_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\SIGNAL_GENERATOR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\SOLVERS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\UtilMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

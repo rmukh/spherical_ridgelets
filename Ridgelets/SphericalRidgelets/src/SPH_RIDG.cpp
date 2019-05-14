@@ -110,8 +110,8 @@ void SPH_RIDG::QBasis(MatrixType& Q, MatrixType& u) {
 		r = CL.cwiseProduct(psi.col(i));
 		for (int k = 0; k < K; ++k) {
 			x = u * vv.row(k).transpose();
-			unsigned N = (unsigned)x.rows();
-			P = MatrixType::Ones(N, mcut + 1);
+			unsigned Nr = (unsigned)x.rows();
+			P = MatrixType::Ones(Nr, mcut + 1);
 			UM.polyleg(P, x, mcut);
 
 			Q.col(k + I) = P * r;

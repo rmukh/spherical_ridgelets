@@ -23,4 +23,4 @@ ExternalProject_Add(Eigen3
         -DBUILD_TESTING:BOOL=OFF
 )
 
-set(Eigen3_DIR_INSTALLED ${CMAKE_CURRENT_BINARY_DIR}/eigen/install)
+set(Eigen3_DIR ${CMAKE_CURRENT_BINARY_DIR}/eigen/install)

@@ -233,12 +233,12 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 	Build icosahedron based sampling array and their respective faces
 	*/
 	cout << "Start computing icosahedron..." << endl;
-	precisionType C = 1 / sqrt(1.25);
+	precisionType C_init = 1 / sqrt(1.25);
 	MatrixType t = (2 * PI / 5.0) * VectorType::LinSpaced(5, 0, 4);
 	MatrixType u1(5, 3);
-	u1 << C * t.array().cos(), C * t.array().sin(), C * 0.5 * MatrixType::Ones(5, 1);
+	u1 << C_init * t.array().cos(), C_init * t.array().sin(), C_init * 0.5 * MatrixType::Ones(5, 1);
 	MatrixType u2(5, 3);
-	u2 << C * (t.array() + 0.2 * PI).cos(), C * (t.array() + 0.2 * PI).sin(), -0.5 * C * MatrixType::Ones(5, 1);
+	u2 << C_init * (t.array() + 0.2 * PI).cos(), C_init * (t.array() + 0.2 * PI).sin(), -0.5 * C_init * MatrixType::Ones(5, 1);
 	u.resize(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 	MatrixType u_final;
@@ -267,7 +267,7 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 			unsigned unique_len = uniques.size();
 			u.conservativeResize(u.rows() + unique_len, u.cols());
 
-			for (unsigned i = 0, j = 0 + u_len; i < unique_len, j < unique_len + u_len; ++i, ++j)
+			for (unsigned i = 0, j = 0 + u_len; j < unique_len + u_len; ++i, ++j)
 				u.row(j) = U.row(uniques.at(i)) / U.row(uniques.at(i)).norm();
 		}
 
@@ -290,8 +290,8 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 		// v matrix part of u where 3rd col eq 0
 		unsigned N_index = index.size();
 		MatrixType v(N_index, 3);
-		for (unsigned i = 0; i < N_index; ++i)
-			v.row(i) = u_sorted.row(index.at(i));
+		for (unsigned k = 0; k < N_index; ++k)
+			v.row(k) = u_sorted.row(index.at(k));
 
 		// Sort v by 2nd column
 		multimap<precisionType, unsigned> ind_v;
