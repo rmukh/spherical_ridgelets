@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 include("${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/libs.cmake")
 
 # Set a default build type if none was specified
 set(default_build_type "Release")

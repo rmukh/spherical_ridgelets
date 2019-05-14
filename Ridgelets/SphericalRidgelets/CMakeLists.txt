@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../Common.cmake")
 project(SphericalRidgelets VERSION 1.2)
 include(GNUInstallDirs)
 
