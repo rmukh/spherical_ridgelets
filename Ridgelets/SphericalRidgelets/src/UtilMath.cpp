@@ -295,7 +295,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 		// Using indicies in reverse order gives us desired descending order
 		unsigned i = 0;
 		MT u_sorted(u.rows(), 3);
-		for (multimap<pT, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
+		for (typename multimap<pT, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
 			u_sorted.row(i) = u.row(it->second);
 			++i;
 		}
