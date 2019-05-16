@@ -22,6 +22,7 @@ ${SPH_DIR}/src/DATA_SOURCE.cpp
 ${SPH_DIR}/src/SOLVERS.cpp
 ${SPH_DIR}/src/SPH_RIDG.cpp
 ${SPH_DIR}/src/UtilMath.cpp
+${SPH_DIR}/src/convhull_3d.cpp
 ${SPH_DIR}/include/convhull_3d.h
 ${SPH_DIR}/include/SIGNAL_GENERATOR.h
 ${SPH_DIR}/include/DATA_SOURCE.h

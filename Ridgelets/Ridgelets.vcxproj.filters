@@ -33,6 +33,9 @@
     <ClCompile Include="SphericalRidgelets\src\UtilMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SphericalRidgelets\src\convhull_3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SphericalRidgelets\include\convhull_3d.h">

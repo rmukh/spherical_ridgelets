@@ -172,6 +172,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ridgelets.cpp" />
+    <ClCompile Include="SphericalRidgelets\src\convhull_3d.cpp" />
     <ClCompile Include="SphericalRidgelets\src\DATA_SOURCE.cpp" />
     <ClCompile Include="SphericalRidgelets\src\SIGNAL_GENERATOR.cpp" />
     <ClCompile Include="SphericalRidgelets\src\SOLVERS.cpp" />

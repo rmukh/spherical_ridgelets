@@ -20,7 +20,7 @@ template<class pT, class MT, class VT>
 SPH_RIDG<pT, MT, VT>::SPH_RIDG(unsigned JIn, pT rhoIn) {
 	J = JIn;
 	rho = rhoIn;
-	UM = UtilMath();
+	UM = UtilMath<pT, MT>();
 	init();
 }
 

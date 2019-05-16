@@ -3,7 +3,6 @@
 
 #include "main_externals.h"
 
-#define CONVHULL_3D_ENABLE 1
 //#define USE_FLOAT 1
 #if USE_FLOAT
 typedef float precisionType;
