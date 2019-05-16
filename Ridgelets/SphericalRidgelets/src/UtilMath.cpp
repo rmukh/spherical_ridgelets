@@ -316,7 +316,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 
 		// Using indicies in reverse order gives us desired descending order
 		i = 0;
-		for (multimap<pT, unsigned>::reverse_iterator it = ind_v.rbegin(); it != ind_v.rend(); ++it) {
+		for (typename multimap<pT, unsigned>::reverse_iterator it = ind_v.rbegin(); it != ind_v.rend(); ++it) {
 			u_sorted.row(index.at(i)) = v.row(it->second);
 			++i;
 		}
@@ -510,7 +510,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, MT& W,
 		ex(ct - 1) = u_extrema.at(idx.at(i));
 		ex(ct) = ex(ct - 1);
 
-		MT::Index id;
+		typename MT::Index id;
 		pT tmp = (directions_sorted * d.row(ct).transpose()).maxCoeff(&id);
 		if (tmp > 0.95) {
 			remove_row(directions_sorted, id);
