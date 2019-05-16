@@ -273,7 +273,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 				A = u.row(fcs(k, 0));
 				B = u.row(fcs(k, 1));
 				C = u.row(fcs(k, 2));
-				U.block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
+				U.template block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
 			}
 
 			vector<int> uniques;
