@@ -12,6 +12,7 @@
 */
 
 //user defined classes
+#include "rdgls_types.h"
 #include "UtilMath.h"
 #include "SOLVERS.h"
 #include "SPH_RIDG.h"
@@ -47,7 +48,7 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 
 	// Beginning of the main computational part
-	SPH_RIDG ridg(input_args.sph_J, 1/input_args.sph_rho);
+	SPH_RIDG<precisionType, MatrixType, VectorType>ridg(input_args.sph_J, 1/input_args.sph_rho);
 	MatrixType A;
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
@@ -60,7 +61,7 @@ int main(int argc, char* argv[])
 
 	MatrixType C;
 	{
-		SOLVERS slv(A, signal, input_args.fista_lambda);
+		SOLVERS<precisionType, MatrixType> slv(A, signal, input_args.fista_lambda);
 		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
 	}
 
@@ -91,7 +92,7 @@ int main(int argc, char* argv[])
 		data.save_to_file<DiffusionImageType>(input_args.signal_recon, s_coeff, input_args.is_compress);
 	}
 
-	UtilMath m;
+	UtilMath<precisionType, MatrixType, VectorType> m;
 	MatrixType fcs;
 	MatrixType nu;
 	MatrixType Q;

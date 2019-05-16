@@ -241,11 +241,13 @@ void DATA_SOURCE::testFNC() {
 	//MatrixType test(19, 1);
 	//test << -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9;
 	//MatrixType res = UM.polyleg(test, 5);
-	SPH_RIDG test;
+	SPH_RIDG<precisionType, MatrixType, VectorType> test;
 	//cout << test.M0;
-	UtilMath UM = UtilMath();
+	UtilMath<precisionType, MatrixType, VectorType> UM = UtilMath<precisionType, MatrixType, VectorType>();
 	MatrixType g;
+	g = MatrixType::Zero(100, 3);
 	UM.spiralsample(g, 2, 100);
+	cout << g << endl;
 	MatrixType A;
 	test.RBasis(A, g);
 	test.normBasis(A);

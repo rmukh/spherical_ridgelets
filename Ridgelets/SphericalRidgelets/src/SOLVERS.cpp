@@ -1,17 +1,25 @@
 #include "SOLVERS.h"
 
-SOLVERS::SOLVERS() : A(NULL), s(NULL) {
+#ifndef SOLVERS_IMPL
+#define SOLVERS_IMPL
+
+template <class pT, class MT>
+SOLVERS<pT, MT>::SOLVERS() : A(NULL), s(NULL) {
 	cerr << "Minimal set of argumets: ridgelets basis, full DWI array or matrix/vector with voxel(s). "
 		"The last parameter - lambda value is optional.\n";
 }
 
-SOLVERS::~SOLVERS() {}
+template <class pT, class MT>
+SOLVERS<pT, MT>::~SOLVERS() {}
 
-SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
+template <class pT, class MT>
+SOLVERS<pT, MT>::SOLVERS(MT& ridgelets, MT& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
 
-SOLVERS::SOLVERS(MatrixType& ridgelets, MatrixType& voxels, precisionType lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
+template <class pT, class MT>
+SOLVERS<pT, MT>::SOLVERS(MT& ridgelets, MT& voxels, pT lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
 
-void SOLVERS::FISTA(MatrixType& x, int N_splits) {
+template <class pT, class MT>
+void SOLVERS<pT, MT>::FISTA(MT& x, int N_splits) {
 	cout << "Start computing ridgelets coefficients..." << endl;
 
 	auto start = high_resolution_clock::now();
@@ -21,19 +29,19 @@ void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 
 	#pragma omp parallel for
 	for (int it = 0; it < N_splits; ++it) {
-		MatrixType x_block;
-		MatrixType s_block;
-		MatrixType y;
-		MatrixType x_old;
+		MT x_block;
+		MT s_block;
+		MT y;
+		MT x_old;
 
 		s_block = s->block(0, it * split_size, s->rows(), split_size);
-		y = MatrixType::Zero(A->cols(), s_block.cols());
-		x_old = MatrixType::Zero(A->cols(), s_block.cols());
+		y = MT::Zero(A->cols(), s_block.cols());
+		x_old = MT::Zero(A->cols(), s_block.cols());
 
-		precisionType t_old = 1;
-		precisionType t = 0;
-		precisionType e_old = 1e32;
-		precisionType e;
+		pT t_old = 1;
+		pT t = 0;
+		pT e_old = 1e32;
+		pT e;
 
 		for (int iter = 0; iter < 2000; ++iter) {
 			x_block = y + A->transpose() * (s_block - *A * y);
@@ -63,3 +71,5 @@ void SOLVERS::FISTA(MatrixType& x, int N_splits) {
 	auto dm = duration_cast<minutes>(stop - start);
 	cout << "Computations took " << ds.count() << " seconds ~ " << dm.count() << "+ minutes" << endl;
 }
+
+#endif

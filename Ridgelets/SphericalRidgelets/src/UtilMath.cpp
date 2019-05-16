@@ -1,32 +1,40 @@
 #include "UtilMath.h"
-#include "convhull_3d.h"
 
-const precisionType UtilMath::PI = std::atan(1.0) * 4.0;
-UtilMath::UtilMath() {}
-UtilMath::~UtilMath() {}
+#ifndef UTILMATH_IMPL
+#define UTILMATH_IMPL
 
-void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
+template <class pT, class MT, class VT>
+const pT UtilMath<pT, MT, VT>::PI = std::atan(1.0) * 4.0;
+
+template <class pT, class MT, class VT>
+UtilMath<pT, MT, VT>::UtilMath() {}
+
+template <class pT, class MT, class VT>
+UtilMath<pT, MT, VT>::~UtilMath() {}
+
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::spiralsample(MT& u, unsigned flg, unsigned N)
 {
 	/*
 	Spiral sampling on the sphere
 	*/
 	//z=(1-1/N:-2/N:1/N-1)';
-	MatrixType z(N, 1);
-	precisionType val = 1.0 - (1.0 / N);
+	MT z(N, 1);
+	pT val = 1.0 - (1.0 / N);
 	for (unsigned int i = 0; i < N; ++i, val += (-2.0 / N))
 		z(i) = val;
 
 	//r=sqrt(1-z.*z);
-	MatrixType r(N, 1);
+	MT r(N, 1);
 	r = (1.0 - z.cwiseProduct(z).array()).sqrt();
 
-	MatrixType Long(N, 1);
+	MT Long(N, 1);
 	switch (flg)
 	{
 	case 1:
 	{
 		// Long=[0; cumsum((3.6/sqrt(N))./r(1:N-1))];
-		precisionType sqrtN = sqrt(N);
+		pT sqrtN = sqrt(N);
 		Long(0) = 0.0;
 		for (unsigned i = 1; i < N; ++i)
 			Long(i) = Long(i - 1) + ((3.6 / sqrtN) / r(i - 1));
@@ -35,8 +43,8 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 	case 2:
 	{
 		// Long=(pi*(3-sqrt(5)))*(0:N-1)';
-		precisionType pref_const = UtilMath::PI * (3.0 - sqrt(5.0));
-		Long = pref_const * VectorType::LinSpaced(N, 0, N - 1);
+		pT pref_const = UtilMath::PI * (3.0 - sqrt(5.0));
+		Long = pref_const * VT::LinSpaced(N, 0, N - 1);
 	}
 	break;
 	default:
@@ -54,7 +62,8 @@ void UtilMath::spiralsample(MatrixType& u, unsigned flg, unsigned N)
 		u.row(i).normalize();
 }
 
-void UtilMath::fura(MatrixType& Lmd, unsigned n)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::fura(MT& Lmd, unsigned n)
 {
 	//from fura.m
 
@@ -62,12 +71,12 @@ void UtilMath::fura(MatrixType& Lmd, unsigned n)
 
 	//Lmd(2:2:n+1)=0;
 	Lmd(0) = 1.0;
-	precisionType c;
+	pT c;
 
 	//for k=2:2:n
 	for (unsigned k = 2; k < n + 1; k += 2) {
 		//Lmd(k+1)=-Lmd(k-1)*(k-1)/k;
-		c = (precisionType)k;
+		c = (pT)k;
 		Lmd.row(k) = -((c - 1.0) / c)*Lmd.row(k - 2);
 	}
 
@@ -75,7 +84,8 @@ void UtilMath::fura(MatrixType& Lmd, unsigned n)
 	//Lmd = Lmd * (2 * PI);
 }
 
-void UtilMath::polyleg(MatrixType& P, MatrixType& x, unsigned n)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::polyleg(MT& P, MT& x, unsigned n)
 {
 	//from polyleg.m
 
@@ -95,14 +105,15 @@ void UtilMath::polyleg(MatrixType& P, MatrixType& x, unsigned n)
 		P.col(1) = x;
 		for (unsigned k = 2; k < n + 1; ++k)
 		{
-			precisionType c1 = (2.0 * k - 1.0) / k;
-			precisionType c2 = (k - 1.0) / k;
+			pT c1 = (2.0 * k - 1.0) / k;
+			pT c2 = (k - 1.0) / k;
 			P.col(k) = c1 * x.cwiseProduct(P.col(k - 1)) - c2 * P.col(k - 2);
 		}
 	}
 }
 
-MatrixType UtilMath::convhull3_1(MatrixType& u) {
+template <class pT, class MT, class VT>
+MT UtilMath<pT, MT, VT>::convhull3_1(MT& u) {
 	unsigned n = u.rows();
 	ch_vertex* vertices;
 	vertices = (ch_vertex*)malloc(n * sizeof(ch_vertex));
@@ -116,7 +127,7 @@ MatrixType UtilMath::convhull3_1(MatrixType& u) {
 	int nFaces;
 	convhull_3d_build(vertices, n, &faceIndices, &nFaces);
 
-	MatrixType faces(nFaces, 3);
+	MT faces(nFaces, 3);
 	for (int i = 0; i < nFaces; i++)
 		for (int j = 0; j < 3; j++)
 			faces(i, j) = *faceIndices++;
@@ -126,7 +137,8 @@ MatrixType UtilMath::convhull3_1(MatrixType& u) {
 	return faces;
 }
 
-void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::unique_rows(vector<int>& uniques, MT& U) {
 	/*
 		Find unique rows
 		Not the fanciest and most optimal way, but
@@ -161,7 +173,8 @@ void UtilMath::unique_rows(vector<int>& uniques, MatrixType& U) {
 	}
 }
 
-void UtilMath::unique_sorted(vector<unsigned>& uniques, MatrixType& U) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::unique_sorted(vector<unsigned>& uniques, MT& U) {
 	/*
 		Find unique values and return them sorted (same as default matlab version)
 		Now working with 1D and integer values of U only
@@ -180,30 +193,32 @@ void UtilMath::unique_sorted(vector<unsigned>& uniques, MatrixType& U) {
 	sort(uniques.begin(), uniques.end());
 }
 
-void UtilMath::ind_sort(MatrixType& matrix, multimap<precisionType, unsigned>& indx, unsigned col_n) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::ind_sort(MT& matrix, multimap<pT, unsigned>& indx, unsigned col_n) {
 	/*
 	Return indexies indx in ascending order of sorted column col_n of the matrix
 	*/
 	// Matrix column to std vector
-	vector<precisionType> uc3;
+	vector<pT> uc3;
 	unsigned orig_size = matrix.col(col_n).size();
 	uc3.resize(orig_size);
-	VectorType::Map(&uc3[0], orig_size) = matrix.col(col_n);
+	VT::Map(&uc3[0], orig_size) = matrix.col(col_n);
 
 	// Mapping from value to index and so make sort ascending
 	for (auto it = uc3.begin(); it != uc3.end(); ++it)
 		indx.insert(make_pair(*it, it - uc3.begin()));
 }
 
-void UtilMath::ind_sort_vec(MatrixType& vec, vector<size_t> & indx) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::ind_sort_vec(MT& vec, vector<size_t> & indx) {
 	/*
 	Return indexies indx in descending order of sorted vector
 	*/
 	// Matrix to std vector
-	vector<precisionType> uc3;
+	vector<pT> uc3;
 	unsigned orig_size = vec.size();
 	uc3.resize(orig_size);
-	VectorType::Map(&uc3[0], orig_size) = vec;
+	VT::Map(&uc3[0], orig_size) = vec;
 
 	// initialize original index locations
 	indx.resize(uc3.size());
@@ -211,9 +226,10 @@ void UtilMath::ind_sort_vec(MatrixType& vec, vector<size_t> & indx) {
 	sort(indx.rbegin(), indx.rend(), cmp_v(uc3));
 }
 
-void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, unsigned col_n, bool equal, int val) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::column_find(std::vector<Eigen::Index>& index, MT& arr, unsigned col_n, bool equal, int val) {
 	/*
-	Looking for columns of MatrixType matrix. bool equal is basically to comply with matlab notation of
+	Looking for columns of MT matrix. bool equal is basically to comply with matlab notation of
 	== if true and ~= if false. So you can check if col_n equal or not to val
 	*/
 	for (Eigen::Index i = 0; i < arr.rows(); ++i) {
@@ -228,35 +244,36 @@ void UtilMath::column_find(std::vector<Eigen::Index>& index, MatrixType& arr, un
 	}
 }
 
-void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	/*
 	Build icosahedron based sampling array and their respective faces
 	*/
 	cout << "Start computing icosahedron..." << endl;
-	precisionType C_init = 1 / sqrt(1.25);
-	MatrixType t = (2 * PI / 5.0) * VectorType::LinSpaced(5, 0, 4);
-	MatrixType u1(5, 3);
-	u1 << C_init * t.array().cos(), C_init * t.array().sin(), C_init * 0.5 * MatrixType::Ones(5, 1);
-	MatrixType u2(5, 3);
-	u2 << C_init * (t.array() + 0.2 * PI).cos(), C_init * (t.array() + 0.2 * PI).sin(), -0.5 * C_init * MatrixType::Ones(5, 1);
+	pT C_init = 1 / sqrt(1.25);
+	MT t = (2 * PI / 5.0) * VT::LinSpaced(5, 0, 4);
+	MT u1(5, 3);
+	u1 << C_init * t.array().cos(), C_init * t.array().sin(), C_init * 0.5 * MT::Ones(5, 1);
+	MT u2(5, 3);
+	u2 << C_init * (t.array() + 0.2 * PI).cos(), C_init * (t.array() + 0.2 * PI).sin(), -0.5 * C_init * MT::Ones(5, 1);
 	u.resize(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
-	MatrixType u_final;
+	MT u_final;
 
 	if (level > 0) {
 		for (unsigned lev = 1; lev <= level; ++lev) {
-			MatrixType fcs = convhull3_1(u);
+			MT fcs = convhull3_1(u);
 
 			unsigned N = fcs.rows();
-			MatrixType U = MatrixType::Zero(3 * N, 3);
-			MatrixType A;
-			MatrixType B;
-			MatrixType C;
+			MT U = MT::Zero(3 * N, 3);
+			MT A;
+			MT B;
+			MT C;
 			for (unsigned k = 0; k < N; ++k) {
 				A = u.row(fcs(k, 0));
 				B = u.row(fcs(k, 1));
 				C = u.row(fcs(k, 2));
-				U.block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
+				U.template block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
 			}
 
 			vector<int> uniques;
@@ -272,13 +289,13 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 		}
 
 		// Sorting u by 3rd col
-		multimap<precisionType, unsigned> ind;
+		multimap<pT, unsigned> ind;
 		ind_sort(u, ind, 2);
 
 		// Using indicies in reverse order gives us desired descending order
 		unsigned i = 0;
-		MatrixType u_sorted(u.rows(), 3);
-		for (multimap<precisionType, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
+		MT u_sorted(u.rows(), 3);
+		for (typename multimap<pT, unsigned>::reverse_iterator it = ind.rbegin(); it != ind.rend(); ++it) {
 			u_sorted.row(i) = u.row(it->second);
 			++i;
 		}
@@ -289,17 +306,17 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 
 		// v matrix part of u where 3rd col eq 0
 		unsigned N_index = index.size();
-		MatrixType v(N_index, 3);
+		MT v(N_index, 3);
 		for (unsigned k = 0; k < N_index; ++k)
 			v.row(k) = u_sorted.row(index.at(k));
 
 		// Sort v by 2nd column
-		multimap<precisionType, unsigned> ind_v;
+		multimap<pT, unsigned> ind_v;
 		ind_sort(v, ind_v, 1);
 
 		// Using indicies in reverse order gives us desired descending order
 		i = 0;
-		for (multimap<precisionType, unsigned>::reverse_iterator it = ind_v.rbegin(); it != ind_v.rend(); ++it) {
+		for (typename multimap<pT, unsigned>::reverse_iterator it = ind_v.rbegin(); it != ind_v.rend(); ++it) {
 			u_sorted.row(index.at(i)) = v.row(it->second);
 			++i;
 		}
@@ -312,7 +329,8 @@ void UtilMath::icosahedron(MatrixType& u, MatrixType& faces, unsigned level) {
 	faces = convhull3_1(u);
 }
 
-void UtilMath::index_and_flat(MatrixType& u, vector<Eigen::Index>& a, MatrixType& fcs, unsigned sz, unsigned col) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::index_and_flat(MT& u, vector<Eigen::Index>& a, MT& fcs, unsigned sz, unsigned col) {
 	/*
 	Create sub array of fcs of size sz starting in column col and rows a
 	*/
@@ -321,7 +339,8 @@ void UtilMath::index_and_flat(MatrixType& u, vector<Eigen::Index>& a, MatrixType
 	u.resize(sz * a.size(), 1);
 }
 
-void UtilMath::FindConnectivity(vector<vector<unsigned>>& conn, MatrixType& fcs, unsigned N) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::FindConnectivity(vector<vector<unsigned>>& conn, MT& fcs, unsigned N) {
 	/*
 	FindConnectivity function. It is return vector of vectors because in matlab function it returns dynamic size
 	cell array. So it is the best way I found to store arrays of indcicies with different sizes.
@@ -336,19 +355,19 @@ void UtilMath::FindConnectivity(vector<vector<unsigned>>& conn, MatrixType& fcs,
 		vector<Eigen::Index> a3;
 		column_find(a3, fcs, 2, true, i);
 
-		MatrixType u1(a1.size(), 2);
+		MT u1(a1.size(), 2);
 		index_and_flat(u1, a1, fcs, 2, 1);
 
-		MatrixType u2(a2.size(), 1);
+		MT u2(a2.size(), 1);
 		index_and_flat(u2, a2, fcs, 1, 0);
 
-		MatrixType u3(a2.size(), 1);
+		MT u3(a2.size(), 1);
 		index_and_flat(u3, a2, fcs, 1, 2);
 
-		MatrixType u4(a3.size(), 2);
+		MT u4(a3.size(), 2);
 		index_and_flat(u4, a3, fcs, 2, 0);
 
-		MatrixType u_out(u1.size() + u2.size() + u3.size() + u4.size(), 1);
+		MT u_out(u1.size() + u2.size() + u3.size() + u4.size(), 1);
 		u_out << u1, u2, u3, u4;
 
 		vector<unsigned> un;
@@ -358,7 +377,8 @@ void UtilMath::FindConnectivity(vector<vector<unsigned>>& conn, MatrixType& fcs,
 	}
 }
 
-void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::remove_row(MT& a, Eigen::Index del)
 {
 	unsigned cols = a.cols();
 	unsigned rows = a.rows() - 1;
@@ -369,15 +389,16 @@ void UtilMath::remove_row(MatrixType& a, MatrixType::Index del)
 	a.conservativeResize(rows, cols);
 }
 
-void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
-	vector<vector<unsigned>>& conn, MatrixType& u, float thresh)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, MT& W,
+	vector<vector<unsigned>>& conn, MT& u, float thresh)
 {
 	// Standart min-max normalization
-	precisionType W_min = W.minCoeff();
+	pT W_min = W.minCoeff();
 	W = (W.array() - W_min) / (W.maxCoeff() - W_min);
 
 	// Find maxima above this point
-	MatrixType used = MatrixType::Zero(W.rows(), W.cols());
+	MT used = MT::Zero(W.rows(), W.cols());
 
 	// used(W <= thresh) = 1
 	for (unsigned i = 0; i < W.size(); ++i)
@@ -386,7 +407,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 
 	unsigned ct = 0;
 
-	MatrixType extrema(0, 0);
+	MT extrema(0, 0);
 
 	for (unsigned n = 0; n < used.size(); ++n) {
 		if (used(n) == 0) {
@@ -405,7 +426,7 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 				if (if_any) {
 					// [maxw id] = max(W(conn(j).elem))
 					unsigned id = 0;
-					precisionType maxw = 0;
+					pT maxw = 0;
 					for (unsigned i = 0; i < conn_row_length; i++) {
 						if (W(conn[j][i]) > maxw) {
 							maxw = W(conn[j][i]);
@@ -447,19 +468,19 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	unique_sorted(u_extrema, extrema);
 
 	unsigned u_extrema_length = u_extrema.size();
-	MatrixType directions(u_extrema_length, 3);
+	MT directions(u_extrema_length, 3);
 	for (unsigned i = 0; i < u_extrema_length; ++i)
 		directions.row(i) = u.row(u_extrema.at(i));
 
 	//sort(W(extrema),'descend')
-	MatrixType W_e(u_extrema_length, 1);
+	MT W_e(u_extrema_length, 1);
 	for (unsigned i = 0; i < u_extrema_length; ++i)
 		W_e(i) = W(u_extrema.at(i));
 
 	vector<size_t> idx;
 	ind_sort_vec(W_e, idx);
 
-	MatrixType directions_sorted(directions.rows(), directions.cols());
+	MT directions_sorted(directions.rows(), directions.cols());
 	for (unsigned i = 0; i < directions.rows(); ++i) {
 		directions_sorted.row(i) = directions.row(idx.at(i));
 	}
@@ -489,8 +510,8 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 		ex(ct - 1) = u_extrema.at(idx.at(i));
 		ex(ct) = ex(ct - 1);
 
-		MatrixType::Index id;
-		precisionType tmp = (directions_sorted * d.row(ct).transpose()).maxCoeff(&id);
+		typename MT::Index id;
+		pT tmp = (directions_sorted * d.row(ct).transpose()).maxCoeff(&id);
 		if (tmp > 0.95) {
 			remove_row(directions_sorted, id);
 			idx.erase(idx.begin() + id);
@@ -503,8 +524,9 @@ void UtilMath::FindODFMaxima(MatrixType& ex, MatrixType& d, MatrixType& W,
 	}
 }
 
-void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& Q, MatrixType& C,
-	vector<vector<unsigned>>& conn, MatrixType& nu, float thresh)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
+	vector<vector<unsigned>>& conn, MT& nu, float thresh)
 {
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
@@ -512,9 +534,9 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& Q, MatrixType& C
 	#pragma omp parallel for
 	for (int i = 0; i < C.cols(); ++i)
 	{
-		MatrixType exe_vol;
-		MatrixType dir_vol;
-		MatrixType vol = Q * C.col(i);
+		MT exe_vol;
+		MT dir_vol;
+		MT vol = Q * C.col(i);
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh);
 
@@ -531,3 +553,5 @@ void UtilMath::FindMaxODFMaxInDMRI(MatrixType& fin, MatrixType& Q, MatrixType& C
 		}
 	}
 }
+
+#endif

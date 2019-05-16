@@ -1,7 +1,7 @@
 #ifndef DATA_SOURCE_H
 #define DATA_SOURCE_H
 
-#include "UtilMath.h"
+#include "rdgls_types.h"
 #include "SPH_RIDG.h"
 #include "SIGNAL_GENERATOR.h"
 

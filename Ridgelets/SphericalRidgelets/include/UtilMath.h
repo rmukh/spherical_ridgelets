@@ -1,17 +1,17 @@
 #ifndef UTILMATH_H
 #define UTILMATH_H
 
-#include "rdgls_types.h"
+#include "main_externals.h"
+#include "convhull_3d.h"
 
-using namespace std;
-
+template <class pT, class MT, class VT>
 class UtilMath {
 public:
 	struct cmp_v
 	{
-    		const vector<precisionType> & value_vector;
+    		const vector<pT> & value_vector;
 
-    		cmp_v(const vector<precisionType> & val_vec):
+    		cmp_v(const vector<pT> & val_vec):
         		value_vector(val_vec) {}
 
     		bool operator()(size_t i1, size_t i2)
@@ -21,27 +21,29 @@ public:
 	};
 
 	// Useful constants
-	static const precisionType PI;
+	static const pT PI;
 
 	UtilMath();
 	~UtilMath();
 
 	// Functions
-	void spiralsample(MatrixType & u, unsigned flg, unsigned N);
-	void fura(MatrixType & Lmd, unsigned n);
-	void polyleg(MatrixType & P, MatrixType & x, unsigned n);
-	MatrixType convhull3_1(MatrixType & u);
-	void unique_rows(vector<int> & uniques, MatrixType & U);
-	void unique_sorted(vector<unsigned> & uniques, MatrixType & U);
-	void ind_sort(MatrixType & matrix, multimap<precisionType, unsigned> & indx, unsigned col_n);
-	void ind_sort_vec(MatrixType & vec, vector<size_t> & indx);
-	void column_find(std::vector<Eigen::Index>& index, MatrixType & arr, unsigned col_n, bool equal, int val);
-	void icosahedron(MatrixType& u,MatrixType & faces, unsigned level);
-	void index_and_flat(MatrixType & u, vector<Eigen::Index>& a, MatrixType & fcs, unsigned sz, unsigned col);
-	void FindConnectivity(vector<vector<unsigned>>& conn, MatrixType & fcs, unsigned N);
-	void remove_row(MatrixType & a, MatrixType::Index del);
-	void FindODFMaxima(MatrixType & ex, MatrixType & d, MatrixType & W, vector<vector<unsigned>>& conn, MatrixType & u, float thresh);
-	void FindMaxODFMaxInDMRI(MatrixType & fin, MatrixType & Q, MatrixType & C, vector<vector<unsigned>>& conn, MatrixType & nu, float thresh);
+	void spiralsample(MT & u, unsigned flg, unsigned N);
+	void fura(MT & Lmd, unsigned n);
+	void polyleg(MT & P, MT & x, unsigned n);
+	MT convhull3_1(MT & u);
+	void unique_rows(vector<int> & uniques, MT & U);
+	void unique_sorted(vector<unsigned> & uniques, MT & U);
+	void ind_sort(MT & matrix, multimap<pT, unsigned> & indx, unsigned col_n);
+	void ind_sort_vec(MT & vec, vector<size_t> & indx);
+	void column_find(std::vector<Eigen::Index>& index, MT & arr, unsigned col_n, bool equal, int val);
+	void icosahedron(MT& u,MT & faces, unsigned level);
+	void index_and_flat(MT & u, vector<Eigen::Index>& a, MT & fcs, unsigned sz, unsigned col);
+	void FindConnectivity(vector<vector<unsigned>>& conn, MT & fcs, unsigned N);
+	void remove_row(MT & a, Eigen::Index del);
+	void FindODFMaxima(MT & ex, MT & d, MT & W, vector<vector<unsigned>>& conn, MT & u, float thresh);
+	void FindMaxODFMaxInDMRI(MT & fin, MT & Q, MT & C, vector<vector<unsigned>>& conn, MT & nu, float thresh);
 };
+
+#include "../src/UtilMath.cpp"
 
 #endif // ! UTILMATH_H
