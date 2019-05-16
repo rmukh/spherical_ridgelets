@@ -179,16 +179,17 @@
     <ClCompile Include="SphericalRidgelets\src\UtilMath.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="SphericalRidgelets\include\convhull_3d.h" />
     <ClInclude Include="SphericalRidgelets\include\DATA_SOURCE.h" />
+    <ClInclude Include="SphericalRidgelets\include\main_externals.h" />
     <ClInclude Include="SphericalRidgelets\include\rdgls_types.h" />
     <ClInclude Include="SphericalRidgelets\include\SIGNAL_GENERATOR.h" />
     <ClInclude Include="SphericalRidgelets\include\SOLVERS.h" />
     <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.h" />
     <ClInclude Include="SphericalRidgelets\include\UtilMath.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

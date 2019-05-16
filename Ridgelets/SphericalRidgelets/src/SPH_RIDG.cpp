@@ -1,36 +1,43 @@
 #include "SPH_RIDG.h"
 
+#ifndef SPH_RIDG_IMPL
+#define SPH_RIDG_IMPL
+
 //Default Constructor
-SPH_RIDG::SPH_RIDG()
+template<class pT, class MT, class VT>
+SPH_RIDG<pT, MT, VT>::SPH_RIDG()
 {
 	J = 2;
 	rho = 0.5;
-	UM = UtilMath();
+	UM = UtilMath<pT, MT>();
 	init();
 }
 
-SPH_RIDG::~SPH_RIDG() {}
+template<class pT, class MT, class VT>
+SPH_RIDG<pT, MT, VT>::~SPH_RIDG() {}
 
-SPH_RIDG::SPH_RIDG(unsigned JIn, precisionType rhoIn) {
+template<class pT, class MT, class VT>
+SPH_RIDG<pT, MT, VT>::SPH_RIDG(unsigned JIn, pT rhoIn) {
 	J = JIn;
 	rho = rhoIn;
 	UM = UtilMath();
 	init();
 }
 
-void SPH_RIDG::init() {
+template<class pT, class MT, class VT>
+void SPH_RIDG<pT, MT, VT>::init() {
 	mcut = (int)ceil(sqrt(-log(1e-6) * pow(4, J) / rho));
 	mcut = mcut + mcut % 2;
 
-	h = MatrixType::Zero(mcut + 1, J + 1);
-	h.col(0) = VectorType::LinSpaced(mcut + 1, 0, mcut);
+	h = MT::Zero(mcut + 1, J + 1);
+	h.col(0) = VT::LinSpaced(mcut + 1, 0, mcut);
 
 	for (int i = 1; i < J + 1; ++i)
 		h.col(i) = h.col(i - 1) * 0.5;
 
 	h = (-rho * h.array().cwiseProduct(h.array() + 1.0)).exp();
 
-	Lmd = MatrixType::Zero(mcut + 1, 1);
+	Lmd = MT::Zero(mcut + 1, 1);
 	UM.fura(Lmd, mcut);
 	psi = h;
 	psi.col(0) = psi.col(0).cwiseProduct(Lmd);
@@ -38,8 +45,8 @@ void SPH_RIDG::init() {
 		psi.col(i) = (h.col(i) - h.col(i - 1)).cwiseProduct(Lmd);
 	}
 
-	C = MatrixType::Zero(mcut + 1, 1);
-	C.col(0) = (2.0 * VectorType::LinSpaced(mcut + 1, 0, mcut).array() + 1.0) / (4 * UM.PI);
+	C = MT::Zero(mcut + 1, 1);
+	C.col(0) = (2.0 * VT::LinSpaced(mcut + 1, 0, mcut).array() + 1.0) / (4 * UM.PI);
 
 	t = ((psi.cwiseProduct(psi)).transpose() * C).array().sqrt();
 	for (int i = 0; i < J + 1; ++i)
@@ -53,29 +60,30 @@ void SPH_RIDG::init() {
 		M0(i, 0) = (int)pow((pow(2, i) * m0 + 1), 2);
 }
 
-void SPH_RIDG::RBasis(MatrixType& A, MatrixType& u) {
+template<class pT, class MT, class VT>
+void SPH_RIDG<pT, MT, VT>::RBasis(MT& A, MT& u) {
 	cout << "Start computing R basis..." << endl;
 	A.resize(u.rows(), M0.sum());
 	A.setZero();
 
-	MatrixType P;
-	MatrixType X;
-	MatrixType x;
+	MT P;
+	MT X;
+	MT x;
 
-	MatrixType v;
-	MatrixType vv;
-	MatrixType r;
+	MT v;
+	MT vv;
+	MT r;
 	int I = 0;
 	for (int i = 0; i < J + 1; ++i) {
 		int K = M0(i);
 		int N = 2 * K;
-		v = MatrixType::Zero(N, 3);
+		v = MT::Zero(N, 3);
 		UM.spiralsample(v, 2, N);
-		vv = MatrixType::Zero(K, 3);
+		vv = MT::Zero(K, 3);
 		vv = v.topRows(K);
 
 		r = C.cwiseProduct(psi.col(i));
-		P = MatrixType::Ones(u.rows(), mcut + 1);
+		P = MT::Ones(u.rows(), mcut + 1);
 		X = u * vv.transpose();
 		for (int k = 0; k < K; ++k) {
 			x = X.col(k);
@@ -86,24 +94,25 @@ void SPH_RIDG::RBasis(MatrixType& A, MatrixType& u) {
 	}
 }
 
-void SPH_RIDG::QBasis(MatrixType& Q, MatrixType& u) {
+template<class pT, class MT, class VT>
+void SPH_RIDG<pT, MT, VT>::QBasis(MT& Q, MT& u) {
 	cout << "Start computing Q basis..." << endl;
 	Q.resize(u.rows(), M0.sum());
 	Q.setZero();
 
-	MatrixType P;
-	MatrixType x;
+	MT P;
+	MT x;
 
-	MatrixType v;
-	MatrixType vv;
-	MatrixType r;
-	MatrixType CL = C.cwiseProduct(Lmd);
+	MT v;
+	MT vv;
+	MT r;
+	MT CL = C.cwiseProduct(Lmd);
 
 	int I = 0;
 	for (int i = 0; i < J + 1; ++i) {
 		int K = M0(i);
 		int N = 2 * K;
-		v = MatrixType::Zero(N, 3);
+		v = MT::Zero(N, 3);
 		UM.spiralsample(v, 2, N);
 		vv = v.topRows(K);
 
@@ -111,7 +120,7 @@ void SPH_RIDG::QBasis(MatrixType& Q, MatrixType& u) {
 		for (int k = 0; k < K; ++k) {
 			x = u * vv.row(k).transpose();
 			unsigned Nr = (unsigned)x.rows();
-			P = MatrixType::Ones(Nr, mcut + 1);
+			P = MT::Ones(Nr, mcut + 1);
 			UM.polyleg(P, x, mcut);
 
 			Q.col(k + I) = P * r;
@@ -120,10 +129,13 @@ void SPH_RIDG::QBasis(MatrixType& Q, MatrixType& u) {
 	}
 }
 
-void SPH_RIDG::normBasis(MatrixType& mat) {
-	MatrixType e = mat * mat.transpose();
-	SelfAdjointEigenSolver<MatrixType> eigensolver(mat.rows());
+template<class pT, class MT, class VT>
+void SPH_RIDG<pT, MT, VT>::normBasis(MT& mat) {
+	MT e = mat * mat.transpose();
+	SelfAdjointEigenSolver<MT> eigensolver(mat.rows());
 	eigensolver.compute(e, EigenvaluesOnly);
-	precisionType lVal = eigensolver.eigenvalues()[mat.rows() - 1];
+	pT lVal = eigensolver.eigenvalues()[mat.rows() - 1];
 	mat = (1 / sqrt(lVal)) * mat;
 }
+
+#endif

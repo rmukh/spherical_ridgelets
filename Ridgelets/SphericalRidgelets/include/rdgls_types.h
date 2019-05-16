@@ -1,28 +1,7 @@
 #ifndef RDGLS_TYPES_H
 #define RDGLS_TYPES_H
 
-// Libraries
-#include <itkImage.h>
-#include <itkImageFileReader.h>
-#include <itkImageFileWriter.h>
-#include <itkNrrdImageIO.h>
-#include <itkNrrdImageIOFactory.h>
-#include <itkMetaDataDictionary.h>
-#include <itkMetaDataObject.h>
-#include <itkImageLinearConstIteratorWithIndex.h>
-#include <itkImageLinearIteratorWithIndex.h>
-#include <Eigen/Dense>
-
-#include <omp.h>
-#include <chrono>
-#include <thread>
-#include <unordered_map>
-#include <sys/stat.h>
-#include <numeric>
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <sstream>
+#include "main_externals.h"
 
 #define CONVHULL_3D_ENABLE 1
 //#define USE_FLOAT 1
@@ -54,11 +33,6 @@ typedef itk::Image<MaskPixelType, 3>    MaskImageType;
 typedef MaskImageType::Pointer	        MaskImagePointer;
 typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
 typedef itk::ImageLinearConstIteratorWithIndex<MaskImageType> MaskIterator;
-
-// Necessary namespaces
-using namespace Eigen;
-using namespace std;
-using namespace std::chrono;
 
 // Useful structures
 struct dMRI_h_info

@@ -3,6 +3,8 @@
 
 #include "UtilMath.h"
 
+//precisionType - pT, MatrixType - MT
+template <class pT, class MT, class VT>
 class SPH_RIDG
 {
 public:
@@ -11,30 +13,32 @@ public:
 	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3073602/
 	*/
 	int J; //J value
-	precisionType rho; //rho value
-	UtilMath UM; //Object of UtilMath class
-	MatrixType C;
+	pT rho; //rho value
+	UtilMath<pT, MT> UM; //Object of UtilMath class
+	MT C;
 
 	SPH_RIDG();
 	~SPH_RIDG();
 
-	SPH_RIDG(unsigned JIn, precisionType rhoIn);
+	SPH_RIDG(unsigned JIn, pT rhoIn);
 	void init(); //pre-compute all necessary matricies/vectors
 
-	void RBasis(MatrixType& A, MatrixType& u); //return spherical ridgelets basis matrix
-	void QBasis(MatrixType& Q, MatrixType& u); //For visualizing pupose only
-	void normBasis(MatrixType& mat); //normalize basis
+	void RBasis(MT& A, MT& u); //return spherical ridgelets basis matrix
+	void QBasis(MT& Q, MT& u); //For visualizing pupose only
+	void normBasis(MT& mat); //normalize basis
 
 private:
 	int mcut;
-	MatrixType h;
-	MatrixType psi;
-	MatrixType t;
-	MatrixType Lmd;
-	precisionType tau;
+	MT h;
+	MT psi;
+	MT t;
+	MT Lmd;
+	pT tau;
 	int m0;
 	VectorXi M0;
 };
+
+#include "../src/SPH_RIDG.cpp"
 
 #endif // !SPH_RIDG_H
 
