@@ -243,7 +243,7 @@ void DATA_SOURCE::testFNC() {
 	//MatrixType res = UM.polyleg(test, 5);
 	SPH_RIDG<precisionType, MatrixType, VectorType> test;
 	//cout << test.M0;
-	UtilMath<precisionType, MatrixType> UM = UtilMath<precisionType, MatrixType>();
+	UtilMath<precisionType, MatrixType, VectorType> UM = UtilMath<precisionType, MatrixType, VectorType>();
 	MatrixType g;
 	g = MatrixType::Zero(100, 3);
 	UM.spiralsample(g, 2, 100);

@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 		data.save_to_file<DiffusionImageType>(input_args.signal_recon, s_coeff, input_args.is_compress);
 	}
 
-	UtilMath<precisionType, MatrixType> m;
+	UtilMath<precisionType, MatrixType, VectorType> m;
 	MatrixType fcs;
 	MatrixType nu;
 	MatrixType Q;

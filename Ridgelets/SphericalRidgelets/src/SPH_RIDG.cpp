@@ -9,7 +9,7 @@ SPH_RIDG<pT, MT, VT>::SPH_RIDG()
 {
 	J = 2;
 	rho = 0.5;
-	UM = UtilMath<pT, MT>();
+	UM = UtilMath<pT, MT, VT>();
 	init();
 }
 
@@ -20,7 +20,7 @@ template<class pT, class MT, class VT>
 SPH_RIDG<pT, MT, VT>::SPH_RIDG(unsigned JIn, pT rhoIn) {
 	J = JIn;
 	rho = rhoIn;
-	UM = UtilMath<pT, MT>();
+	UM = UtilMath<pT, MT, VT>();
 	init();
 }
 

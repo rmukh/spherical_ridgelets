@@ -4,7 +4,7 @@
 #include "main_externals.h"
 #include "convhull_3d.h"
 
-template <class pT, class MT>
+template <class pT, class MT, class VT>
 class UtilMath {
 public:
 	struct cmp_v

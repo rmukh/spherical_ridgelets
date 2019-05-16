@@ -3,17 +3,17 @@
 #ifndef UTILMATH_IMPL
 #define UTILMATH_IMPL
 
-template <class pT, class MT>
-const pT UtilMath<pT, MT>::PI = std::atan(1.0) * 4.0;
+template <class pT, class MT, class VT>
+const pT UtilMath<pT, MT, VT>::PI = std::atan(1.0) * 4.0;
 
-template <class pT, class MT>
-UtilMath<pT, MT>::UtilMath() {}
+template <class pT, class MT, class VT>
+UtilMath<pT, MT, VT>::UtilMath() {}
 
-template <class pT, class MT>
-UtilMath<pT, MT>::~UtilMath() {}
+template <class pT, class MT, class VT>
+UtilMath<pT, MT, VT>::~UtilMath() {}
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::spiralsample(MT& u, unsigned flg, unsigned N)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::spiralsample(MT& u, unsigned flg, unsigned N)
 {
 	/*
 	Spiral sampling on the sphere
@@ -44,7 +44,7 @@ void UtilMath<pT, MT>::spiralsample(MT& u, unsigned flg, unsigned N)
 	{
 		// Long=(pi*(3-sqrt(5)))*(0:N-1)';
 		pT pref_const = UtilMath::PI * (3.0 - sqrt(5.0));
-		Long = pref_const * VectorType::LinSpaced(N, 0, N - 1);
+		Long = pref_const * VT::LinSpaced(N, 0, N - 1);
 	}
 	break;
 	default:
@@ -62,8 +62,8 @@ void UtilMath<pT, MT>::spiralsample(MT& u, unsigned flg, unsigned N)
 		u.row(i).normalize();
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::fura(MT& Lmd, unsigned n)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::fura(MT& Lmd, unsigned n)
 {
 	//from fura.m
 
@@ -84,8 +84,8 @@ void UtilMath<pT, MT>::fura(MT& Lmd, unsigned n)
 	//Lmd = Lmd * (2 * PI);
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::polyleg(MT& P, MT& x, unsigned n)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::polyleg(MT& P, MT& x, unsigned n)
 {
 	//from polyleg.m
 
@@ -112,8 +112,8 @@ void UtilMath<pT, MT>::polyleg(MT& P, MT& x, unsigned n)
 	}
 }
 
-template <class pT, class MT>
-MT UtilMath<pT, MT>::convhull3_1(MT& u) {
+template <class pT, class MT, class VT>
+MT UtilMath<pT, MT, VT>::convhull3_1(MT& u) {
 	unsigned n = u.rows();
 	ch_vertex* vertices;
 	vertices = (ch_vertex*)malloc(n * sizeof(ch_vertex));
@@ -137,8 +137,8 @@ MT UtilMath<pT, MT>::convhull3_1(MT& u) {
 	return faces;
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::unique_rows(vector<int>& uniques, MT& U) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::unique_rows(vector<int>& uniques, MT& U) {
 	/*
 		Find unique rows
 		Not the fanciest and most optimal way, but
@@ -173,8 +173,8 @@ void UtilMath<pT, MT>::unique_rows(vector<int>& uniques, MT& U) {
 	}
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::unique_sorted(vector<unsigned>& uniques, MT& U) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::unique_sorted(vector<unsigned>& uniques, MT& U) {
 	/*
 		Find unique values and return them sorted (same as default matlab version)
 		Now working with 1D and integer values of U only
@@ -193,8 +193,8 @@ void UtilMath<pT, MT>::unique_sorted(vector<unsigned>& uniques, MT& U) {
 	sort(uniques.begin(), uniques.end());
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::ind_sort(MT& matrix, multimap<pT, unsigned>& indx, unsigned col_n) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::ind_sort(MT& matrix, multimap<pT, unsigned>& indx, unsigned col_n) {
 	/*
 	Return indexies indx in ascending order of sorted column col_n of the matrix
 	*/
@@ -202,15 +202,15 @@ void UtilMath<pT, MT>::ind_sort(MT& matrix, multimap<pT, unsigned>& indx, unsign
 	vector<pT> uc3;
 	unsigned orig_size = matrix.col(col_n).size();
 	uc3.resize(orig_size);
-	VectorType::Map(&uc3[0], orig_size) = matrix.col(col_n);
+	VT::Map(&uc3[0], orig_size) = matrix.col(col_n);
 
 	// Mapping from value to index and so make sort ascending
 	for (auto it = uc3.begin(); it != uc3.end(); ++it)
 		indx.insert(make_pair(*it, it - uc3.begin()));
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::ind_sort_vec(MT& vec, vector<size_t> & indx) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::ind_sort_vec(MT& vec, vector<size_t> & indx) {
 	/*
 	Return indexies indx in descending order of sorted vector
 	*/
@@ -218,7 +218,7 @@ void UtilMath<pT, MT>::ind_sort_vec(MT& vec, vector<size_t> & indx) {
 	vector<pT> uc3;
 	unsigned orig_size = vec.size();
 	uc3.resize(orig_size);
-	VectorType::Map(&uc3[0], orig_size) = vec;
+	VT::Map(&uc3[0], orig_size) = vec;
 
 	// initialize original index locations
 	indx.resize(uc3.size());
@@ -226,8 +226,8 @@ void UtilMath<pT, MT>::ind_sort_vec(MT& vec, vector<size_t> & indx) {
 	sort(indx.rbegin(), indx.rend(), cmp_v(uc3));
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::column_find(std::vector<Eigen::Index>& index, MT& arr, unsigned col_n, bool equal, int val) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::column_find(std::vector<Eigen::Index>& index, MT& arr, unsigned col_n, bool equal, int val) {
 	/*
 	Looking for columns of MT matrix. bool equal is basically to comply with matlab notation of
 	== if true and ~= if false. So you can check if col_n equal or not to val
@@ -244,14 +244,14 @@ void UtilMath<pT, MT>::column_find(std::vector<Eigen::Index>& index, MT& arr, un
 	}
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::icosahedron(MT& u, MT& faces, unsigned level) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	/*
 	Build icosahedron based sampling array and their respective faces
 	*/
 	cout << "Start computing icosahedron..." << endl;
 	pT C_init = 1 / sqrt(1.25);
-	MT t = (2 * PI / 5.0) * VectorType::LinSpaced(5, 0, 4);
+	MT t = (2 * PI / 5.0) * VT::LinSpaced(5, 0, 4);
 	MT u1(5, 3);
 	u1 << C_init * t.array().cos(), C_init * t.array().sin(), C_init * 0.5 * MT::Ones(5, 1);
 	MT u2(5, 3);
@@ -329,8 +329,8 @@ void UtilMath<pT, MT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	faces = convhull3_1(u);
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::index_and_flat(MT& u, vector<Eigen::Index>& a, MT& fcs, unsigned sz, unsigned col) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::index_and_flat(MT& u, vector<Eigen::Index>& a, MT& fcs, unsigned sz, unsigned col) {
 	/*
 	Create sub array of fcs of size sz starting in column col and rows a
 	*/
@@ -339,8 +339,8 @@ void UtilMath<pT, MT>::index_and_flat(MT& u, vector<Eigen::Index>& a, MT& fcs, u
 	u.resize(sz * a.size(), 1);
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::FindConnectivity(vector<vector<unsigned>>& conn, MT& fcs, unsigned N) {
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::FindConnectivity(vector<vector<unsigned>>& conn, MT& fcs, unsigned N) {
 	/*
 	FindConnectivity function. It is return vector of vectors because in matlab function it returns dynamic size
 	cell array. So it is the best way I found to store arrays of indcicies with different sizes.
@@ -377,8 +377,8 @@ void UtilMath<pT, MT>::FindConnectivity(vector<vector<unsigned>>& conn, MT& fcs,
 	}
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::remove_row(MT& a, Eigen::Index del)
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::remove_row(MT& a, Eigen::Index del)
 {
 	unsigned cols = a.cols();
 	unsigned rows = a.rows() - 1;
@@ -389,8 +389,8 @@ void UtilMath<pT, MT>::remove_row(MT& a, Eigen::Index del)
 	a.conservativeResize(rows, cols);
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::FindODFMaxima(MT& ex, MT& d, MT& W,
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, MT& W,
 	vector<vector<unsigned>>& conn, MT& u, float thresh)
 {
 	// Standart min-max normalization
@@ -524,8 +524,8 @@ void UtilMath<pT, MT>::FindODFMaxima(MT& ex, MT& d, MT& W,
 	}
 }
 
-template <class pT, class MT>
-void UtilMath<pT, MT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
+template <class pT, class MT, class VT>
+void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 	vector<vector<unsigned>>& conn, MT& nu, float thresh)
 {
 	fin.resize((6 * 3) + 6, C.cols());

@@ -14,7 +14,7 @@ public:
 	*/
 	int J; //J value
 	pT rho; //rho value
-	UtilMath<pT, MT> UM; //Object of UtilMath class
+	UtilMath<pT, MT, VT> UM; //Object of UtilMath class
 	MT C;
 
 	SPH_RIDG();
