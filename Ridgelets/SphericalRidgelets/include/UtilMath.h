@@ -40,8 +40,8 @@ public:
 	void index_and_flat(MT & u, vector<Eigen::Index>& a, MT & fcs, unsigned sz, unsigned col);
 	void FindConnectivity(vector<vector<unsigned>>& conn, MT & fcs, unsigned N);
 	void remove_row(MT & a, Eigen::Index del);
-	void FindODFMaxima(MT & ex, MT & d, MT & W, vector<vector<unsigned>>& conn, MT & u, float thresh);
-	void FindMaxODFMaxInDMRI(MT & fin, MT & Q, MT & C, vector<vector<unsigned>>& conn, MT & nu, float thresh);
+	void FindODFMaxima(MT & ex, MT & d, MT & W, vector<vector<unsigned>>& conn, MT & u, pT thresh);
+	void FindMaxODFMaxInDMRI(MT & fin, MT & Q, MT & C, vector<vector<unsigned>>& conn, MT & nu, pT thresh);
 };
 
 #include "../src/UtilMath.cpp"

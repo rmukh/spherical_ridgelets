@@ -3,31 +3,24 @@
 #ifndef SOLVERS_IMPL
 #define SOLVERS_IMPL
 
-template <class pT, class MT, class VT>
-SOLVERS<pT, MT, VT>::SOLVERS() : A(NULL), s(NULL) {
+template <class pT, class RT, class ST>
+SOLVERS<pT, RT, ST>::SOLVERS() : A(NULL), s(NULL) {
 	cerr << "Minimal set of argumets: ridgelets basis, full DWI array or matrix/vector with voxel(s). "
 		"The last parameter - lambda value is optional.\n";
 }
 
-template <class pT, class MT, class VT>
-SOLVERS<pT, MT, VT>::~SOLVERS() {}
+template <class pT, class RT, class ST>
+SOLVERS<pT, RT, ST>::~SOLVERS() {}
 
 // For Matrix (multiple voxels)
-template <class pT, class MT, class VT>
-SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, MT& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
+template <class pT, class RT, class ST>
+SOLVERS<pT, RT, ST>::SOLVERS(RT& ridgelets, ST& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
 
-template <class pT, class MT, class VT>
-SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, MT& voxels, pT lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
+template <class pT, class RT, class ST>
+SOLVERS<pT, RT, ST>::SOLVERS(RT& ridgelets, ST& voxels, pT lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
 
-// For Vector (one voxel)
-template <class pT, class MT, class VT>
-SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, VT& voxel) : A(&ridgelets), s(&voxel), lmd(0.1) {}
-
-template <class pT, class MT, class VT>
-SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, VT& voxel, pT lambda) : A(&ridgelets), s(&voxel), lmd(lambda) {}
-
-template <class pT, class MT, class VT>
-void SOLVERS<pT, MT, VT>::FISTA(MT& x, int N_splits) {
+template <class pT, class RT, class ST>
+void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 	cout << "Start computing ridgelets coefficients..." << endl;
 
 	auto start = high_resolution_clock::now();
@@ -37,14 +30,14 @@ void SOLVERS<pT, MT, VT>::FISTA(MT& x, int N_splits) {
 
 #pragma omp parallel for
 	for (int it = 0; it < N_splits; ++it) {
-		MT x_block;
-		MT s_block;
-		MT y;
-		MT x_old;
+		ST x_block;
+		ST s_block;
+		ST y;
+		ST x_old;
 
 		s_block = s->block(0, it * split_size, s->rows(), split_size);
-		y = MT::Zero(A->cols(), s_block.cols());
-		x_old = MT::Zero(A->cols(), s_block.cols());
+		y = ST::Zero(A->cols(), s_block.cols());
+		x_old = ST::Zero(A->cols(), s_block.cols());
 
 		pT t_old = 1;
 		pT t = 0;
@@ -80,14 +73,14 @@ void SOLVERS<pT, MT, VT>::FISTA(MT& x, int N_splits) {
 	cout << "Computations took " << ds.count() << " seconds ~ " << dm.count() << "+ minutes" << endl;
 }
 
-template <class pT, class MT, class VT>
-void SOLVERS<pT, MT, VT>::FISTA(VT& x) {
+template <class pT, class RT, class ST>
+void SOLVERS<pT, RT, ST>::FISTA(ST& x) {
 	x.resize(A->cols());
-	MT y;
-	MT x_old;
+	ST y;
+	ST x_old;
 
-	y = MT::Zero(A->cols());
-	x_old = MT::Zero(A->cols());
+	y = ST::Zero(A->cols());
+	x_old = ST::Zero(A->cols());
 
 	pT t_old = 1;
 	pT t = 0;
@@ -95,12 +88,41 @@ void SOLVERS<pT, MT, VT>::FISTA(VT& x) {
 	pT e;
 
 	for (int iter = 0; iter < 2000; ++iter) {
-		x = y + A->transpose() * (s - *A * y);
+		x = y + A->transpose() * (*s - *A * y);
 
 		//Soft thresholding
 		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
 
-		e = ((0.5 * (*A * x - s).array().pow(2).colwise().sum().array()) +
+		e = ((0.5 * (*A * x - *s).array().pow(2).colwise().sum().array()) +
+			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
+
+		if ((e_old - e) / e_old < 0.001)
+			break;
+		else
+			e_old = e;
+
+		//Nesterov acceleration
+		t = (1 + sqrt(1 + 4 * t_old * t_old)) / 2;
+		y = x + ((t_old - 1) / t) * (x - x_old);
+		x_old = x;
+		t_old = t;
+	}
+}
+
+template <class pT, class RT, class ST>
+void loop_block(ST& x, ST& y, ST& s) {
+	pT t_old = 1;
+	pT t = 0;
+	pT e_old = 1e32;
+	pT e;
+
+	for (int iter = 0; iter < 2000; ++iter) {
+		x = y + A->transpose() * (*s - *A * y);
+
+		//Soft thresholding
+		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
+
+		e = ((0.5 * (*A * x - *s).array().pow(2).colwise().sum().array()) +
 			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
 
 		if ((e_old - e) / e_old < 0.001)
