@@ -391,7 +391,7 @@ void UtilMath<pT, MT, VT>::remove_row(MT& a, Eigen::Index del)
 
 template <class pT, class MT, class VT>
 void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, MT& W,
-	vector<vector<unsigned>>& conn, MT& u, float thresh)
+	vector<vector<unsigned>>& conn, MT& u, pT thresh)
 {
 	// Standart min-max normalization
 	pT W_min = W.minCoeff();
@@ -526,7 +526,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, MT& W,
 
 template <class pT, class MT, class VT>
 void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
-	vector<vector<unsigned>>& conn, MT& nu, float thresh)
+	vector<vector<unsigned>>& conn, MT& nu, pT thresh)
 {
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());

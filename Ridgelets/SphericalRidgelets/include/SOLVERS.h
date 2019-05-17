@@ -3,21 +3,25 @@
 
 #include "rdgls_types.h"
 
-//precisionType - pT, MatrixType - MT
-template <class pT, class MT>
+//precisionType - pT, MatrixType - MT, VectorType - VT
+template <class pT, class RT, class ST>
 class SOLVERS
 {
 public:
-	MT *A; //rigelets basis
-	MT *s; //input voxel(s)
+	RT *A; //rigelets basis
+	ST *s; //input voxel(s)
 	pT lmd; //labmda parameter for FISTA training
 
 	SOLVERS();
 	~SOLVERS();
 
-	SOLVERS(MT& ridgelets, MT& voxels);
-	SOLVERS(MT& ridgelets, MT& voxels, pT lambda);
-	void FISTA(MT & x, int N_splits);
+	SOLVERS(RT& ridgelets, ST& voxels);
+	SOLVERS(RT& ridgelets, ST& voxels, pT lambda);
+
+	void FISTA(ST & x, int N_splits);
+	void FISTA(ST & x);
+
+	void loop_block(ST& x, ST& sig);
 };
 
 #include "../src/SOLVERS.cpp"
