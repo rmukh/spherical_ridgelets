@@ -32,38 +32,10 @@ void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 	for (int it = 0; it < N_splits; ++it) {
 		ST x_block;
 		ST s_block;
-		ST y;
-		ST x_old;
 
 		s_block = s->block(0, it * split_size, s->rows(), split_size);
-		y = ST::Zero(A->cols(), s_block.cols());
-		x_old = ST::Zero(A->cols(), s_block.cols());
-
-		pT t_old = 1;
-		pT t = 0;
-		pT e_old = 1e32;
-		pT e;
-
-		for (int iter = 0; iter < 2000; ++iter) {
-			x_block = y + A->transpose() * (s_block - *A * y);
-
-			//Soft thresholding
-			x_block = ((x_block.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x_block.array().sign());
-
-			e = ((0.5 * (*A * x_block - s_block).array().pow(2).colwise().sum().array()) +
-				(lmd * x_block.cwiseAbs().colwise().sum().array())).maxCoeff();
-
-			if ((e_old - e) / e_old < 0.001)
-				break;
-			else
-				e_old = e;
-
-			//Nesterov acceleration
-			t = (1 + sqrt(1 + 4 * t_old * t_old)) / 2;
-			y = x_block + ((t_old - 1) / t) * (x_block - x_old);
-			x_old = x_block;
-			t_old = t;
-		}
+		
+		loop_block(x_block, s_block);
 		x.block(0, it * split_size, x_block.rows(), x_block.cols()) = x_block;
 	}
 
@@ -76,53 +48,30 @@ void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 template <class pT, class RT, class ST>
 void SOLVERS<pT, RT, ST>::FISTA(ST& x) {
 	x.resize(A->cols());
-	ST y;
-	ST x_old;
-
-	y = ST::Zero(A->cols());
-	x_old = ST::Zero(A->cols());
-
-	pT t_old = 1;
-	pT t = 0;
-	pT e_old = 1e32;
-	pT e;
-
-	for (int iter = 0; iter < 2000; ++iter) {
-		x = y + A->transpose() * (*s - *A * y);
-
-		//Soft thresholding
-		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
-
-		e = ((0.5 * (*A * x - *s).array().pow(2).colwise().sum().array()) +
-			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
-
-		if ((e_old - e) / e_old < 0.001)
-			break;
-		else
-			e_old = e;
-
-		//Nesterov acceleration
-		t = (1 + sqrt(1 + 4 * t_old * t_old)) / 2;
-		y = x + ((t_old - 1) / t) * (x - x_old);
-		x_old = x;
-		t_old = t;
-	}
+	loop_block(x, *s);
 }
 
-template <class pT, class RT, class ST>
-void loop_block(ST& x, ST& y, ST& s) {
+template<class pT, class RT, class ST>
+void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig)
+{
+	ST y;
+	y = ST::Zero(A->cols(), sig.cols());
+
+	ST x_old;
+	x_old = ST::Zero(A->cols(), sig.cols());
+
 	pT t_old = 1;
 	pT t = 0;
 	pT e_old = 1e32;
 	pT e;
 
 	for (int iter = 0; iter < 2000; ++iter) {
-		x = y + A->transpose() * (*s - *A * y);
+		x = y + A->transpose() * (sig - *A * y);
 
 		//Soft thresholding
 		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
 
-		e = ((0.5 * (*A * x - *s).array().pow(2).colwise().sum().array()) +
+		e = ((0.5 * (*A * x - sig).array().pow(2).colwise().sum().array()) +
 			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
 
 		if ((e_old - e) / e_old < 0.001)

@@ -21,7 +21,7 @@ public:
 	void FISTA(ST & x, int N_splits);
 	void FISTA(ST & x);
 
-	void loop_block(ST& x, ST& y, ST& s);
+	void loop_block(ST& x, ST& sig);
 };
 
 #include "../src/SOLVERS.cpp"

@@ -59,94 +59,79 @@ int main(int argc, char* argv[])
 	data.estimate_memory(signal, A, input_args);
 	data.short_summary(input_args);
 
-	MatrixType signal1(signal.rows(), 1);
-	signal1 = signal.col(75000);
 	MatrixType C;
-	cout << "Matrix signal " << endl << signal1.transpose() << endl;
 	{
-		SOLVERS<precisionType, MatrixType, MatrixType> slv(A, signal1, input_args.fista_lambda);
-		slv.FISTA(C, 1); // input_args.n_splits);  //have a potentinal for optimization
+		SOLVERS<precisionType, MatrixType, MatrixType> slv(A, signal, input_args.fista_lambda);
+		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
 	}
-	cout << "matrix signal coefs" << C.transpose() << endl;
 
-	VectorType C2;
-	VectorType singleSignal(signal.rows());
-	singleSignal = signal.col(75000);
-	cout << "Single signal " << endl << singleSignal.transpose() << endl;
-	{
-		SOLVERS<precisionType, MatrixType, VectorType> slv2(A, singleSignal, input_args.fista_lambda);
-		slv2.FISTA(C2);  //have a potentinal for optimization
+	// Save to file(s) user requested through command line
+	// Ridgelets coefficients
+	if (!input_args.output_ridgelets.empty()) {
+		cout << "Saving ridgelets coefficients..." << endl;
+		DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
+		data.set_header(Ridg_coeff);
+		Ridg_coeff->SetNumberOfComponentsPerPixel(C.rows());
+		Ridg_coeff->Allocate();
+
+		data.Matrix2DWI(Ridg_coeff, mask, C);
+		data.save_to_file<DiffusionImageType>(input_args.output_ridgelets, Ridg_coeff, input_args.is_compress);
 	}
-	cout << "single signal coefs" << C2.transpose() << endl;
-	cout << endl;
 
-	//// Save to file(s) user requested through command line
-	//// Ridgelets coefficients
-	//if (!input_args.output_ridgelets.empty()) {
-	//	cout << "Saving ridgelets coefficients..." << endl;
-	//	DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
-	//	data.set_header(Ridg_coeff);
-	//	Ridg_coeff->SetNumberOfComponentsPerPixel(C.rows());
-	//	Ridg_coeff->Allocate();
+	// A*c (signal recon)
+	if (!input_args.signal_recon.empty()) {
+		cout << "Saving signal reconstruction..." << endl;
+		MatrixType SR = A * C;
 
-	//	data.Matrix2DWI(Ridg_coeff, mask, C);
-	//	data.save_to_file<DiffusionImageType>(input_args.output_ridgelets, Ridg_coeff, input_args.is_compress);
-	//}
+		DiffusionImagePointer s_coeff = DiffusionImageType::New();
+		data.set_header(s_coeff);
+		s_coeff->SetNumberOfComponentsPerPixel(SR.rows());
+		s_coeff->Allocate();
 
-	//// A*c (signal recon)
-	//if (!input_args.signal_recon.empty()) {
-	//	cout << "Saving signal reconstruction..." << endl;
-	//	MatrixType SR = A * C;
+		data.Matrix2DWI(s_coeff, mask, SR);
+		data.save_to_file<DiffusionImageType>(input_args.signal_recon, s_coeff, input_args.is_compress);
+	}
 
-	//	DiffusionImagePointer s_coeff = DiffusionImageType::New();
-	//	data.set_header(s_coeff);
-	//	s_coeff->SetNumberOfComponentsPerPixel(SR.rows());
-	//	s_coeff->Allocate();
+	UtilMath<precisionType, MatrixType, VectorType> m;
+	MatrixType fcs;
+	MatrixType nu;
+	MatrixType Q;
 
-	//	data.Matrix2DWI(s_coeff, mask, SR);
-	//	data.save_to_file<DiffusionImageType>(input_args.signal_recon, s_coeff, input_args.is_compress);
-	//}
+	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
+		m.icosahedron(nu, fcs, input_args.lvl);
+		ridg.QBasis(Q, nu); //Build a Q basis
+	}
 
-	//UtilMath<precisionType, MatrixType, VectorType> m;
-	//MatrixType fcs;
-	//MatrixType nu;
-	//MatrixType Q;
+	// ODF volume
+	if (!input_args.output_odf.empty()) {
+		MatrixType ODF = Q * C;
+		cout << "Saving ODF values..." << endl;
+		DiffusionImagePointer ODF_vals = DiffusionImageType::New();
+		data.set_header(ODF_vals);
+		ODF_vals->SetNumberOfComponentsPerPixel(Q.rows());
+		ODF_vals->Allocate();
 
-	//if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
-	//	m.icosahedron(nu, fcs, input_args.lvl);
-	//	ridg.QBasis(Q, nu); //Build a Q basis
-	//}
+		data.Matrix2DWI(ODF_vals, mask, ODF);
+		data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
+	}
 
-	//// ODF volume
-	//if (!input_args.output_odf.empty()) {
-	//	MatrixType ODF = Q * C;
-	//	cout << "Saving ODF values..." << endl;
-	//	DiffusionImagePointer ODF_vals = DiffusionImageType::New();
-	//	data.set_header(ODF_vals);
-	//	ODF_vals->SetNumberOfComponentsPerPixel(Q.rows());
-	//	ODF_vals->Allocate();
+	// Maximum directions and values of ODF
+	if (!input_args.output_fiber_max_odf.empty()) {
+		MatrixType ex_d;
+		vector<vector<unsigned>> conn;
 
-	//	data.Matrix2DWI(ODF_vals, mask, ODF);
-	//	data.save_to_file<DiffusionImageType>(input_args.output_odf, ODF_vals, input_args.is_compress);
-	//}
+		m.FindConnectivity(conn, fcs, nu.rows());
+		m.FindMaxODFMaxInDMRI(ex_d, Q, C, conn, nu, input_args.max_odf_thresh);
 
-	//// Maximum directions and values of ODF
-	//if (!input_args.output_fiber_max_odf.empty()) {
-	//	MatrixType ex_d;
-	//	vector<vector<unsigned>> conn;
+		cout << "Saving maxima ODF direction and value..." << endl;
+		DiffusionImagePointer modf = DiffusionImageType::New();
+		data.set_header(modf);
+		modf->SetNumberOfComponentsPerPixel(ex_d.rows());
+		modf->Allocate();
 
-	//	m.FindConnectivity(conn, fcs, nu.rows());
-	//	m.FindMaxODFMaxInDMRI(ex_d, Q, C, conn, nu, input_args.max_odf_thresh);
-
-	//	cout << "Saving maxima ODF direction and value..." << endl;
-	//	DiffusionImagePointer modf = DiffusionImageType::New();
-	//	data.set_header(modf);
-	//	modf->SetNumberOfComponentsPerPixel(ex_d.rows());
-	//	modf->Allocate();
-
-	//	data.Matrix2DWI(modf, mask, ex_d);
-	//	data.save_to_file<DiffusionImageType>(input_args.output_fiber_max_odf, modf, input_args.is_compress);
-	//}
+		data.Matrix2DWI(modf, mask, ex_d);
+		data.save_to_file<DiffusionImageType>(input_args.output_fiber_max_odf, modf, input_args.is_compress);
+	}
 
 	return EXIT_SUCCESS;
 }
