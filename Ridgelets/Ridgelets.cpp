@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
 	MatrixType C;
 	{
-		SOLVERS<precisionType, MatrixType> slv(A, signal, input_args.fista_lambda);
+		SOLVERS<precisionType, MatrixType, VectorType> slv(A, signal, input_args.fista_lambda);
 		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
 	}
 

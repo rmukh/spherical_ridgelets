@@ -3,23 +3,31 @@
 #ifndef SOLVERS_IMPL
 #define SOLVERS_IMPL
 
-template <class pT, class MT>
-SOLVERS<pT, MT>::SOLVERS() : A(NULL), s(NULL) {
+template <class pT, class MT, class VT>
+SOLVERS<pT, MT, VT>::SOLVERS() : A(NULL), s(NULL) {
 	cerr << "Minimal set of argumets: ridgelets basis, full DWI array or matrix/vector with voxel(s). "
 		"The last parameter - lambda value is optional.\n";
 }
 
-template <class pT, class MT>
-SOLVERS<pT, MT>::~SOLVERS() {}
+template <class pT, class MT, class VT>
+SOLVERS<pT, MT, VT>::~SOLVERS() {}
 
-template <class pT, class MT>
-SOLVERS<pT, MT>::SOLVERS(MT& ridgelets, MT& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
+// For Matrix (multiple voxels)
+template <class pT, class MT, class VT>
+SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, MT& voxels) : A(&ridgelets), s(&voxels), lmd(0.1) {}
 
-template <class pT, class MT>
-SOLVERS<pT, MT>::SOLVERS(MT& ridgelets, MT& voxels, pT lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
+template <class pT, class MT, class VT>
+SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, MT& voxels, pT lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
 
-template <class pT, class MT>
-void SOLVERS<pT, MT>::FISTA(MT& x, int N_splits) {
+// For Vector (one voxel)
+template <class pT, class MT, class VT>
+SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, VT& voxel) : A(&ridgelets), s(&voxel), lmd(0.1) {}
+
+template <class pT, class MT, class VT>
+SOLVERS<pT, MT, VT>::SOLVERS(MT& ridgelets, VT& voxel, pT lambda) : A(&ridgelets), s(&voxel), lmd(lambda) {}
+
+template <class pT, class MT, class VT>
+void SOLVERS<pT, MT, VT>::FISTA(MT& x, int N_splits) {
 	cout << "Start computing ridgelets coefficients..." << endl;
 
 	auto start = high_resolution_clock::now();
@@ -27,7 +35,7 @@ void SOLVERS<pT, MT>::FISTA(MT& x, int N_splits) {
 	x.resize(A->cols(), s->cols());
 	unsigned split_size = floor(s->cols() / N_splits);
 
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int it = 0; it < N_splits; ++it) {
 		MT x_block;
 		MT s_block;
@@ -70,6 +78,42 @@ void SOLVERS<pT, MT>::FISTA(MT& x, int N_splits) {
 	auto ds = duration_cast<seconds>(stop - start);
 	auto dm = duration_cast<minutes>(stop - start);
 	cout << "Computations took " << ds.count() << " seconds ~ " << dm.count() << "+ minutes" << endl;
+}
+
+template <class pT, class MT, class VT>
+void SOLVERS<pT, MT, VT>::FISTA(VT& x) {
+	x.resize(A->cols());
+	MT y;
+	MT x_old;
+
+	y = MT::Zero(A->cols());
+	x_old = MT::Zero(A->cols());
+
+	pT t_old = 1;
+	pT t = 0;
+	pT e_old = 1e32;
+	pT e;
+
+	for (int iter = 0; iter < 2000; ++iter) {
+		x = y + A->transpose() * (s - *A * y);
+
+		//Soft thresholding
+		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
+
+		e = ((0.5 * (*A * x - s).array().pow(2).colwise().sum().array()) +
+			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
+
+		if ((e_old - e) / e_old < 0.001)
+			break;
+		else
+			e_old = e;
+
+		//Nesterov acceleration
+		t = (1 + sqrt(1 + 4 * t_old * t_old)) / 2;
+		y = x + ((t_old - 1) / t) * (x - x_old);
+		x_old = x;
+		t_old = t;
+	}
 }
 
 #endif
