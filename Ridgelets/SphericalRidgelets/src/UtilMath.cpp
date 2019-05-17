@@ -390,7 +390,7 @@ void UtilMath<pT, MT, VT>::remove_row(MT& a, Eigen::Index del)
 }
 
 template <class pT, class MT, class VT>
-void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, MT& W,
+void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 	vector<vector<unsigned>>& conn, MT& u, pT thresh)
 {
 	// Standart min-max normalization
@@ -531,12 +531,12 @@ void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
 
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for (int i = 0; i < C.cols(); ++i)
 	{
 		MT exe_vol;
 		MT dir_vol;
-		MT vol = Q * C.col(i);
+		VT vol = Q * C.col(i);
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh);
 
