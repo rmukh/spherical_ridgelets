@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-include("${CMAKE_CURRENT_SOURCE_DIR}/../../Common.cmake")
+include("${SPH_DIR}/../../Common.cmake")
 project(SphericalRidgelets VERSION 1.2)
 include(GNUInstallDirs)
 
@@ -19,20 +19,39 @@ add_library(
 Spherical_Ridgelets ${LIB_BUILD_TYPE}
 ${SPH_DIR}/src/SIGNAL_GENERATOR.cpp
 ${SPH_DIR}/src/DATA_SOURCE.cpp
-${SPH_DIR}/src/SOLVERS.cpp
-${SPH_DIR}/src/SPH_RIDG.cpp
-${SPH_DIR}/src/UtilMath.cpp
 ${SPH_DIR}/src/convhull_3d.cpp
 ${SPH_DIR}/include/convhull_3d.h
+${SPH_DIR}/include/UtilMath.h
 ${SPH_DIR}/include/SIGNAL_GENERATOR.h
 ${SPH_DIR}/include/DATA_SOURCE.h
 ${SPH_DIR}/include/rdgls_types.h
 ${SPH_DIR}/include/SOLVERS.h
 ${SPH_DIR}/include/SPH_RIDG.h
-${SPH_DIR}/include/UtilMath.h
+${SPH_DIR}/include/SOLVERS.hpp
+${SPH_DIR}/include/SPH_RIDG.hpp
+${SPH_DIR}/include/UtilMath.hpp
 )
 
-target_include_directories(Spherical_Ridgelets PRIVATE ${SPH_DIR}/include)
+set_target_properties(Spherical_Ridgelets
+    PROPERTIES
+      OUTPUT_NAME "Spherical_Ridgelets"
+)
+
+add_library(Spherical_Ridgelets::Spherical_Ridgelets ALIAS Spherical_Ridgelets)
+
+target_compile_features(Spherical_Ridgelets
+    PUBLIC
+      cxx_attributes
+      cxx_defaulted_functions
+      cxx_deleted_functions
+      cxx_final
+)
+
+target_include_directories(Spherical_Ridgelets
+    PUBLIC
+    	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src;${CMAKE_CURRENT_SOURCE_DIR}/include>"
+	"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+)
 
 include(${ITK_USE_FILE})
 target_link_libraries(Spherical_Ridgelets Eigen3::Eigen)
@@ -57,24 +76,10 @@ if(NOT TARGET OpenMP::OpenMP_CXX)
 endif()
 target_link_libraries(Spherical_Ridgelets OpenMP::OpenMP_CXX)
 
-set_target_properties(Spherical_Ridgelets
-    PROPERTIES
-      OUTPUT_NAME "Spherical_Ridgelets"
-)
-
-add_library(Spherical_Ridgelets::Spherical_Ridgelets ALIAS Spherical_Ridgelets)
-
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SphericalRidgelets)
 
-target_include_directories(Spherical_Ridgelets
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
 add_executable(sphridg ${SPH_DIR}/../Ridgelets.cpp)
-target_include_directories(sphridg PRIVATE ${SPH_DIR}/include)
-target_link_libraries(sphridg Eigen3::Eigen ${ITK_LIBRARIES} Spherical_Ridgelets)
+target_link_libraries(sphridg PUBLIC Eigen3::Eigen ${ITK_LIBRARIES} OpenMP::OpenMP_CXX Spherical_Ridgelets)
 
 include(CMakePackageConfigHelpers)
 

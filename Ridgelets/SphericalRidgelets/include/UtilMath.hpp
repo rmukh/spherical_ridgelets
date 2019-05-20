@@ -391,7 +391,7 @@ void UtilMath<pT, MT, VT>::remove_row(MT& a, Eigen::Index del)
 
 template <class pT, class MT, class VT>
 void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
-	vector<vector<unsigned>>& conn, MT& u, pT thresh)
+	vector<vector<unsigned>>& conn, MT& u, pT thresh, unsigned& n_of_dirs)
 {
 	// Standart min-max normalization
 	pT W_min = W.minCoeff();
@@ -522,6 +522,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 		if (i > directions_sorted.rows() - 1)
 			break;
 	}
+	n_of_dirs = static_cast<unsigned>(ex.rows()) / 2;
 }
 
 template <class pT, class MT, class VT>
@@ -531,14 +532,15 @@ void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
 
-	//#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 0; i < C.cols(); ++i)
 	{
 		MT exe_vol;
 		MT dir_vol;
 		VT vol = Q * C.col(i);
+		unsigned ND;
 
-		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh);
+		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh, ND);
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
 		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);

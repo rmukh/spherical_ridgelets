@@ -24,7 +24,7 @@ endif()
 if(JUST_BUILD)
   message(STATUS "Build Spherical Ridgelets as a standalone application")
   set(SPH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Ridgelets/SphericalRidgelets)
-  set(PRJ_NAME Spherical_Ridgelets)
+  set(PRJ_NAME SphericalRidgeletsStandalone)
   set(${PRJ_NAME}_DEPENDENCIES 
     Eigen3
     ITK

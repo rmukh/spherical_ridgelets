@@ -24,15 +24,6 @@
     <ClCompile Include="SphericalRidgelets\src\SIGNAL_GENERATOR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalRidgelets\src\SOLVERS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalRidgelets\src\SPH_RIDG.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalRidgelets\src\UtilMath.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SphericalRidgelets\src\convhull_3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,6 +51,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SphericalRidgelets\include\main_externals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\SOLVERS.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

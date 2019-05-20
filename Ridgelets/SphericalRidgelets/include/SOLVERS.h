@@ -24,6 +24,6 @@ public:
 	void loop_block(ST& x, ST& sig);
 };
 
-#include "../src/SOLVERS.cpp"
+#include "SOLVERS.hpp"
 
 #endif // !SOLVERS

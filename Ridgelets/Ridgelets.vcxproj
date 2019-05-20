@@ -175,9 +175,6 @@
     <ClCompile Include="SphericalRidgelets\src\convhull_3d.cpp" />
     <ClCompile Include="SphericalRidgelets\src\DATA_SOURCE.cpp" />
     <ClCompile Include="SphericalRidgelets\src\SIGNAL_GENERATOR.cpp" />
-    <ClCompile Include="SphericalRidgelets\src\SOLVERS.cpp" />
-    <ClCompile Include="SphericalRidgelets\src\SPH_RIDG.cpp" />
-    <ClCompile Include="SphericalRidgelets\src\UtilMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SphericalRidgelets\include\convhull_3d.h" />
@@ -186,7 +183,9 @@
     <ClInclude Include="SphericalRidgelets\include\rdgls_types.h" />
     <ClInclude Include="SphericalRidgelets\include\SIGNAL_GENERATOR.h" />
     <ClInclude Include="SphericalRidgelets\include\SOLVERS.h" />
+    <ClInclude Include="SphericalRidgelets\include\SOLVERS.hpp" />
     <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.h" />
+    <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.hpp" />
     <ClInclude Include="SphericalRidgelets\include\UtilMath.h" />
   </ItemGroup>
   <ItemGroup>

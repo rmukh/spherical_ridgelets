@@ -38,7 +38,7 @@ private:
 	VectorXi M0;
 };
 
-#include "../src/SPH_RIDG.cpp"
+#include "SPH_RIDG.hpp"
 
 #endif // !SPH_RIDG_H
 
