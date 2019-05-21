@@ -41,6 +41,7 @@ if(JUST_BUILD)
       -DEigen3_DIR:PATH=${Eigen3_DIR}
       -DITK_DIR:PATH=${ITK_DIR}
       -DSPH_DIR:PATH=${SPH_DIR}
+      -DBUILD_TU:STRING=1
     )
 else()
   message(STATUS "Include Spherical Ridgelets for ExternalProject_Add() in ${SPH_DIR}")

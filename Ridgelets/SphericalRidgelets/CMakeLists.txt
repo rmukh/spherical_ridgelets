@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
-include("${SPH_DIR}/../../Common.cmake")
+if(BUILD_TU)
+	include("${SPH_DIR}/../../Common.cmake")
+endif()
 project(SphericalRidgelets VERSION 1.2)
 include(GNUInstallDirs)
 
@@ -49,7 +51,7 @@ target_compile_features(Spherical_Ridgelets
 
 target_include_directories(Spherical_Ridgelets
     PUBLIC
-    	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src;${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    	"$<BUILD_INTERFACE:${SPH_DIR}/src;${SPH_DIR}/include>"
 	"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
 
