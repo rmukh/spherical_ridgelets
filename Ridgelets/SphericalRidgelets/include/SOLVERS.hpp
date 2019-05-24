@@ -28,7 +28,9 @@ void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 	x.resize(A->cols(), s->cols());
 	unsigned split_size = floor(s->cols() / N_splits);
 
-#pragma omp parallel for
+#if defined(_OPENMP)
+	#pragma omp parallel for
+#endif
 	for (int it = 0; it < N_splits; ++it) {
 		ST x_block;
 		ST s_block;

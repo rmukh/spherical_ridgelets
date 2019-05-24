@@ -18,9 +18,16 @@
 #include "SPH_RIDG.h"
 #include "DATA_SOURCE.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	Eigen::initParallel();
+
+#if defined(_OPENMP)
+	cout << "OpenMP enabled" << endl;
+#else
+	cout << "No OpenMP!" << endl;
+#endif
+
 	DATA_SOURCE data;
 
 	// Parse input parameters from CLI
@@ -29,7 +36,8 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 
 	// Set number of threads
-	if (input_args.nth != -1) {
+	if (input_args.nth != -1)
+	{
 		omp_set_num_threads(input_args.nth);
 		Eigen::setNbThreads(input_args.nth);
 	}
@@ -48,26 +56,27 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 
 	// Beginning of the main computational part
-	SPH_RIDG<precisionType, MatrixType, VectorType>ridg(input_args.sph_J, 1/input_args.sph_rho);
+	SPH_RIDG<precisionType, MatrixType, VectorType> ridg(input_args.sph_J, 1 / input_args.sph_rho);
 	MatrixType A;
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
 
 	if (input_args.n_splits == -1)
 		input_args.n_splits = data.compute_splits(signal.cols());
-	
+
 	data.estimate_memory(signal, A, input_args);
 	data.short_summary(input_args);
 
 	MatrixType C;
 	{
 		SOLVERS<precisionType, MatrixType, MatrixType> slv(A, signal, input_args.fista_lambda);
-		slv.FISTA(C, input_args.n_splits);  //have a potentinal for optimization
+		slv.FISTA(C, input_args.n_splits); //have a potentinal for optimization
 	}
 
 	// Save to file(s) user requested through command line
 	// Ridgelets coefficients
-	if (!input_args.output_ridgelets.empty()) {
+	if (!input_args.output_ridgelets.empty())
+	{
 		cout << "Saving ridgelets coefficients..." << endl;
 		DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
 		data.set_header(Ridg_coeff);
@@ -79,7 +88,8 @@ int main(int argc, char* argv[])
 	}
 
 	// A*c (signal recon)
-	if (!input_args.signal_recon.empty()) {
+	if (!input_args.signal_recon.empty())
+	{
 		cout << "Saving signal reconstruction..." << endl;
 		MatrixType SR = A * C;
 
@@ -97,13 +107,15 @@ int main(int argc, char* argv[])
 	MatrixType nu;
 	MatrixType Q;
 
-	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty()) {
+	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty())
+	{
 		m.icosahedron(nu, fcs, input_args.lvl);
 		ridg.QBasis(Q, nu); //Build a Q basis
 	}
 
 	// ODF volume
-	if (!input_args.output_odf.empty()) {
+	if (!input_args.output_odf.empty())
+	{
 		MatrixType ODF = Q * C;
 		cout << "Saving ODF values..." << endl;
 		DiffusionImagePointer ODF_vals = DiffusionImageType::New();
@@ -116,7 +128,8 @@ int main(int argc, char* argv[])
 	}
 
 	// Maximum directions and values of ODF
-	if (!input_args.output_fiber_max_odf.empty()) {
+	if (!input_args.output_fiber_max_odf.empty())
+	{
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
 

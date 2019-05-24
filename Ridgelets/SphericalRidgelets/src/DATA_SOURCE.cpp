@@ -329,7 +329,10 @@ void DATA_SOURCE::Matrix2DWI(DiffusionImagePointer &img, MaskImagePointer &mask,
 	// Make a vector of zeros
 	VariableVectorType zeros_vec;
 	zeros_vec.SetSize(n_of_components);
-#pragma omp parallel for
+	
+#if defined(_OPENMP)
+	#pragma omp parallel for
+#endif
 	for (int i = 0; i < n_of_components; ++i) {
 		zeros_vec[i] = 0;
 	}

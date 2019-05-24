@@ -532,7 +532,9 @@ void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
 
-#pragma omp parallel for
+#if defined(_OPENMP)
+	#pragma omp parallel for
+#endif
 	for (int i = 0; i < C.cols(); ++i)
 	{
 		MT exe_vol;
