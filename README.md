@@ -11,7 +11,7 @@ You can run the script *linux_standalone_build.sh* to perform all steps describe
 
 1. Download or clone repository.
 
-        git clone https://github.com/research-enthusiast/spherical_ridgelets.git
+        git clone https://github.com/rmukh/spherical_ridgelets.git
 
 2. Create an empty folder inside the downloaded repository.
     
