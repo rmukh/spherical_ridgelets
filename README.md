@@ -56,6 +56,7 @@ Output arguments:
 - *-sr* [Signal reconstruction]
 - *-odf* [ODF values file name] 
 - *-omd* [ODF maxima directions and values file name]
+- *-A* [A basis file]
 - *-c* enables compression of output files, false by default
 
 You **must** provide at least input dMRI file and one output file to make any computations possible.

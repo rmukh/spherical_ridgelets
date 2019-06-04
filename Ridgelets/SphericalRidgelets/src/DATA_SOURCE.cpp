@@ -6,11 +6,11 @@ DATA_SOURCE::~DATA_SOURCE() {}
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	if (argc < 5)
 	{
-		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd" << endl;
+		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd, -A" << endl;
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
 			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, "
 			"-srho Spherical ridgelets rho, -nth number of threads to use" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -odf ODF_values, -omd ODF_maxima_dir_&_value, -c enable compression" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -odf ODF_values, -omd ODF_maxima_dir_&_value, -a A basis matrix, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -118,6 +118,10 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-omd")) {
 			output.output_fiber_max_odf = argv[i + 1];
+			out1 = true;
+		}
+		if (!strcmp(argv[i], "-A")) {
+			output.output_A = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-c")) {

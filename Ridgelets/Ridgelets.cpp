@@ -61,6 +61,21 @@ int main(int argc, char *argv[])
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
 
+	if (!input_args.output_A.empty()) // -A
+	{
+		cout << "Saving A basis..." << endl;
+		data.matrixToFile(input_args.output_A, A);
+	}
+
+	// If only A output required
+	if (!input_args.output_A.empty() &&
+		input_args.output_ridgelets.empty() &&
+		input_args.signal_recon.empty() &&
+		input_args.output_odf.empty() &&
+		input_args.output_fiber_max_odf.empty()) {
+		return EXIT_SUCCESS;
+	}
+
 	if (input_args.n_splits == -1)
 		input_args.n_splits = data.compute_splits(signal.cols());
 
@@ -75,7 +90,7 @@ int main(int argc, char *argv[])
 
 	// Save to file(s) user requested through command line
 	// Ridgelets coefficients
-	if (!input_args.output_ridgelets.empty())
+	if (!input_args.output_ridgelets.empty()) // -ridg
 	{
 		cout << "Saving ridgelets coefficients..." << endl;
 		DiffusionImagePointer Ridg_coeff = DiffusionImageType::New();
@@ -88,7 +103,7 @@ int main(int argc, char *argv[])
 	}
 
 	// A*c (signal recon)
-	if (!input_args.signal_recon.empty())
+	if (!input_args.signal_recon.empty()) // -sr
 	{
 		cout << "Saving signal reconstruction..." << endl;
 		MatrixType SR = A * C;
@@ -114,7 +129,7 @@ int main(int argc, char *argv[])
 	}
 
 	// ODF volume
-	if (!input_args.output_odf.empty())
+	if (!input_args.output_odf.empty()) // -odf
 	{
 		MatrixType ODF = Q * C;
 		cout << "Saving ODF values..." << endl;
@@ -128,7 +143,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Maximum directions and values of ODF
-	if (!input_args.output_fiber_max_odf.empty())
+	if (!input_args.output_fiber_max_odf.empty()) // -omd
 	{
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
