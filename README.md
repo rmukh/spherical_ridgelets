@@ -7,7 +7,7 @@ Package to compute spherical ridgelets.
 
 ## The easiest way is to build a standalone application (Linux)
 
-You can run the script *linux_standalone_build.sh* to perform all steps described below.
+You can run the script **linux_standalone_build.sh** to perform all steps described below.
 
 1. Download or clone repository.
 
@@ -56,7 +56,7 @@ Output arguments:
 - *-sr* [Signal reconstruction]
 - *-odf* [ODF values file name] 
 - *-omd* [ODF maxima directions and values file name]
-- *-A* [A basis file]
+- *-A* [A basis file name]
 - *-c* enables compression of output files, false by default
 
 You **must** provide at least input dMRI file and one output file to make any computations possible.
@@ -66,12 +66,12 @@ For example:
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 
 # Notes on ODF and its directions
-Output file for *-omd* has a shape of input dMRI file and each voxel contains ODF directions and ODF values in that directions organized as (x y z odf_value) for each direction. Now maximum number of directions fixed to 6.
+Output file for the ODF maximum directions (-omd) has a size of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x y z odf_value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
 
 # Important notes
 It is very important to build it with flag *-DJUST_BUILD=1*. Otherwise, the CMakeLists.txt will include files necessary to build this package as a library.
 
-For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you should have *CMake* and *git* installed.
+For now, this software supports NRRD file formats only (.nrrd, .nhdr) both for input and output. To build this project you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) in your system. 
 
 Input diffusion MRI image expected to be in the shape of (size_x, size_y, size_z, #_of_gradient directions), while mask file expected to be in the shape of (size_x, size_y, size_z, 1).
 
@@ -80,7 +80,7 @@ The repository contains *Visual Studio 2017* project files for current developme
 # Advanced users
 
 ## Speed
-All cmake files created in a way that during the building cmake will automatically determine if you have *OpenMP* installed and use it during compilation. This gives a significant speedup. So, if you don't have it installed, consider its installation. [Google](https://www.google.com/) and [this page](https://www.openmp.org/resources/openmp-compilers-tools/) are excellent sources of information on *OpenMP*. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc.
+All cmake files created in a way that during the building cmake will automatically determine if you have *OpenMP* installed and use it during compilation. This gives a significant speedup. So, if you don't have OpenMP support, we reccomend you to use gcc compiler with OpenMP. [Google](https://www.google.com/) and [this page](https://www.openmp.org/resources/openmp-compilers-tools/) are excellent sources of information on *OpenMP*. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc.
 
 By default *-nspl* parameter is computed in a way which provides the highest possible level of parallelization for that implementation. It was tested on Intel CPUs. If you feel that the default value is not optimal for your case, feel free to experiment with that parameter. You can increase default value of *-nspl* to reduce RAM consumption.
 
