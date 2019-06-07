@@ -5,7 +5,7 @@ Package to compute spherical ridgelets.
 
 # How to start
 
-## The easiest way to build as a standalone application (Linux)
+## The easiest way is to build a standalone application (Linux)
 
 You can run the script *linux_standalone_build.sh* to perform all steps described below.
 
