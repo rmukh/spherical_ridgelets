@@ -41,13 +41,13 @@ set_target_properties(Spherical_Ridgelets
 
 add_library(Spherical_Ridgelets::Spherical_Ridgelets ALIAS Spherical_Ridgelets)
 
-target_compile_features(Spherical_Ridgelets
-    PUBLIC
-      cxx_attributes
-      cxx_defaulted_functions
-      cxx_deleted_functions
-      cxx_final
-)
+#target_compile_features(Spherical_Ridgelets
+#    PUBLIC
+#      cxx_attributes
+#      cxx_defaulted_functions
+#      cxx_deleted_functions
+#      cxx_final
+#)
 
 target_include_directories(Spherical_Ridgelets
     PUBLIC
