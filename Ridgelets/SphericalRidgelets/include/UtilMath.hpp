@@ -550,9 +550,9 @@ void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 		// Loop over to make array in a form (x y z val) for direction (max 6)
 		for (unsigned j = 0, k = 0, z = 0; j < ex_sz; ++j, k += 3, z += 4)
 		{
-			fin(z, i) = dir_vol(k + 1);
-			fin(z + 1, i) = dir_vol(k + 2);
-			fin(z + 2, i) = dir_vol(k + 3);
+			fin(z, i) = dir_vol(k);
+			fin(z + 1, i) = dir_vol(k);
+			fin(z + 2, i) = dir_vol(k);
 			fin(z + 3, i) = vol(exe_vol(j));
 		}
 	}

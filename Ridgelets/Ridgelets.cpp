@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
 	// Maximum directions and values of ODF
 	if (!input_args.output_fiber_max_odf.empty()) // -omd
 	{
+		cout << "Start computing ODF maxima..." << endl;
 		MatrixType ex_d;
 		vector<vector<unsigned>> conn;
 
