@@ -43,7 +43,7 @@ add_library(Spherical_Ridgelets::Spherical_Ridgelets ALIAS Spherical_Ridgelets)
 
 target_compile_features(Spherical_Ridgelets
     PUBLIC
-      cxx_attributes
+      PUBLIC $<$<CXX_COMPILER_ID:GNU>:cxx_attributes>
       cxx_defaulted_functions
       cxx_deleted_functions
       cxx_final
