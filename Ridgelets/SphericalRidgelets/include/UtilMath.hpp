@@ -283,7 +283,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 			unsigned u_len = u.rows();
 			unsigned unique_len = uniques.size();
 
-			u.conservativeResize(u.rows() + unique_len, u.cols()); //checked!
+			u.conservativeResize(u.rows() + unique_len, u.cols());
 
 			for (unsigned i = 0, j = 0 + u_len; j < unique_len + u_len; ++i, ++j)
 				u.row(j) = U.row(uniques.at(i)) / U.row(uniques.at(i)).norm();
@@ -387,7 +387,7 @@ void UtilMath<pT, MT, VT>::remove_row(MT& a, Eigen::Index del)
 	if (del < rows)
 		a.block(del, 0, rows - del, cols) = a.block(del + 1, 0, rows - del, cols);
 
-	a.conservativeResize(rows, cols); //checked!
+	a.conservativeResize(rows, cols);
 }
 
 template <class pT, class MT, class VT>
@@ -449,7 +449,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 				}
 				else {
 					reached_maxima = true;
-					extrema.conservativeResize(1, extrema.cols() + 1); //checked!
+					extrema.conservativeResize(1, extrema.cols() + 1);
 					extrema(ct) = j;
 					for (unsigned i = 0; i < conn_row_length; ++i) {
 						used(conn[j][i]) = 1;
@@ -462,8 +462,8 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 	}
 
 	if (extrema.size() == 0) {
-		extrema.conservativeResize(1, 1);//checked!
-		extrema(0) = 1;
+		extrema.conservativeResize(1, 1); /
+			extrema(0) = 1;
 	}
 
 	vector<unsigned> u_extrema;
@@ -497,8 +497,6 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 
 	d.setZero((unsigned)ceil(extrema_size / 2.0) * 2, 3);
 	ex.setZero(d.rows(), 1);
-
-	MT d_temp;
 
 	unsigned i = 0;
 	ct = 1;
@@ -538,9 +536,9 @@ void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
 
-	//#if defined(_OPENMP)
-	//	#pragma omp parallel for
-	//#endif
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
 	for (int i = 0; i < C.cols(); ++i)
 	{
 		MT exe_vol;
