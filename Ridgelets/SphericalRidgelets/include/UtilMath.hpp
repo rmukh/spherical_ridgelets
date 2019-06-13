@@ -462,8 +462,8 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 	}
 
 	if (extrema.size() == 0) {
-		extrema.conservativeResize(1, 1); /
-			extrema(0) = 1;
+		extrema.conservativeResize(1, 1);
+		extrema(0) = 1;
 	}
 
 	vector<unsigned> u_extrema;
