@@ -282,7 +282,8 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 			// Normalize and add to u
 			unsigned u_len = u.rows();
 			unsigned unique_len = uniques.size();
-			u.conservativeResize(u.rows() + unique_len, u.cols());
+
+			u.conservativeResize(u.rows() + unique_len, u.cols()); //checked!
 
 			for (unsigned i = 0, j = 0 + u_len; j < unique_len + u_len; ++i, ++j)
 				u.row(j) = U.row(uniques.at(i)) / U.row(uniques.at(i)).norm();
@@ -386,7 +387,7 @@ void UtilMath<pT, MT, VT>::remove_row(MT& a, Eigen::Index del)
 	if (del < rows)
 		a.block(del, 0, rows - del, cols) = a.block(del + 1, 0, rows - del, cols);
 
-	a.conservativeResize(rows, cols);
+	a.conservativeResize(rows, cols); //checked!
 }
 
 template <class pT, class MT, class VT>
@@ -448,11 +449,12 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 				}
 				else {
 					reached_maxima = true;
-					extrema.conservativeResize(1, extrema.cols() + 1);
+					extrema.conservativeResize(1, extrema.cols() + 1); //checked!
 					extrema(ct) = j;
 					for (unsigned i = 0; i < conn_row_length; ++i) {
 						used(conn[j][i]) = 1;
 					}
+
 					ct += 1;
 				}
 			}
@@ -460,7 +462,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 	}
 
 	if (extrema.size() == 0) {
-		extrema.conservativeResize(1, 1);
+		extrema.conservativeResize(1, 1);//checked!
 		extrema(0) = 1;
 	}
 
@@ -496,6 +498,8 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 	d.setZero((unsigned)ceil(extrema_size / 2.0) * 2, 3);
 	ex.setZero(d.rows(), 1);
 
+	MT d_temp;
+
 	unsigned i = 0;
 	ct = 1;
 	while (true) {
@@ -507,6 +511,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 		}
 		d.row(ct - 1) = directions_sorted.row(i);
 		d.row(ct) = -1 * directions_sorted.row(i);
+
 		ex(ct - 1) = u_extrema.at(idx.at(i));
 		ex(ct) = ex(ct - 1);
 
@@ -522,6 +527,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 		if (i > directions_sorted.rows() - 1)
 			break;
 	}
+
 	n_of_dirs = static_cast<unsigned>(ex.rows()) / 2;
 }
 
@@ -532,27 +538,34 @@ void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 	fin.resize((6 * 3) + 6, C.cols());
 	fin.setZero((6 * 3) + 6, C.cols());
 
-#if defined(_OPENMP)
-	#pragma omp parallel for
-#endif
+	//#if defined(_OPENMP)
+	//	#pragma omp parallel for
+	//#endif
 	for (int i = 0; i < C.cols(); ++i)
 	{
 		MT exe_vol;
 		MT dir_vol;
 		VT vol = Q * C.col(i);
+		VT dirs_vec;
 		unsigned ND;
 
 		FindODFMaxima(exe_vol, dir_vol, vol, conn, nu, thresh, ND);
 
 		unsigned ex_sz = std::min((int)exe_vol.rows(), 6);
-		dir_vol.conservativeResize(dir_vol.rows() * 3, 1);
+
+		dirs_vec.resize(dir_vol.rows() * 3);
+		for (int y = 0, r = 0; r < dir_vol.rows(); y += 3, ++r) {
+			dirs_vec(y) = dir_vol(r, 0);
+			dirs_vec(y + 1) = dir_vol(r, 1);
+			dirs_vec(y + 2) = dir_vol(r, 2);
+		}
 
 		// Loop over to make array in a form (x y z val) for direction (max 6)
 		for (unsigned j = 0, k = 0, z = 0; j < ex_sz; ++j, k += 3, z += 4)
 		{
-			fin(z, i) = dir_vol(k);
-			fin(z + 1, i) = dir_vol(k);
-			fin(z + 2, i) = dir_vol(k);
+			fin(z, i) = dirs_vec(k);
+			fin(z + 1, i) = dirs_vec(k + 1);
+			fin(z + 2, i) = dirs_vec(k + 2);
 			fin(z + 3, i) = vol(exe_vol(j));
 		}
 	}
