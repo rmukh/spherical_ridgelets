@@ -29,11 +29,6 @@ int main(int argc, char *argv[])
 #endif
 
 	DATA_SOURCE data;
-	UtilMath<precisionType, MatrixType, VectorType> mmm;
-	MatrixType fcs1;
-	MatrixType nu1;
-
-	mmm.icosahedron(nu1, fcs1, 8);
 
 	// Parse input parameters from CLI
 	DATA_SOURCE::input_parse input_args;
