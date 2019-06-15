@@ -30,7 +30,7 @@ public:
 	void spiralsample(MT & u, unsigned flg, unsigned N);
 	void fura(MT & Lmd, unsigned n);
 	void polyleg(MT & P, MT & x, unsigned n);
-	MT convhull3_1(MT & u);
+	void convhull3_1(MT & u, MT & fcs);
 	void unique_rows(vector<int> & uniques, MT & U);
 	void unique_sorted(vector<unsigned> & uniques, MT & U);
 	void ind_sort(MT & matrix, multimap<pT, unsigned> & indx, unsigned col_n);

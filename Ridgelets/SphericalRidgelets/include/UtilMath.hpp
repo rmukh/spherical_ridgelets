@@ -113,7 +113,7 @@ void UtilMath<pT, MT, VT>::polyleg(MT& P, MT& x, unsigned n)
 }
 
 template <class pT, class MT, class VT>
-MT UtilMath<pT, MT, VT>::convhull3_1(MT& u) {
+void UtilMath<pT, MT, VT>::convhull3_1(MT& u, MT& fcs) {
 	unsigned n = u.rows();
 	ch_vertex* vertices;
 	vertices = (ch_vertex*)malloc(n * sizeof(ch_vertex));
@@ -127,14 +127,12 @@ MT UtilMath<pT, MT, VT>::convhull3_1(MT& u) {
 	int nFaces;
 	convhull_3d_build(vertices, n, &faceIndices, &nFaces);
 
-	MT faces(nFaces, 3);
+	fcs.resize(nFaces, 3);
 	for (int i = 0; i < nFaces; i++)
 		for (int j = 0; j < 3; j++)
-			faces(i, j) = *faceIndices++;
+			fcs(i, j) = *faceIndices++;
 
 	free(vertices);
-
-	return faces;
 }
 
 template <class pT, class MT, class VT>
@@ -258,17 +256,20 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	u2 << C_init * (t.array() + 0.2 * PI).cos(), C_init * (t.array() + 0.2 * PI).sin(), -0.5 * C_init * MT::Ones(5, 1);
 	u.resize(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
-	MT u_final;
+
+	MT U;
+	MT A;
+	MT B;
+	MT C;
+	MT fcs;
+	vector<int> uniques;
 
 	if (level > 0) {
 		for (unsigned lev = 1; lev <= level; ++lev) {
-			MT fcs = convhull3_1(u);
+			convhull3_1(u, fcs);
 
 			unsigned N = fcs.rows();
-			MT U = MT::Zero(3 * N, 3);
-			MT A;
-			MT B;
-			MT C;
+			U = MT::Zero(3 * N, 3);
 			for (unsigned k = 0; k < N; ++k) {
 				A = u.row(fcs(k, 0));
 				B = u.row(fcs(k, 1));
@@ -276,7 +277,6 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 				U.template block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
 			}
 
-			vector<int> uniques;
 			unique_rows(uniques, U);
 
 			// Normalize and add to u
@@ -327,7 +327,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	// Normalize
 	u = u.array().colwise() / (u.rowwise().norm().array() + 2.2204e-16);
 
-	faces = convhull3_1(u);
+	convhull3_1(u, faces);
 }
 
 template <class pT, class MT, class VT>
