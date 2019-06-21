@@ -128,6 +128,7 @@ void UtilMath<pT, MT, VT>::convhull3_1(MT& u, MT& fcs) {
 	convhull_3d_build(vertices, n, &faceIndices, &nFaces);
 
 	fcs.resize(nFaces, 3);
+
 	for (int i = 0; i < nFaces; i++)
 		for (int j = 0; j < 3; j++)
 			fcs(i, j) = *faceIndices++;
@@ -257,15 +258,15 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	u.resize(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 
-	MT U;
+	MT fcs;
 	MT A;
 	MT B;
 	MT C;
-	MT fcs;
-	vector<int> uniques;
+	MT U;
 
 	if (level > 0) {
 		for (unsigned lev = 1; lev <= level; ++lev) {
+
 			convhull3_1(u, fcs);
 
 			unsigned N = fcs.rows();
@@ -277,6 +278,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 				U.template block<3, 3>(3 * k, 0) << 0.5 * (A + B), 0.5 * (B + C), 0.5 * (A + C);
 			}
 
+			vector<int> uniques;
 			unique_rows(uniques, U);
 
 			// Normalize and add to u
@@ -326,7 +328,6 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 
 	// Normalize
 	u = u.array().colwise() / (u.rowwise().norm().array() + 2.2204e-16);
-
 	convhull3_1(u, faces);
 }
 
