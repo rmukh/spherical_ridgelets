@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/rmukh/spherical_ridgelets.svg?branch=master)](https://travis-ci.org/rmukh/spherical_ridgelets)
+
 # Overview
 Package to compute spherical ridgelets.
 
