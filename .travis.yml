@@ -1,6 +1,8 @@
 language: cpp
 dist: trusty
 compiler: gcc
+os: linux
+
 addons:
   apt:
     sources:
@@ -8,6 +10,13 @@ addons:
     packages:
       - gcc-8
       - g++-8
+      
+before_script:
+  - mkdir build
+  - cd build
+  - cmake .. -DJUST_BUILD=1
 script:
   - export CC=gcc-8
   - export CXX=g++-8
+  - gcc -v && g++ -v && cmake --version
+  - make
