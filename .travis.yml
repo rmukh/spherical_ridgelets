@@ -1,22 +1,49 @@
-language: cpp
-dist: trusty
-compiler: gcc
-os: linux
+git:
+    depth: 5
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-8
-      - g++-8
-      
-before_script:
-  - mkdir build
-  - cd build
-  - cmake .. -DJUST_BUILD=1
-script:
-  - export CC=gcc-8
-  - export CXX=g++-8
-  - gcc -v && g++ -v && cmake --version
-  - make
+matrix:
+    include:
+        - name: "linux"
+          os: linux
+          dist: trusty
+          language: cpp
+          compiler: gcc
+          addons:
+            apt:
+                sources:
+                    - ubuntu-toolchain-r-test
+                packages:
+                    - gcc-8
+                    - g++-8
+          before_script:
+            - mkdir build
+            - cd build
+            - cmake .. -DJUST_BUILD=1
+          script:
+            - export CC=gcc-8
+            - export CXX=g++-8
+            - make
+
+        - name: "osx no openmp"
+          os: osx
+          language: cpp
+          compiler: clang
+          before_script:
+            - mkdir build
+            - cd build
+            - cmake .. -DJUST_BUILD=1
+          script:
+            - make
+
+        - name: "osx with openmp"
+          os: osx
+          language: cpp
+          compiler: clang
+          before_script:
+            - brew install llvm
+            - export PATH=/usr/local/opt/llvm/bin:$PATH
+            - mkdir build
+            - cd build
+            - cmake .. -DJUST_BUILD=1
+          script:
+            - make

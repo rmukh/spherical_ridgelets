@@ -13,7 +13,9 @@
 #include <itkImageLinearIteratorWithIndex.h>
 #include <Eigen/Dense>
 
-#include <omp.h>
+#ifdef _OPENMP
+  #include <omp.h>
+#endif
 #include <chrono>
 #include <thread>
 #include <unordered_map>

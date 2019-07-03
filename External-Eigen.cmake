@@ -21,6 +21,8 @@ ExternalProject_Add(Eigen3
         -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_CURRENT_BINARY_DIR}/eigen/install
         -DINCLUDE_INSTALL_DIR:STRING=${CMAKE_CURRENT_BINARY_DIR}/external/eigen_archive
         -DBUILD_TESTING:BOOL=OFF
+        -DEIGEN_BUILD_PKGCONFIG:BOOL=OFF
+        -DEIGEN_TEST_NOQT:BOOL=ON
 )
 
 set(Eigen3_DIR ${CMAKE_CURRENT_BINARY_DIR}/eigen/install)

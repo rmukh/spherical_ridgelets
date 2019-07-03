@@ -59,29 +59,30 @@ include(${ITK_USE_FILE})
 target_link_libraries(Spherical_Ridgelets Eigen3::Eigen)
 target_link_libraries(Spherical_Ridgelets ${ITK_LIBRARIES})
 
-if(OpenMP_CXX_FOUND)
+if(OpenMP_FOUND OR OpenMP_CXX_FOUND)
   message(STATUS "OpenMP will be linked")
+  if(NOT TARGET OpenMP::OpenMP_CXX)
+    find_package(Threads REQUIRED)
+    add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
+    set_property(TARGET OpenMP::OpenMP_CXX
+    	PROPERTY INTERFACE_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS})
+	# Only works if the same flag is passed to the linker; use CMake 3.9+ otherwise (Intel, AppleClang)
+    set_property(TARGET OpenMP::OpenMP_CXX
+    PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_CXX_FLAGS} Threads::Threads)
+  endif()
   target_link_libraries(Spherical_Ridgelets OpenMP::OpenMP_CXX)
+  set(OPENMP "OpenMP::OpenMP_CXX")
 else()
-  message(STATUS "OpenMP can't be linked. Probably you use CMake < 3.9")
-  message(STATUS "Attempt to link Threads package...")
+  message(STATUS "OpenMP can't be linked. \
+  Please, install OpenMP if you forget or don't have at all. \
+  This will give significant speed up.")
+  set(OPENMP "")
 endif()
-
-if(NOT TARGET OpenMP::OpenMP_CXX)
-  find_package(Threads REQUIRED)
-  add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-  set_property(TARGET OpenMP::OpenMP_CXX
-               PROPERTY INTERFACE_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS})
-  # Only works if the same flag is passed to the linker; use CMake 3.9+ otherwise (Intel, AppleClang)
-  set_property(TARGET OpenMP::OpenMP_CXX
-               PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_CXX_FLAGS} Threads::Threads)
-endif()
-target_link_libraries(Spherical_Ridgelets OpenMP::OpenMP_CXX)
 
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SphericalRidgelets)
 
 add_executable(sphridg ${SPH_DIR}/../Ridgelets.cpp)
-target_link_libraries(sphridg PUBLIC Eigen3::Eigen ${ITK_LIBRARIES} OpenMP::OpenMP_CXX Spherical_Ridgelets)
+target_link_libraries(sphridg PUBLIC Eigen3::Eigen ${ITK_LIBRARIES} ${OPENMP} Spherical_Ridgelets)
 
 include(CMakePackageConfigHelpers)
 
