@@ -77,7 +77,8 @@ Currently, NRRD file format (.nrrd, .nhdr) supported only. To build this project
 
 Input diffusion MRI image expected to be in the shape of (size_x, size_y, size_z, #_of_gradient directions), while mask file expected to be in the shape of (size_x, size_y, size_z, 1).
 
-The repository contains *Visual Studio 2017* project files for the development purposes, so you can safely delete them. *GCC* compiler adequately supported. Possibly *clang* works fine, but have not been tested yet. This package was tested on *Linux* only! *MacOS* and *Windows* compatibility is not guaranteed. Saving *ODF values* operation might **fail** if you don't have **enough RAM memory**.
+The repository contains *Visual Studio 2017* project files for the development purposes, so you can safely delete them. *GCC* and *clang* compiler adequately supported. This package tested on *Linux* and *Mac OS*. Please, refer to Travis CI badge at the top of this manual. *Windows* compatibility is not guaranteed. Saving *ODF values* operation might **fail** if you don't have **enough RAM memory**.
+
 # Advanced users
 
 ## Speed
