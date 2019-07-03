@@ -1,5 +1,5 @@
 git:
-    depth: 5
+    depth: 1
 
 matrix:
     include:
@@ -22,7 +22,7 @@ matrix:
           script:
             - export CC=gcc-8
             - export CXX=g++-8
-            - make
+            - make -j 4
 
         - name: "osx no openmp"
           os: osx
@@ -33,17 +33,4 @@ matrix:
             - cd build
             - cmake .. -DJUST_BUILD=1
           script:
-            - make
-
-        - name: "osx with openmp"
-          os: osx
-          language: cpp
-          compiler: clang
-          before_script:
-            - brew install llvm
-            - export PATH=/usr/local/opt/llvm/bin:$PATH
-            - mkdir build
-            - cd build
-            - cmake .. -DJUST_BUILD=1
-          script:
-            - make
+            - make -j 4
