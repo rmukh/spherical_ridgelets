@@ -102,7 +102,7 @@ install(EXPORT SphericalRidgeletsTargets
 )
 
 install(DIRECTORY ${SPH_DIR}/include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SphericalRidgelets
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING PATTERN "*.h*"
 )
 
