@@ -6,9 +6,7 @@
 class SIGNAL_GENERATOR
 {
 public:
-	SIGNAL_GENERATOR();
 	SIGNAL_GENERATOR(string & iv);
-	~SIGNAL_GENERATOR();
 
 	bool is_path_exists(const string & s);
 	int readVolume(MatrixType & GradientDirections, DiffusionImagePointer & image);

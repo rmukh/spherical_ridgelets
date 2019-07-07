@@ -1,10 +1,6 @@
 #include "SIGNAL_GENERATOR.h"
 
-SIGNAL_GENERATOR::SIGNAL_GENERATOR() : nGradImgs(0), nOfImgs(0), inputVolume(NULL) {}
-
 SIGNAL_GENERATOR::SIGNAL_GENERATOR(string & iv) : nGradImgs(0), nOfImgs(0), inputVolume(iv) {}
-
-SIGNAL_GENERATOR::~SIGNAL_GENERATOR() {}
 
 bool SIGNAL_GENERATOR::is_path_exists(const string &s)
 {
