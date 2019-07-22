@@ -887,7 +887,7 @@ void convhull_3d_export_obj
 	if (keepOnlyUsedVerticesFLAG) {
 		for (i = 0; i < nFaces; i++) {
 			/* vertices are in same order as the faces, and normals are in order */
-			fprintf(obj_file, "f %u//%u %u//%u %u//%u\n",
+			fprintf(obj_file, "f %lu//%lu %lu//%lu %lu//%lu\n",
 				i * 3 + 1, i + 1,
 				i * 3 + 1 + 1, i + 1,
 				i * 3 + 2 + 1, i + 1);
@@ -896,7 +896,7 @@ void convhull_3d_export_obj
 	else {
 		/* just normals are in order  */
 		for (i = 0; i < nFaces; i++) {
-			fprintf(obj_file, "f %u//%u %u//%u %u//%u\n",
+			fprintf(obj_file, "f %lu//%lu %lu//%lu %lu//%lu\n",
 				faces[i * 3] + 1, i + 1,
 				faces[i * 3 + 1] + 1, i + 1,
 				faces[i * 3 + 2] + 1, i + 1);
@@ -932,7 +932,7 @@ void convhull_3d_export_m
 	fprintf(m_file, "];\n\n\n");
 	fprintf(m_file, "faces = [\n");
 	for (unsigned long f = 0; f < nFaces; f++) {
-		fprintf(m_file, " %u, %u, %u;\n",
+		fprintf(m_file, " %lu, %lu, %lu;\n",
 			faces[3 * f + 0] + 1,
 			faces[3 * f + 1] + 1,
 			faces[3 * f + 2] + 1);
