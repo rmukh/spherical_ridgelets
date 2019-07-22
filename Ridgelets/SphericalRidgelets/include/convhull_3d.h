@@ -45,6 +45,9 @@
  * Author, date created:
  *     Leo McCormack, 02.10.2017
  */
+/*
+	Redesigned, integrated, and improved by Rinat Mukhometzianov, 2019
+*/
 
  /**********
   * PUBLIC:
@@ -75,26 +78,26 @@ extern "C" {
 	/* builds the convexhull, returning the face indices corresponding to "in_vertices" */
 	void convhull_3d_build(/* input arguments */
 		ch_vertex* const in_vertices,            /* vector of input vertices; nVert x 1 */
-		const int nVert,                         /* number of vertices */
+		const unsigned long nVert,                         /* number of vertices */
 		/* output arguments */
-		int** out_faces,                         /* & of empty int*, output face indices; flat: nOut_faces x 3 */
-		int* nOut_faces);                        /* & of int, number of output face indices */
+		unsigned long** out_faces,                         /* & of empty int*, output face indices; flat: nOut_faces x 3 */
+		unsigned long* nOut_faces);                        /* & of int, number of output face indices */
 
 /* exports the vertices, face indices, and face normals, as an 'obj' file, ready for GPU */
 	void convhull_3d_export_obj(/* input arguments */
 		ch_vertex* const vertices,          /* vector of input vertices; nVert x 1 */
-		const int nVert,                    /* number of vertices */
-		int* const faces,                   /* face indices; flat: nFaces x 3 */
-		const int nFaces,                   /* number of faces in hull */
-		const int keepOnlyUsedVerticesFLAG, /* 0: exports in_vertices, 1: exports only used vertices  */
+		const unsigned long nVert,                    /* number of vertices */
+		unsigned long* const faces,                   /* face indices; flat: nFaces x 3 */
+		const unsigned long nFaces,                   /* number of faces in hull */
+		const unsigned long keepOnlyUsedVerticesFLAG, /* 0: exports in_vertices, 1: exports only used vertices  */
 		char* const obj_filename);          /* obj filename, WITHOUT extension */
 
 /* exports the vertices, face indices, and face normals, as an 'm' file, for MatLab verification */
 	void convhull_3d_export_m(/* input arguments */
 		ch_vertex* const vertices,            /* vector of input vertices; nVert x 1 */
-		const int nVert,                      /* number of vertices */
-		int* const faces,                     /* face indices; flat: nFaces x 3 */
-		const int nFaces,                     /* number of faces in hull */
+		const unsigned long nVert,                      /* number of vertices */
+		unsigned long* const faces,                     /* face indices; flat: nFaces x 3 */
+		const unsigned long nFaces,                     /* number of faces in hull */
 		char* const m_filename);              /* m filename, WITHOUT extension */
 
 /* reads an 'obj' file and extracts only the vertices */
@@ -102,7 +105,7 @@ extern "C" {
 		char* const obj_filename,       /* obj filename, WITHOUT extension */
 		/* output arguments */
 		ch_vertex** out_vertices,       /* & of empty ch_vertex*, output vertices; out_nVert x 1 */
-		int* out_nVert);                /* & of int, number of vertices */
+		unsigned long* out_nVert);                /* & of int, number of vertices */
 
 #ifdef __cplusplus
 } /*extern "C"*/

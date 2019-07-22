@@ -3,6 +3,9 @@
 /************
  * INTERNAL:
  ***********/
+ /*
+	 Redesigned, integrated, and improved by Rinat Mukhometzianov, 2019
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,6 +14,7 @@
 #include <float.h>
 #include <ctype.h>
 #include <string.h>
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define CV_STRNCPY(a,b,c) strncpy_s(a,c+1,b,c);
 #define CV_STRCAT(a,b) strcat_s(a,sizeof(b),b);
@@ -18,6 +22,7 @@
 #define CV_STRNCPY(a,b,c) strncpy(a,b,c);
 #define CV_STRCAT(a,b) strcat(a,b);
 #endif
+
 #ifdef CONVHULL_3D_USE_FLOAT_PRECISION
 #define CH_FLT_MIN FLT_MIN
 #define CH_FLT_MAX FLT_MAX
@@ -27,6 +32,7 @@
 #define CH_FLT_MAX DBL_MAX
 #define CH_NOISE_VAL 0.0000001
 #endif
+
 #ifndef MIN
 #define MIN(a,b) (( (a) < (b) ) ? (a) : (b) )
 #endif
@@ -38,12 +44,12 @@
  /* structs for qsort */
 typedef struct float_w_idx {
 	CH_FLOAT val;
-	int idx;
+	unsigned long idx;
 }float_w_idx;
 
 typedef struct int_w_idx {
-	int val;
-	int idx;
+	unsigned long val;
+	unsigned long idx;
 }int_w_idx;
 
 /* internal functions prototypes: */
@@ -51,41 +57,41 @@ static int cmp_asc_float(const void*, const void*);
 static int cmp_desc_float(const void*, const void*);
 static int cmp_asc_int(const void*, const void*);
 static int cmp_desc_int(const void*, const void*);
-static void sort_float(CH_FLOAT*, CH_FLOAT*, int*, int, int);
-static void sort_int(int*, int*, int*, int, int);
+static void sort_float(CH_FLOAT*, CH_FLOAT*, unsigned long*, unsigned long, unsigned long);
+static void sort_int(unsigned long*, unsigned long*, unsigned long*, unsigned long, unsigned long);
 static ch_vec3 cross(ch_vec3*, ch_vec3*);
 static CH_FLOAT det_4x4(CH_FLOAT*);
 static void plane_3d(CH_FLOAT*, CH_FLOAT*, CH_FLOAT*);
-static void ismember(int*, int*, int*, int, int);
+static void ismember(unsigned long*, unsigned long*, unsigned long*, unsigned long, unsigned long);
 
 /* internal functions definitions: */
-static int cmp_asc_float(const void *a, const void *b) {
-	struct float_w_idx *a1 = (struct float_w_idx*)a;
-	struct float_w_idx *a2 = (struct float_w_idx*)b;
+static int cmp_asc_float(const void* a, const void* b) {
+	struct float_w_idx* a1 = (struct float_w_idx*)a;
+	struct float_w_idx* a2 = (struct float_w_idx*)b;
 	if ((*a1).val < (*a2).val)return -1;
 	else if ((*a1).val > (*a2).val)return 1;
 	else return 0;
 }
 
-static int cmp_desc_float(const void *a, const void *b) {
-	struct float_w_idx *a1 = (struct float_w_idx*)a;
-	struct float_w_idx *a2 = (struct float_w_idx*)b;
+static int cmp_desc_float(const void* a, const void* b) {
+	struct float_w_idx* a1 = (struct float_w_idx*)a;
+	struct float_w_idx* a2 = (struct float_w_idx*)b;
 	if ((*a1).val > (*a2).val)return -1;
 	else if ((*a1).val < (*a2).val)return 1;
 	else return 0;
 }
 
-static int cmp_asc_int(const void *a, const void *b) {
-	struct int_w_idx *a1 = (struct int_w_idx*)a;
-	struct int_w_idx *a2 = (struct int_w_idx*)b;
+static int cmp_asc_int(const void* a, const void* b) {
+	struct int_w_idx* a1 = (struct int_w_idx*)a;
+	struct int_w_idx* a2 = (struct int_w_idx*)b;
 	if ((*a1).val < (*a2).val)return -1;
 	else if ((*a1).val > (*a2).val)return 1;
 	else return 0;
 }
 
-static int cmp_desc_int(const void *a, const void *b) {
-	struct int_w_idx *a1 = (struct int_w_idx*)a;
-	struct int_w_idx *a2 = (struct int_w_idx*)b;
+static int cmp_desc_int(const void* a, const void* b) {
+	struct int_w_idx* a1 = (struct int_w_idx*)a;
+	struct int_w_idx* a2 = (struct int_w_idx*)b;
 	if ((*a1).val > (*a2).val)return -1;
 	else if ((*a1).val < (*a2).val)return 1;
 	else return 0;
@@ -95,62 +101,74 @@ static void sort_float
 (
 	CH_FLOAT* in_vec,  /* vector[len] to be sorted */
 	CH_FLOAT* out_vec, /* if NULL, then in_vec is sorted "in-place" */
-	int* new_idices,   /* set to NULL if you don't need them */
-	int len,           /* number of elements in vectors, must be consistent with the input data */
-	int descendFLAG    /* !1:ascending, 1:descending */
+	unsigned long* new_idices,   /* set to NULL if you don't need them */
+	unsigned long len,           /* number of elements in vectors, must be consistent with the input data */
+	unsigned long descendFLAG    /* !1:ascending, 1:descending */
 )
 {
-	int i;
-	struct float_w_idx *data;
+	unsigned long i;
+	struct float_w_idx* data;
 
 	data = (float_w_idx*)malloc(len * sizeof(float_w_idx));
-	for (i = 0; i < len; i++) {
-		data[i].val = in_vec[i];
-		data[i].idx = i;
-	}
-	if (descendFLAG)
-		qsort(data, len, sizeof(data[0]), cmp_desc_float);
-	else
-		qsort(data, len, sizeof(data[0]), cmp_asc_float);
-	for (i = 0; i < len; i++) {
-		if (out_vec != NULL)
-			out_vec[i] = data[i].val;
+	if (data) {
+		for (i = 0; i < len; i++) {
+			data[i].val = in_vec[i];
+			data[i].idx = i;
+		}
+		if (descendFLAG)
+			qsort(data, len, sizeof(data[0]), cmp_desc_float);
 		else
-			in_vec[i] = data[i].val; /* overwrite input vector */
-		if (new_idices != NULL)
-			new_idices[i] = data[i].idx;
+			qsort(data, len, sizeof(data[0]), cmp_asc_float);
+		for (i = 0; i < len; i++) {
+			if (out_vec != NULL)
+				out_vec[i] = data[i].val;
+			else
+				in_vec[i] = data[i].val; /* overwrite input vector */
+			if (new_idices != NULL)
+				new_idices[i] = data[i].idx;
+		}
+	}
+	else {
+		printf("Can't use sort_float. Not enough memory\n");
+		exit(0);
 	}
 	free(data);
 }
 
 static void sort_int
 (
-	int* in_vec,     /* vector[len] to be sorted */
-	int* out_vec,    /* if NULL, then in_vec is sorted "in-place" */
-	int* new_idices, /* set to NULL if you don't need them */
-	int len,         /* number of elements in vectors, must be consistent with the input data */
-	int descendFLAG  /* !1:ascending, 1:descending */
+	unsigned long* in_vec,     /* vector[len] to be sorted */
+	unsigned long* out_vec,    /* if NULL, then in_vec is sorted "in-place" */
+	unsigned long* new_idices, /* set to NULL if you don't need them */
+	unsigned long len,         /* number of elements in vectors, must be consistent with the input data */
+	unsigned long descendFLAG  /* !1:ascending, 1:descending */
 )
 {
-	int i;
-	struct int_w_idx *data;
+	unsigned long i;
+	struct int_w_idx* data;
 
 	data = (int_w_idx*)malloc(len * sizeof(int_w_idx));
-	for (i = 0; i < len; i++) {
-		data[i].val = in_vec[i];
-		data[i].idx = i;
-	}
-	if (descendFLAG)
-		qsort(data, len, sizeof(data[0]), cmp_desc_int);
-	else
-		qsort(data, len, sizeof(data[0]), cmp_asc_int);
-	for (i = 0; i < len; i++) {
-		if (out_vec != NULL)
-			out_vec[i] = data[i].val;
+	if (data) {
+		for (i = 0; i < len; i++) {
+			data[i].val = in_vec[i];
+			data[i].idx = i;
+		}
+		if (descendFLAG)
+			qsort(data, len, sizeof(data[0]), cmp_desc_int);
 		else
-			in_vec[i] = data[i].val; /* overwrite input vector */
-		if (new_idices != NULL)
-			new_idices[i] = data[i].idx;
+			qsort(data, len, sizeof(data[0]), cmp_asc_int);
+		for (i = 0; i < len; i++) {
+			if (out_vec != NULL)
+				out_vec[i] = data[i].val;
+			else
+				in_vec[i] = data[i].val; /* overwrite input vector */
+			if (new_idices != NULL)
+				new_idices[i] = data[i].idx;
+		}
+	}
+	else {
+		printf("Can't use sort_float. Not enough memory\n");
+		exit(0);
 	}
 	free(data);
 }
@@ -192,8 +210,8 @@ static void plane_3d
 	CH_FLOAT* d
 )
 {
-	int i, j, k, l;
-	int r[3];
+	unsigned long i, j, k, l;
+	unsigned long r[3];
 	CH_FLOAT sign, det, norm_c;
 	CH_FLOAT pdiff[2][3], pdiff_s[2][2];
 
@@ -230,15 +248,15 @@ static void plane_3d
 
 static void ismember
 (
-	int* pLeft,          /* left vector; nLeftElements x 1 */
-	int* pRight,         /* right vector; nRightElements x 1 */
-	int* pOut,           /* 0, unless pRight elements are present in pLeft then 1; nLeftElements x 1 */
-	int nLeftElements,   /* number of elements in pLeft */
-	int nRightElements   /* number of elements in pRight */
+	unsigned long* pLeft,          /* left vector; nLeftElements x 1 */
+	unsigned long* pRight,         /* right vector; nRightElements x 1 */
+	unsigned long* pOut,           /* 0, unless pRight elements are present in pLeft then 1; nLeftElements x 1 */
+	unsigned long nLeftElements,   /* number of elements in pLeft */
+	unsigned long nRightElements   /* number of elements in pRight */
 )
 {
-	int i, j;
-	memset(pOut, 0, nLeftElements * sizeof(int));
+	unsigned long i, j;
+	memset(pOut, 0, nLeftElements * sizeof(unsigned long));
 	for (i = 0; i < nLeftElements; i++)
 		for (j = 0; j < nRightElements; j++)
 			if (pLeft[i] == pRight[j])
@@ -256,16 +274,16 @@ static void ismember
 void convhull_3d_build
 (
 	ch_vertex* const in_vertices,
-	const int nVert,
-	int** out_faces,
-	int* nOut_faces
+	const unsigned long nVert,
+	unsigned long** out_faces,
+	unsigned long* nOut_faces
 )
 {
-	int i, j, k, l, h;
-	int nFaces, p, d;
-	int* aVec, *faces;
+	unsigned long i, j, k, l, h;
+	unsigned long nFaces, p, d;
+	unsigned long* aVec, * faces;
 	CH_FLOAT dfi, v, max_p, min_p;
-	CH_FLOAT* points, *cf, *cfi, *df, *p_s, *span;
+	CH_FLOAT* points, * cf, * cfi, * df, * p_s, * span;
 
 	if (nVert < 3 || in_vertices == NULL) {
 		(*out_faces) = NULL;
@@ -285,122 +303,171 @@ void convhull_3d_build
 		}
 		span[j] = max_p - min_p;
 	}
-	points = (CH_FLOAT*)malloc(nVert*(d + 1) * sizeof(CH_FLOAT));
-	for (i = 0; i < nVert; i++) {
-		for (j = 0; j < d; j++)
-			points[i*(d + 1) + j] = in_vertices[i].v[j] + CH_NOISE_VAL * rand() / (float)RAND_MAX; /* noise mitigates duplicates */
-		points[i*(d + 1) + d] = 1.0f; /* add a last column of ones. Used only for determinant calculation */
+	points = (CH_FLOAT*)malloc(nVert * (d + 1) * sizeof(CH_FLOAT));
+	if (points) {
+		for (i = 0; i < nVert; i++) {
+			for (j = 0; j < d; j++)
+				points[i * (d + 1) + j] = in_vertices[i].v[j] + CH_NOISE_VAL * rand() / (float)RAND_MAX; /* noise mitigates duplicates */
+			points[i * (d + 1) + d] = 1.0f; /* add a last column of ones. Used only for determinant calculation */
+		}
+	}
+	else {
+		printf("Can't arrange enough memory for points variable. Can't build convex hull");
+		exit(0);
 	}
 
 	/* The initial convex hull is a simplex with (d+1) facets, where d is the number of dimensions */
 	nFaces = (d + 1);
-	faces = (int*)calloc(nFaces*d, sizeof(int));
-	aVec = (int*)malloc(nFaces * sizeof(int));
-	for (i = 0; i < nFaces; i++)
-		aVec[i] = i;
+	faces = (unsigned long*)calloc(nFaces * d, sizeof(unsigned long));
+	aVec = (unsigned long*)malloc(nFaces * sizeof(unsigned long));
+	if (aVec) {
+		for (i = 0; i < nFaces; i++)
+			aVec[i] = i;
+	}
+	else {
+		printf("Can't initialize aVec");
+		exit(0);
+	}
 
 	/* Each column of cf contains the coefficients of a plane */
-	cf = (CH_FLOAT*)malloc(nFaces*d * sizeof(CH_FLOAT));
+	cf = (CH_FLOAT*)malloc(nFaces * d * sizeof(CH_FLOAT));
 	cfi = (CH_FLOAT*)malloc(d * sizeof(CH_FLOAT));
 	df = (CH_FLOAT*)malloc(nFaces * sizeof(CH_FLOAT));
-	p_s = (CH_FLOAT*)malloc(d*d * sizeof(CH_FLOAT));
+	p_s = (CH_FLOAT*)malloc(d * d * sizeof(CH_FLOAT));
 	for (i = 0; i < nFaces; i++) {
 		/* Set the indices of the points defining the face  */
-		for (j = 0, k = 0; j < (d + 1); j++) {
-			if (aVec[j] != i) {
-				faces[i*d + k] = aVec[j];
-				k++;
+		if (faces) {
+			for (j = 0, k = 0; j < (d + 1); j++) {
+				if (aVec[j] != i) {
+					faces[i * d + k] = aVec[j];
+					k++;
+				}
 			}
+		}
+		else {
+			printf("Can't arrange enough memory for faces variable. Can't build convex hull");
+			exit(0);
 		}
 
 		/* Calculate and store the plane coefficients of the face */
-		for (j = 0; j < d; j++)
-			for (k = 0; k < d; k++)
-				p_s[j*d + k] = points[(faces[i*d + j])*(d + 1) + k];
+		if (p_s) {
+			for (j = 0; j < d; j++)
+				for (k = 0; k < d; k++)
+					p_s[j * d + k] = points[(faces[i * d + j]) * (d + 1) + k];
+		}
+		else {
+			printf("Can't arrange enough memory for p_s variable. Can't build convex hull");
+			exit(0);
+		}
 
 		/* Calculate and store the plane coefficients of the face */
 		plane_3d(p_s, cfi, &dfi);
-		for (j = 0; j < d; j++)
-			cf[i*d + j] = cfi[j];
-		df[i] = dfi;
-	}
-	CH_FLOAT *A;
-	int *bVec, *fVec, *asfVec, *face_tmp;
-
-	/* Check to make sure that faces are correctly oriented */
-	bVec = (int*)malloc(4 * sizeof(int));
-	for (i = 0; i < d + 1; i++)
-		bVec[i] = i;
-
-	/* A contains the coordinates of the points forming a simplex */
-	A = (CH_FLOAT*)calloc((d + 1)*(d + 1), sizeof(CH_FLOAT));
-	face_tmp = (int*)malloc((d + 1) * sizeof(int));
-	fVec = (int*)malloc((d + 1) * sizeof(int));
-	asfVec = (int*)malloc((d + 1) * sizeof(int));
-	for (k = 0; k < (d + 1); k++) {
-		/* Get the point that is not on the current face (point p) */
-		for (i = 0; i < d; i++)
-			fVec[i] = faces[k*d + i];
-		sort_int(fVec, NULL, NULL, d, 0); /* sort accending */
-		p = k;
-		for (i = 0; i < d; i++)
-			for (j = 0; j < (d + 1); j++)
-				A[i*(d + 1) + j] = points[(faces[k*d + i])*(d + 1) + j];
-		for (; i < (d + 1); i++)
-			for (j = 0; j < (d + 1); j++)
-				A[i*(d + 1) + j] = points[p*(d + 1) + j];
-
-		/* det(A) determines the orientation of the face */
-		v = det_4x4(A);
-
-		/* Orient so that each point on the original simplex can't see the opposite face */
-		if (v < 0) {
-			/* Reverse the order of the last two vertices to change the volume */
+		if (cf && cfi) {
 			for (j = 0; j < d; j++)
-				face_tmp[j] = faces[k*d + j];
-			for (j = 0, l = d - 2; j < d - 1; j++, l++)
-				faces[k*d + l] = face_tmp[d - j - 1];
-
-			/* Modify the plane coefficients of the properly oriented faces */
-			for (j = 0; j < d; j++)
-				cf[k*d + j] = -cf[k*d + j];
-			df[k] = -df[k];
-			for (i = 0; i < d; i++)
-				for (j = 0; j < (d + 1); j++)
-					A[i*(d + 1) + j] = points[(faces[k*d + i])*(d + 1) + j];
-			for (; i < (d + 1); i++)
-				for (j = 0; j < (d + 1); j++)
-					A[i*(d + 1) + j] = points[p*(d + 1) + j];
+				cf[i * d + j] = cfi[j];
+		}
+		else {
+			printf("Can't arrange enough memory for cf or cfi variable. Can't build convex hull");
+			exit(0);
+		}
+		if (df && dfi) {
+			df[i] = dfi;
+		}
+		else {
+			printf("Can't arrange enough memory for df or dfi variable. Can't build convex hull");
+			exit(0);
 		}
 	}
+	CH_FLOAT* A;
+	unsigned long* bVec, * fVec, * asfVec, * face_tmp;
 
+	/* Check to make sure that faces are correctly oriented */
+	bVec = (unsigned long*)malloc(4 * sizeof(unsigned long));
+	if (bVec) {
+		for (i = 0; i < d + 1; i++)
+			bVec[i] = i;
+	}
+	else {
+		printf("Can't arrange enough memory for bVec variable. Can't build convex hull");
+		exit(0);
+	}
+
+	/* A contains the coordinates of the points forming a simplex */
+	A = (CH_FLOAT*)calloc((d + 1) * (d + 1), sizeof(CH_FLOAT));
+	face_tmp = (unsigned long*)malloc((d + 1) * sizeof(unsigned long));
+	fVec = (unsigned long*)malloc((d + 1) * sizeof(unsigned long));
+	asfVec = (unsigned long*)malloc((d + 1) * sizeof(unsigned long));
+	if (fVec && asfVec) {
+		for (k = 0; k < (d + 1); k++) {
+			/* Get the point that is not on the current face (point p) */
+
+			for (i = 0; i < d; i++)
+				fVec[i] = faces[k * d + i];
+			sort_int(fVec, NULL, NULL, d, 0); /* sort accending */
+
+			p = k;
+			for (i = 0; i < d; i++)
+				for (j = 0; j < (d + 1); j++)
+					A[i * (d + 1) + j] = points[(faces[k * d + i]) * (d + 1) + j];
+			for (; i < (d + 1); i++)
+				for (j = 0; j < (d + 1); j++)
+					A[i * (d + 1) + j] = points[p * (d + 1) + j];
+
+			/* det(A) determines the orientation of the face */
+			v = det_4x4(A);
+
+			/* Orient so that each point on the original simplex can't see the opposite face */
+			if (v < 0) {
+				/* Reverse the order of the last two vertices to change the volume */
+				for (j = 0; j < d; j++)
+					face_tmp[j] = faces[k * d + j];
+				for (j = 0, l = d - 2; j < d - 1; j++, l++)
+					faces[k * d + l] = face_tmp[d - j - 1];
+
+				/* Modify the plane coefficients of the properly oriented faces */
+				for (j = 0; j < d; j++)
+					cf[k * d + j] = -cf[k * d + j];
+				df[k] = -df[k];
+				for (i = 0; i < d; i++)
+					for (j = 0; j < (d + 1); j++)
+						A[i * (d + 1) + j] = points[(faces[k * d + i]) * (d + 1) + j];
+				for (; i < (d + 1); i++)
+					for (j = 0; j < (d + 1); j++)
+						A[i * (d + 1) + j] = points[p * (d + 1) + j];
+			}
+		}
+	}
+	else {
+		printf("Can't arrange enough memory for fVec or asfVec variable. Can't build convex hull");
+		exit(0);
+	}
 	/* Coordinates of the center of the point set */
-	CH_FLOAT* meanp, *absdist, *reldist, *desReldist;
+	CH_FLOAT* meanp, * absdist, * reldist, * desReldist;
 	meanp = (CH_FLOAT*)calloc(d, sizeof(CH_FLOAT));
 	for (i = d + 1; i < nVert; i++)
 		for (j = 0; j < d; j++)
-			meanp[j] += points[i*(d + 1) + j];
+			meanp[j] += points[i * (d + 1) + j];
 	for (j = 0; j < d; j++)
 		meanp[j] = meanp[j] / (CH_FLOAT)(nVert - d - 1);
 
 	/* Absolute distance of points from the center */
-	absdist = (CH_FLOAT*)malloc((nVert - d - 1)*d * sizeof(CH_FLOAT));
+	absdist = (CH_FLOAT*)malloc((nVert - d - 1) * d * sizeof(CH_FLOAT));
 	for (i = d + 1, k = 0; i < nVert; i++, k++)
 		for (j = 0; j < d; j++)
-			absdist[k*d + j] = (points[i*(d + 1) + j] - meanp[j]) / span[j];
+			absdist[k * d + j] = (points[i * (d + 1) + j] - meanp[j]) / span[j];
 
 	/* Relative distance of points from the center */
 	reldist = (CH_FLOAT*)calloc((nVert - d - 1), sizeof(CH_FLOAT));
 	desReldist = (CH_FLOAT*)malloc((nVert - d - 1) * sizeof(CH_FLOAT));
 	for (i = 0; i < (nVert - d - 1); i++)
 		for (j = 0; j < d; j++)
-			reldist[i] += pow(absdist[i*d + j], 2.0);
+			reldist[i] += pow(absdist[i * d + j], 2.0);
 
 	/* Sort from maximum to minimum relative distance */
-	int num_pleft, cnt;
-	int* ind, *pleft;
-	ind = (int*)malloc((nVert - d - 1) * sizeof(int));
-	pleft = (int*)malloc((nVert - d - 1) * sizeof(int));
+	unsigned long num_pleft, cnt;
+	unsigned long* ind, * pleft;
+	ind = (unsigned long*)malloc((nVert - d - 1) * sizeof(unsigned long));
+	pleft = (unsigned long*)malloc((nVert - d - 1) * sizeof(unsigned long));
 	sort_float(reldist, desReldist, ind, (nVert - d - 1), 1);
 
 	/* Initialize the vector of points left. The points with the larger relative
@@ -411,7 +478,7 @@ void convhull_3d_build
 
 	/* Loop over all remaining points that are not deleted. Deletion of points
 	 occurs every #iter2del# iterations of this while loop */
-	memset(A, 0, (d + 1)*(d + 1) * sizeof(CH_FLOAT));
+	memset(A, 0, (d + 1) * (d + 1) * sizeof(CH_FLOAT));
 
 	/* cnt is equal to the points having been selected without deletion of
 	 nonvisible points (i.e. points inside the current convex hull) */
@@ -419,19 +486,21 @@ void convhull_3d_build
 
 	/* The main loop for the quickhull algorithm */
 	CH_FLOAT detA;
-	CH_FLOAT* points_cf, *points_s;
-	int* visible_ind, *visible, *nonvisible_faces, *f0, *face_s, *u, *gVec, *horizon, *hVec, *pp, *hVec_mem_face;
-	int num_visible_ind, num_nonvisible_faces, n_newfaces, count, vis;
-	int f0_sum, u_len, start, num_p, index, horizon_size1;
-	int FUCKED;
+	CH_FLOAT* points_cf, * points_s, * tmp_ch_float;
+	unsigned long* visible_ind, * visible, * nonvisible_faces, * f0, * face_s,
+		* u, * gVec, * horizon, * hVec, * pp, * hVec_mem_face, * tmp_long;
+
+	unsigned long num_visible_ind, num_nonvisible_faces, n_newfaces, count, vis;
+	unsigned long f0_sum, u_len, start, num_p, index, horizon_size1;
+	unsigned long FUCKED;
 	FUCKED = 0;
 	u = horizon = NULL;
 	nFaces = d + 1;
-	visible_ind = (int*)malloc(nFaces * sizeof(int));
+	visible_ind = (unsigned long*)malloc(nFaces * sizeof(unsigned long));
 	points_cf = (CH_FLOAT*)malloc(nFaces * sizeof(CH_FLOAT));
 	points_s = (CH_FLOAT*)malloc(d * sizeof(CH_FLOAT));
-	face_s = (int*)malloc(d * sizeof(int));
-	gVec = (int*)malloc(d * sizeof(int));
+	face_s = (unsigned long*)malloc(d * sizeof(unsigned long));
+	gVec = (unsigned long*)malloc(d * sizeof(unsigned long));
 	while ((num_pleft > 0)) {
 		/* i is the first point of the points left */
 		i = pleft[0];
@@ -442,17 +511,32 @@ void convhull_3d_build
 		num_pleft--;
 		if (num_pleft == 0)
 			free(pleft);
-		else
-			pleft = (int*)realloc(pleft, num_pleft * sizeof(int));
+		else {
+			tmp_long = (unsigned long*)realloc(pleft, num_pleft * sizeof(unsigned long));
+			if (tmp_long != NULL)
+			{
+				pleft = tmp_long;
+			}
+		}
 
 		/* Update point selection counter */
 		cnt++;
 
 		/* find visible faces */
 		for (j = 0; j < d; j++)
-			points_s[j] = points[i*(d + 1) + j];
-		points_cf = (CH_FLOAT*)realloc(points_cf, nFaces * sizeof(CH_FLOAT));
-		visible_ind = (int*)realloc(visible_ind, nFaces * sizeof(int));
+			points_s[j] = points[i * (d + 1) + j];
+
+		tmp_ch_float = (CH_FLOAT*)realloc(points_cf, nFaces * sizeof(CH_FLOAT));
+		if (tmp_ch_float != NULL)
+		{
+			points_cf = tmp_ch_float;
+		}
+
+		tmp_long = (unsigned long*)realloc(visible_ind, nFaces * sizeof(unsigned long));
+		if (tmp_long != NULL)
+		{
+			visible_ind = tmp_long;
+		}
 #ifdef CONVHULL_3D_USE_CBLAS
 #ifdef CONVHULL_3D_USE_FLOAT_PRECISION
 		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, 1, nFaces, d, 1.0f,
@@ -469,7 +553,7 @@ void convhull_3d_build
 		for (j = 0; j < nFaces; j++) {
 			points_cf[j] = 0;
 			for (k = 0; k < d; k++)
-				points_cf[j] += points_s[k] * cf[j*d + k];
+				points_cf[j] += points_s[k] * cf[j * d + k];
 		}
 #endif
 		num_visible_ind = 0;
@@ -486,7 +570,7 @@ void convhull_3d_build
 		/* proceed if there are any visible faces */
 		if (num_visible_ind != 0) {
 			/* Find visible face indices */
-			visible = (int*)malloc(num_visible_ind * sizeof(int));
+			visible = (unsigned long*)malloc(num_visible_ind * sizeof(unsigned long));
 			for (j = 0, k = 0; j < nFaces; j++) {
 				if (visible_ind[j] == 1) {
 					visible[k] = j;
@@ -495,12 +579,13 @@ void convhull_3d_build
 			}
 
 			/* Find nonvisible faces */
-			nonvisible_faces = (int*)malloc(num_nonvisible_faces*d * sizeof(int));
-			f0 = (int*)malloc(num_nonvisible_faces*d * sizeof(int));
+
+			nonvisible_faces = (unsigned long*)malloc(num_nonvisible_faces * d * sizeof(int));
+			f0 = (unsigned long*)malloc(num_nonvisible_faces * d * sizeof(int));
 			for (j = 0, k = 0; j < nFaces; j++) {
 				if (visible_ind[j] == 0) {
 					for (l = 0; l < d; l++)
-						nonvisible_faces[k*d + l] = faces[j*d + l];
+						nonvisible_faces[k * d + l] = faces[j * d + l];
 					k++;
 				}
 			}
@@ -511,22 +596,27 @@ void convhull_3d_build
 				/* visible face */
 				vis = visible[j];
 				for (k = 0; k < d; k++)
-					face_s[k] = faces[vis*d + k];
+					face_s[k] = faces[vis * d + k];
 				sort_int(face_s, NULL, NULL, d, 0);
-				ismember(nonvisible_faces, face_s, f0, num_nonvisible_faces*d, d);
+				ismember(nonvisible_faces, face_s, f0, num_nonvisible_faces * d, d);
 				u_len = 0;
 
 				/* u are the nonvisible faces connected to the face v, if any */
 				for (k = 0; k < num_nonvisible_faces; k++) {
 					f0_sum = 0;
 					for (l = 0; l < d; l++)
-						f0_sum += f0[k*d + l];
+						f0_sum += f0[k * d + l];
 					if (f0_sum == d - 1) {
 						u_len++;
 						if (u_len == 1)
-							u = (int*)malloc(u_len * sizeof(int));
-						else
-							u = (int*)realloc(u, u_len * sizeof(int));
+							u = (unsigned long*)malloc(u_len * sizeof(unsigned long));
+						else {
+							tmp_long = (unsigned long*)realloc(u, u_len * sizeof(unsigned long));
+							if (tmp_long != NULL)
+							{
+								u = tmp_long;
+							}
+						}
 						u[u_len - 1] = k;
 					}
 				}
@@ -534,14 +624,19 @@ void convhull_3d_build
 					/* The boundary between the visible face v and the k(th) nonvisible face connected to the face v forms part of the horizon */
 					count++;
 					if (count == 1)
-						horizon = (int*)malloc(count*(d - 1) * sizeof(int));
-					else
-						horizon = (int*)realloc(horizon, count*(d - 1) * sizeof(int));
+						horizon = (unsigned long*)malloc(count * (d - 1) * sizeof(unsigned long));
+					else {
+						tmp_long = (unsigned long*)realloc(horizon, count * (d - 1) * sizeof(unsigned long));
+						if (tmp_long != NULL)
+						{
+							horizon = tmp_long;
+						}
+					}
 					for (l = 0; l < d; l++)
 						gVec[l] = nonvisible_faces[u[k] * d + l];
 					for (l = 0, h = 0; l < d; l++) {
 						if (f0[u[k] * d + l]) {
-							horizon[(count - 1)*(d - 1) + h] = gVec[l];
+							horizon[(count - 1) * (d - 1) + h] = gVec[l];
 							h++;
 						}
 					}
@@ -554,11 +649,11 @@ void convhull_3d_build
 				if (!visible_ind[j]) {
 					/* Delete visible faces */
 					for (k = 0; k < d; k++)
-						faces[l*d + k] = faces[j*d + k];
+						faces[l * d + k] = faces[j * d + k];
 
 					/* Delete the corresponding plane coefficients of the faces */
 					for (k = 0; k < d; k++)
-						cf[l*d + k] = cf[j*d + k];
+						cf[l * d + k] = cf[j * d + k];
 					df[l] = df[j];
 					l++;
 				}
@@ -566,9 +661,21 @@ void convhull_3d_build
 
 			/* Update the number of faces */
 			nFaces = nFaces - num_visible_ind;
-			faces = (int*)realloc(faces, nFaces*d * sizeof(int));
-			cf = (CH_FLOAT*)realloc(cf, nFaces*d * sizeof(CH_FLOAT));
-			df = (CH_FLOAT*)realloc(df, nFaces * sizeof(CH_FLOAT));
+			tmp_long = (unsigned long*)realloc(faces, nFaces * d * sizeof(unsigned long));
+			if (tmp_long != NULL)
+			{
+				faces = tmp_long;
+			}
+			tmp_ch_float = (CH_FLOAT*)realloc(cf, nFaces * d * sizeof(CH_FLOAT));
+			if (tmp_ch_float != NULL)
+			{
+				cf = tmp_ch_float;
+			}
+			tmp_ch_float = (CH_FLOAT*)realloc(df, nFaces * sizeof(CH_FLOAT));
+			if (tmp_ch_float != NULL)
+			{
+				df = tmp_ch_float;
+			}
 
 			/* start is the first row of the new faces */
 			start = nFaces;
@@ -577,20 +684,32 @@ void convhull_3d_build
 			n_newfaces = horizon_size1;
 			for (j = 0; j < n_newfaces; j++) {
 				nFaces++;
-				faces = (int*)realloc(faces, nFaces*d * sizeof(int));
-				cf = (CH_FLOAT*)realloc(cf, nFaces*d * sizeof(CH_FLOAT));
-				df = (CH_FLOAT*)realloc(df, nFaces * sizeof(CH_FLOAT));
+				tmp_long = (unsigned long*)realloc(faces, nFaces * d * sizeof(unsigned long));
+				if (tmp_long != NULL)
+				{
+					faces = tmp_long;
+				}
+				tmp_ch_float = (CH_FLOAT*)realloc(cf, nFaces * d * sizeof(CH_FLOAT));
+				if (tmp_ch_float != NULL)
+				{
+					cf = tmp_ch_float;
+				}
+				tmp_ch_float = (CH_FLOAT*)realloc(df, nFaces * sizeof(CH_FLOAT));
+				if (tmp_ch_float != NULL)
+				{
+					df = tmp_ch_float;
+				}
 				for (k = 0; k < d - 1; k++)
-					faces[(nFaces - 1)*d + k] = horizon[j*(d - 1) + k];
-				faces[(nFaces - 1)*d + (d - 1)] = i;
+					faces[(nFaces - 1) * d + k] = horizon[j * (d - 1) + k];
+				faces[(nFaces - 1) * d + (d - 1)] = i;
 
 				/* Calculate and store appropriately the plane coefficients of the faces */
 				for (k = 0; k < d; k++)
 					for (l = 0; l < d; l++)
-						p_s[k*d + l] = points[(faces[(nFaces - 1)*d + k])*(d + 1) + l];
+						p_s[k * d + l] = points[(faces[(nFaces - 1) * d + k]) * (d + 1) + l];
 				plane_3d(p_s, cfi, &dfi);
 				for (k = 0; k < d; k++)
-					cf[(nFaces - 1)*d + k] = cfi[k];
+					cf[(nFaces - 1) * d + k] = cfi[k];
 				df[(nFaces - 1)] = dfi;
 				if (nFaces > CH_MAX_NUM_FACES) {
 					FUCKED = 1;
@@ -600,20 +719,20 @@ void convhull_3d_build
 			}
 
 			/* Orient each new face properly */
-			hVec = (int*)malloc(nFaces * sizeof(int));
-			hVec_mem_face = (int*)malloc(nFaces * sizeof(int));
+			hVec = (unsigned long*)malloc(nFaces * sizeof(unsigned long));
+			hVec_mem_face = (unsigned long*)malloc(nFaces * sizeof(unsigned long));
 			for (j = 0; j < nFaces; j++)
 				hVec[j] = j;
 			for (k = start; k < nFaces; k++) {
 				for (j = 0; j < d; j++)
-					face_s[j] = faces[k*d + j];
+					face_s[j] = faces[k * d + j];
 				sort_int(face_s, NULL, NULL, d, 0);
 				ismember(hVec, face_s, hVec_mem_face, nFaces, d);
 				num_p = 0;
 				for (j = 0; j < nFaces; j++)
 					if (!hVec_mem_face[j])
 						num_p++;
-				pp = (int*)malloc(num_p * sizeof(int));
+				pp = (unsigned long*)malloc(num_p * sizeof(unsigned long));
 				for (j = 0, l = 0; j < nFaces; j++) {
 					if (!hVec_mem_face[j]) {
 						pp[l] = hVec[j];
@@ -627,10 +746,10 @@ void convhull_3d_build
 				while (detA == 0.0) {
 					for (j = 0; j < d; j++)
 						for (l = 0; l < d + 1; l++)
-							A[j*(d + 1) + l] = points[(faces[k*d + j])*(d + 1) + l];
+							A[j * (d + 1) + l] = points[(faces[k * d + j]) * (d + 1) + l];
 					for (; j < d + 1; j++)
 						for (l = 0; l < d + 1; l++)
-							A[j*(d + 1) + l] = points[pp[index] * (d + 1) + l];
+							A[j * (d + 1) + l] = points[pp[index] * (d + 1) + l];
 					index++;
 					detA = det_4x4(A);
 				}
@@ -639,20 +758,20 @@ void convhull_3d_build
 				if (detA < 0.0) {
 					/* If orientation is improper, reverse the order to change the volume sign */
 					for (j = 0; j < d; j++)
-						face_tmp[j] = faces[k*d + j];
+						face_tmp[j] = faces[k * d + j];
 					for (j = 0, l = d - 2; j < d - 1; j++, l++)
-						faces[k*d + l] = face_tmp[d - j - 1];
+						faces[k * d + l] = face_tmp[d - j - 1];
 
 					/* Modify the plane coefficients of the properly oriented faces */
 					for (j = 0; j < d; j++)
-						cf[k*d + j] = -cf[k*d + j];
+						cf[k * d + j] = -cf[k * d + j];
 					df[k] = -df[k];
 					for (l = 0; l < d; l++)
 						for (j = 0; j < d + 1; j++)
-							A[l*(d + 1) + j] = points[(faces[k*d + l])*(d + 1) + j];
+							A[l * (d + 1) + j] = points[(faces[k * d + l]) * (d + 1) + j];
 					for (; l < d + 1; l++)
 						for (j = 0; j < d + 1; j++)
-							A[l*(d + 1) + j] = points[pp[index] * (d + 1) + j];
+							A[l * (d + 1) + j] = points[pp[index] * (d + 1) + j];
 				}
 				free(pp);
 			}
@@ -674,8 +793,8 @@ void convhull_3d_build
 		(*nOut_faces) = 0;
 	}
 	else {
-		(*out_faces) = (int*)malloc(nFaces*d * sizeof(int));
-		memcpy((*out_faces), faces, nFaces*d * sizeof(int));
+		(*out_faces) = (unsigned long*)malloc(nFaces * d * sizeof(unsigned long));
+		memcpy((*out_faces), faces, nFaces * d * sizeof(unsigned long));
 		(*nOut_faces) = nFaces;
 	}
 
@@ -708,16 +827,17 @@ void convhull_3d_build
 void convhull_3d_export_obj
 (
 	ch_vertex* const vertices,
-	const int nVert,
-	int* const faces,
-	const int nFaces,
-	const int keepOnlyUsedVerticesFLAG,
+	const unsigned long nVert,
+	unsigned long* const faces,
+	const unsigned long nFaces,
+	const unsigned long keepOnlyUsedVerticesFLAG,
 	char* const obj_filename
 )
 {
-	int i, j;
+	unsigned long i, j;
 	char path[256] = "\0";
 	CV_STRNCPY(path, obj_filename, strlen(obj_filename));
+	path[strlen(obj_filename) - 1] = 0;
 	FILE* obj_file;
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 	CV_STRCAT(path, ".obj");
@@ -788,13 +908,13 @@ void convhull_3d_export_obj
 void convhull_3d_export_m
 (
 	ch_vertex* const vertices,
-	const int nVert,
-	int* const faces,
-	const int nFaces,
+	const unsigned long nVert,
+	unsigned long* const faces,
+	const unsigned long nFaces,
 	char* const m_filename
 )
 {
-	int i;
+	unsigned long i;
 	char path[256] = { "\0" };
 	memcpy(path, m_filename, strlen(m_filename));
 	FILE* m_file;
@@ -811,7 +931,7 @@ void convhull_3d_export_m
 		fprintf(m_file, "%f, %f, %f;\n", vertices[i].x, vertices[i].y, vertices[i].z);
 	fprintf(m_file, "];\n\n\n");
 	fprintf(m_file, "faces = [\n");
-	for (int f = 0; f < nFaces; f++) {
+	for (unsigned long f = 0; f < nFaces; f++) {
 		fprintf(m_file, " %u, %u, %u;\n",
 			faces[3 * f + 0] + 1,
 			faces[3 * f + 1] + 1,
@@ -821,7 +941,7 @@ void convhull_3d_export_m
 	fclose(m_file);
 }
 
-void extractVerticesFromObjFile(char* const obj_filename, ch_vertex** out_vertices, int* out_nVert)
+void extractVerticesFromObjFile(char* const obj_filename, ch_vertex** out_vertices, unsigned long* out_nVert)
 {
 	FILE* obj_file;
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
@@ -832,7 +952,7 @@ void extractVerticesFromObjFile(char* const obj_filename, ch_vertex** out_vertic
 #endif 
 
 	/* determine number of vertices */
-	unsigned int nVert = 0;
+	unsigned long nVert = 0;
 	char line[256];
 	while (fgets(line, sizeof(line), obj_file)) {
 		char* vexists = strstr(line, "v ");
@@ -844,8 +964,8 @@ void extractVerticesFromObjFile(char* const obj_filename, ch_vertex** out_vertic
 
 	/* extract the vertices */
 	rewind(obj_file);
-	int i = 0;
-	int vertID, prev_char_isDigit, current_char_isDigit;
+	unsigned long i = 0;
+	unsigned long vertID, prev_char_isDigit, current_char_isDigit;
 	char vert_char[256] = { 0 };
 	while (fgets(line, sizeof(line), obj_file)) {
 		char* vexists = strstr(line, "v ");

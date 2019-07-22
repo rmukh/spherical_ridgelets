@@ -114,23 +114,29 @@ void UtilMath<pT, MT, VT>::polyleg(MT& P, MT& x, unsigned n)
 
 template <class pT, class MT, class VT>
 void UtilMath<pT, MT, VT>::convhull3_1(MT& u, MT& fcs) {
-	unsigned n = u.rows();
+	unsigned long n = u.rows();
 	ch_vertex* vertices;
 	vertices = (ch_vertex*)malloc(n * sizeof(ch_vertex));
-	for (unsigned i = 0; i < n; ++i) {
-		vertices[i].x = u(i, 0);
-		vertices[i].y = u(i, 1);
-		vertices[i].z = u(i, 2);
+	if (vertices) {
+		for (unsigned i = 0; i < n; ++i) {
+			vertices[i].x = u(i, 0);
+			vertices[i].y = u(i, 1);
+			vertices[i].z = u(i, 2);
+		}
+	}
+	else {
+		cout << "Can't initialize enough memory for vertices, so convhull build failed \n";
+		exit(0);
 	}
 
-	int* faceIndices = NULL;
-	int nFaces;
+	unsigned long* faceIndices = NULL;
+	unsigned long nFaces;
 	convhull_3d_build(vertices, n, &faceIndices, &nFaces);
 
 	fcs.resize(nFaces, 3);
 
-	for (int i = 0; i < nFaces; i++)
-		for (int j = 0; j < 3; j++)
+	for (unsigned long i = 0; i < nFaces; i++)
+		for (unsigned long j = 0; j < 3; j++)
 			fcs(i, j) = *faceIndices++;
 
 	free(vertices);
