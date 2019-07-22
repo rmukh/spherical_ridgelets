@@ -580,8 +580,8 @@ void convhull_3d_build
 
 			/* Find nonvisible faces */
 
-			nonvisible_faces = (unsigned long*)malloc(num_nonvisible_faces * d * sizeof(int));
-			f0 = (unsigned long*)malloc(num_nonvisible_faces * d * sizeof(int));
+			nonvisible_faces = (unsigned long*)malloc(num_nonvisible_faces * d * sizeof(unsigned long));
+			f0 = (unsigned long*)malloc(num_nonvisible_faces * d * sizeof(unsigned long));
 			for (j = 0, k = 0; j < nFaces; j++) {
 				if (visible_ind[j] == 0) {
 					for (l = 0; l < d; l++)
