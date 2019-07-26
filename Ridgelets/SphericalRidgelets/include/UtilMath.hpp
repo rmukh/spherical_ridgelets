@@ -77,7 +77,7 @@ void UtilMath<pT, MT, VT>::fura(MT& Lmd, unsigned n)
 	for (unsigned k = 2; k < n + 1; k += 2) {
 		//Lmd(k+1)=-Lmd(k-1)*(k-1)/k;
 		c = (pT)k;
-		Lmd.row(k) = -((c - 1.0) / c)*Lmd.row(k - 2);
+		Lmd.row(k) = -((c - 1.0) / c) * Lmd.row(k - 2);
 	}
 
 	//Lmd=(2*pi)*Lmd;
@@ -215,7 +215,7 @@ void UtilMath<pT, MT, VT>::ind_sort(MT& matrix, multimap<pT, unsigned>& indx, un
 }
 
 template <class pT, class MT, class VT>
-void UtilMath<pT, MT, VT>::ind_sort_vec(MT& vec, vector<size_t> & indx) {
+void UtilMath<pT, MT, VT>::ind_sort_vec(MT& vec, vector<size_t>& indx) {
 	/*
 	Return indexies indx in descending order of sorted vector
 	*/
@@ -258,9 +258,9 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	pT C_init = 1 / sqrt(1.25);
 	MT t = (2 * PI / 5.0) * VT::LinSpaced(5, 0, 4);
 	MT u1(5, 3);
-	u1 << C_init * t.array().cos(), C_init * t.array().sin(), C_init * 0.5 * MT::Ones(5, 1);
+	u1 << C_init * t.array().cos(), C_init* t.array().sin(), C_init * 0.5 * MT::Ones(5, 1);
 	MT u2(5, 3);
-	u2 << C_init * (t.array() + 0.2 * PI).cos(), C_init * (t.array() + 0.2 * PI).sin(), -0.5 * C_init * MT::Ones(5, 1);
+	u2 << C_init * (t.array() + 0.2 * PI).cos(), C_init* (t.array() + 0.2 * PI).sin(), -0.5 * C_init * MT::Ones(5, 1);
 	u.resize(12, 3);
 	u << 0, 0, 1, u1, u2, 0, 0, -1;
 
@@ -401,6 +401,9 @@ template <class pT, class MT, class VT>
 void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 	vector<vector<unsigned>>& conn, MT& u, pT thresh, unsigned& n_of_dirs)
 {
+	// Zero all negatives
+	W = (W.array() < 0.0).select(0.0, W);
+
 	// Standart min-max normalization
 	pT W_min = W.minCoeff();
 	W = (W.array() - W_min) / (W.maxCoeff() - W_min);
