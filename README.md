@@ -36,7 +36,7 @@ Note: You can also use *make* with multi-threading option in a way:
 
         make -j#of_threads, e.g. make -j4
 
-The final binary file will be in *build/Spherical_Ridgelets-build* directory and named as *sphridg*
+Please, find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
 
 ## Basic Usage
 
@@ -45,7 +45,7 @@ Mandatory input argument:
 
 Optional input arguments:
 - *-m* [Mask file]
-- *-lvl* [icosahedron tesselation order, 4 by default]
+- *-lvl* [Icosahedron tesselation order, 4 by default]
 - *-nspl* [The number of ridgelets coefficients splits to parallel computing, computed automatically by default based on your computer configuration]
 - *-mth* [Find maxima ODF threshold, 0.7 by default] 
 - *-lmd* [Lambda parameter for FISTA solver, 0.01 by default] 
@@ -59,32 +59,32 @@ Output arguments:
 - *-odf* [ODF values file name] 
 - *-omd* [ODF maxima directions and values file name]
 - *-A* [A basis file name]
-- *-c* enables compression of output files, false by default
+- *-c* Enables compression of output files, disabled by default
 
-You **must** provide at least input dMRI file and one output file to make any computations possible.
+You **must** provide at least input dMRI file and one output file to run the program.
 
 For example:
 
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 
 # Notes on ODF and its directions
-Output file for the ODF maximum directions (-omd) has a size of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x y z odf_value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
+Output file for the ODF maximum directions (-omd) has a shape of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, odf value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
 
 # Important notes
 It is very important to build it with the flag *-DJUST_BUILD=1*. Otherwise, the CMakeLists.txt will include files necessary to build this package as a library.
 
-Currently, NRRD file format (.nrrd, .nhdr) supported only. To build this project you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) in your system. 
+Currently, NRRD file format (.nrrd, .nhdr) supported only. To build this project, you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) installed on your system. 
 
-Input diffusion MRI image expected to be in the shape of (size_x, size_y, size_z, #_of_gradient directions), while mask file expected to be in the shape of (size_x, size_y, size_z, 1).
+Input diffusion MRI image expected to be in the shape of (size x, size y, size z, # of gradient directions), while mask file expected to be in the shape of (size x, size y, size z, 1).
 
 The repository contains *Visual Studio 2017* project files for the development purposes, so you can safely delete them. *GCC* and *clang* compiler adequately supported. This package tested on *Linux* and *Mac OS*. Please, refer to Travis CI badge at the top of this manual. *Windows* compatibility is not guaranteed. Saving *ODF values* operation might **fail** if you don't have **enough RAM memory**.
 
 # Advanced users
 
 ## Speed
-All cmake files created in a way that during the building cmake will automatically determine if you have *OpenMP* installed and use it during compilation. This gives a significant speedup. So, if you don't have OpenMP support, we recommend you to use GCC compiler with OpenMP. [Google](https://www.google.com/) and [this page](https://www.openmp.org/resources/openmp-compilers-tools/) are excellent sources of information on *OpenMP*. Also, it detects and builds the package with supported CPU features like SSE, AVX, etc.
+*OpenMP* enabled by default during compilation to provide you a significant acceleration. So, if you don't have OpenMP support, we recommend you to use GCC compiler with OpenMP. [Google](https://www.google.com/) and [this page](https://www.openmp.org/resources/openmp-compilers-tools/) are excellent sources of information on *OpenMP*. Also, advanced CPU features, e.g., SSE, AVX, etc. enabled by default.
 
-The split parameter (*-nspl*) computed in a way to provide the highest possible level of parallelization for that implementation. This parallelization was tested on Intel only. If you feel that the default value is not optimal for your case, feel free to experiment with that parameter. You can also increase the default value of *-nspl* to reduce RAM consumption.
+The split parameter (*-nspl*) computed in a way to enable the highest possible level of parallelization, however, tests made on Intel CPU's only. If you feel that the default value is not optimal for your case, you are encouraged to experiment with it. You can also increase the default value of *-nspl* to reduce RAM usage.
 
 CMake starts building this package and all required libraries in Release mode to achieve the highest performance. If you want to build in Debug mode, don't forget to pass -DCMAKE_BUILD_TYPE=Debug
 
@@ -103,4 +103,4 @@ For example:
 
 # Bugs & feautures
 
-Please, open a new issue or send a pull request if you found any bug/error or want to propose new features. Don't forget to provide a description of the modifications or/and improvements you made, otherwise it might take longer for me to review and accept your request.
+Please, open a new issue or send a pull request if you found any bug/error or want to propose new features. Don't forget to describe the modifications or/and improvements you made otherwise it might take a long time to review and accept your request.
