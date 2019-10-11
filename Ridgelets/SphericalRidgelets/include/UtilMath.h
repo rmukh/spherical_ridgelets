@@ -35,9 +35,9 @@ public:
 	void unique_sorted(vector<unsigned> & uniques, MT & U);
 	void ind_sort(MT & matrix, multimap<pT, unsigned> & indx, unsigned col_n);
 	void ind_sort_vec(MT & vec, vector<size_t> & indx);
-	void column_find(std::vector<Eigen::Index>& index, MT & arr, unsigned col_n, bool equal, int val);
+	void column_find(vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>>& index, MT & arr, unsigned col_n, bool equal, int val);
 	void icosahedron(MT& u,MT & faces, unsigned level);
-	void index_and_flat(MT & u, vector<Eigen::Index>& a, MT & fcs, unsigned sz, unsigned col);
+	void index_and_flat(MT & u, vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>>& a, MT & fcs, unsigned sz, unsigned col);
 	void FindConnectivity(vector<vector<unsigned>>& conn, MT & fcs, unsigned N);
 	void remove_row(MT & a, Eigen::Index del);
 	void FindODFMaxima(MT & ex, MT & d, VT & W, vector<vector<unsigned>>& conn, MT & u, pT thresh, unsigned & n_of_dirs);

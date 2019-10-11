@@ -232,7 +232,7 @@ void UtilMath<pT, MT, VT>::ind_sort_vec(MT& vec, vector<size_t>& indx) {
 }
 
 template <class pT, class MT, class VT>
-void UtilMath<pT, MT, VT>::column_find(std::vector<Eigen::Index>& index, MT& arr, unsigned col_n, bool equal, int val) {
+void UtilMath<pT, MT, VT>::column_find(vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>>& index, MT& arr, unsigned col_n, bool equal, int val) {
 	/*
 	Looking for columns of MT matrix. bool equal is basically to comply with matlab notation of
 	== if true and ~= if false. So you can check if col_n equal or not to val
@@ -310,7 +310,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 		}
 
 		// Find indicies where 3rd column eq 0
-		std::vector<Eigen::Index> index;
+		vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>> index;
 		column_find(index, u_sorted, 2, true, 0);
 
 		// v matrix part of u where 3rd col eq 0
@@ -338,7 +338,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 }
 
 template <class pT, class MT, class VT>
-void UtilMath<pT, MT, VT>::index_and_flat(MT& u, vector<Eigen::Index>& a, MT& fcs, unsigned sz, unsigned col) {
+void UtilMath<pT, MT, VT>::index_and_flat(MT& u, vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>>& a, MT& fcs, unsigned sz, unsigned col) {
 	/*
 	Create sub array of fcs of size sz starting in column col and rows a
 	*/
@@ -354,13 +354,13 @@ void UtilMath<pT, MT, VT>::FindConnectivity(vector<vector<unsigned>>& conn, MT& 
 	cell array. So it is the best way I found to store arrays of indcicies with different sizes.
 	*/
 	for (unsigned i = 0; i < N; ++i) {
-		vector<Eigen::Index> a1;
+		vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>> a1;
 		column_find(a1, fcs, 0, true, i);
 
-		vector<Eigen::Index> a2;
+		vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>> a2;
 		column_find(a2, fcs, 1, true, i);
 
-		vector<Eigen::Index> a3;
+		vector<Eigen::Index, Eigen::aligned_allocator<Eigen::Index>> a3;
 		column_find(a3, fcs, 2, true, i);
 
 		MT u1(a1.size(), 2);
