@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 	// Beginning of the main computational part
 	SPH_RIDG<precisionType, MatrixType, VectorType> ridg(input_args.sph_J, 1 / input_args.sph_rho);
 	MatrixType A;
+	cout << "Start computing R basis..." << endl;
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
 
@@ -73,7 +74,8 @@ int main(int argc, char *argv[])
 		input_args.output_ridgelets.empty() &&
 		input_args.signal_recon.empty() &&
 		input_args.output_odf.empty() &&
-		input_args.output_fiber_max_odf.empty()) {
+		input_args.output_fiber_max_odf.empty())
+	{
 		return EXIT_SUCCESS;
 	}
 
@@ -86,7 +88,13 @@ int main(int argc, char *argv[])
 	MatrixType C;
 	{
 		SOLVERS<precisionType, MatrixType, MatrixType> slv(A, signal, input_args.fista_lambda);
+		cout << "Start computing ridgelets coefficients..." << endl;
+		auto start = high_resolution_clock::now();
 		slv.FISTA(C, input_args.n_splits); //have a potentinal for optimization
+		auto stop = high_resolution_clock::now();
+		auto ds = duration_cast<seconds>(stop - start);
+		auto dm = duration_cast<minutes>(stop - start);
+		cout << "Computations took " << ds.count() << " seconds ~ " << dm.count() << "+ minutes" << endl;
 	}
 
 	// Save to file(s) user requested through command line
@@ -125,7 +133,9 @@ int main(int argc, char *argv[])
 
 	if (!input_args.output_odf.empty() || !input_args.output_fiber_max_odf.empty())
 	{
+		cout << "Start computing icosahedron..." << endl;
 		m.icosahedron(nu, fcs, input_args.lvl);
+		cout << "Start computing Q basis..." << endl;
 		ridg.QBasis(Q, nu); //Build a Q basis
 	}
 

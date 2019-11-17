@@ -254,7 +254,6 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	/*
 	Build icosahedron based sampling array and their respective faces
 	*/
-	cout << "Start computing icosahedron..." << endl;
 	pT C_init = 1 / sqrt(1.25);
 	MT t = (2 * PI / 5.0) * VT::LinSpaced(5, 0, 4);
 	MT u1(5, 3);
@@ -402,7 +401,7 @@ void UtilMath<pT, MT, VT>::FindODFMaxima(MT& ex, MT& d, VT& W,
 	vector<vector<unsigned>>& conn, MT& u, pT thresh, unsigned& n_of_dirs)
 {
 	// Zero all negatives
-	W = (W.array() < 0.0).select(0.0, W);
+	W = (W.array() < sphZero).select(sphZero, W);
 
 	// Standart min-max normalization
 	pT W_min = W.minCoeff();

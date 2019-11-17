@@ -62,7 +62,6 @@ void SPH_RIDG<pT, MT, VT>::init() {
 
 template<class pT, class MT, class VT>
 void SPH_RIDG<pT, MT, VT>::RBasis(MT& A, MT& u) {
-	cout << "Start computing R basis..." << endl;
 	A.resize(u.rows(), M0.sum());
 	A.setZero();
 
@@ -96,7 +95,6 @@ void SPH_RIDG<pT, MT, VT>::RBasis(MT& A, MT& u) {
 
 template<class pT, class MT, class VT>
 void SPH_RIDG<pT, MT, VT>::QBasis(MT& Q, MT& u) {
-	cout << "Start computing Q basis..." << endl;
 	Q.resize(u.rows(), M0.sum());
 	Q.setZero();
 

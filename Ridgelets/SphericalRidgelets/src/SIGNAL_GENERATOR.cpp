@@ -71,7 +71,7 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 
 			++nOfImgs;
 			// If the direction is 0.0, this is a reference image
-			if (x == 0.0 && y == 0.0 && z == 0.0)
+			if (x == sphZero && y == sphZero && z == sphZero)
 				continue;
 
 			GradientDirections.conservativeResize(GradientDirections.rows() + 1, GradientDirections.cols());
@@ -163,7 +163,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 					voxel_content = it_i.Get();
 
 					// Calculate average b0 value for the voxel
-					if (avrg_b0 == 0.0)
+					if (avrg_b0 == sphZero)
 					{
 						avrg_b0 = 1.0;
 					}
@@ -180,7 +180,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
 						// Get diffusion pixel and normalize to b0
 						precisionType vol;
-						if (avrg_b0 == 0.0)
+						if (avrg_b0 == sphZero)
 							vol = 1e-10;
 						else
 							vol = voxel_content.GetElement(i) / avrg_b0;
@@ -209,7 +209,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 				voxel_content = it.Get();
 
 				// Calculate average b0 value for the voxel
-				if (avrg_b0 == 0.0)
+				if (avrg_b0 == sphZero)
 				{
 					avrg_b0 = 1.0;
 				}
@@ -226,7 +226,7 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
 					// Get diffusion pixel and normalize to b0
 					precisionType vol;
-					if (avrg_b0 == 0.0)
+					if (avrg_b0 == sphZero)
 						vol = 1e-10;
 					else
 						vol = voxel_content.GetElement(i) / avrg_b0;

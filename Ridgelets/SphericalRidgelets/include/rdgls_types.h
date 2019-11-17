@@ -3,13 +3,16 @@
 
 #include "main_externals.h"
 
-//#define USE_FLOAT 1
+#define USE_FLOAT 1
 #if USE_FLOAT
 typedef float precisionType;
 #define CONVHULL_3D_USE_FLOAT_PRECISION 1
 #else
 typedef double precisionType;
 #endif
+
+static const precisionType sphZero(static_cast<precisionType>(0.0));
+static const precisionType sphOne(static_cast<precisionType>(1.0));
 
 // Necessary types defenitions
 typedef Eigen::Matrix<precisionType, Eigen::Dynamic, Eigen::Dynamic> MatrixType;

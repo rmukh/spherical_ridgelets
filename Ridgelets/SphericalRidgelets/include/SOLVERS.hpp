@@ -21,10 +21,6 @@ SOLVERS<pT, RT, ST>::SOLVERS(RT& ridgelets, ST& voxels, pT lambda) : A(&ridgelet
 
 template <class pT, class RT, class ST>
 void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
-	cout << "Start computing ridgelets coefficients..." << endl;
-
-	auto start = high_resolution_clock::now();
-
 	x.resize(A->cols(), s->cols());
 	unsigned split_size = floor(s->cols() / N_splits);
 
@@ -40,11 +36,6 @@ void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 		loop_block(x_block, s_block);
 		x.block(0, it * split_size, x_block.rows(), x_block.cols()) = x_block;
 	}
-
-	auto stop = high_resolution_clock::now();
-	auto ds = duration_cast<seconds>(stop - start);
-	auto dm = duration_cast<minutes>(stop - start);
-	cout << "Computations took " << ds.count() << " seconds ~ " << dm.count() << "+ minutes" << endl;
 }
 
 template <class pT, class RT, class ST>
@@ -76,7 +67,7 @@ void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig)
 		e = ((0.5 * (*A * x - sig).array().pow(2).colwise().sum().array()) +
 			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
 
-		if ((e_old - e) / e_old < 0.001)
+		if ((e_old - e) / e_old < static_cast<precisionType>(0.001))
 			break;
 		else
 			e_old = e;
