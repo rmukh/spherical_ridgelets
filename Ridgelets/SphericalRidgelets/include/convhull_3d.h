@@ -56,6 +56,8 @@
 #ifndef CONVHULL_3D_INCLUDED
 #define CONVHULL_3D_INCLUDED
 
+#include "rdgls_types.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

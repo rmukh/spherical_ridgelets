@@ -39,7 +39,7 @@
 #ifndef MAX
 #define MAX(a,b) (( (a) > (b) ) ? (a) : (b) )
 #endif
-#define CH_MAX_NUM_FACES 50000
+#define CH_MAX_NUM_FACES 5000000
 
  /* structs for qsort */
 typedef struct float_w_idx {

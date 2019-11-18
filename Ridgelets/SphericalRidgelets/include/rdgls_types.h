@@ -3,8 +3,7 @@
 
 #include "main_externals.h"
 
-#define USE_FLOAT 1
-#if USE_FLOAT
+#if USE_FLOAT || UKF_USE_FLOAT
 typedef float precisionType;
 #define CONVHULL_3D_USE_FLOAT_PRECISION 1
 #else
@@ -17,11 +16,13 @@ static const precisionType sphOne(static_cast<precisionType>(1.0));
 // Necessary types defenitions
 typedef Eigen::Matrix<precisionType, Eigen::Dynamic, Eigen::Dynamic> MatrixType;
 typedef Eigen::Matrix<precisionType, Eigen::Dynamic, 1> VectorType;
+
 /* Alternate way to define dMRI volume
 typedef itk::Vector<signed short, 59>   VectorType;
 typedef itk::Image<VectorType, 3>	    DiffusionImageType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 */
+
 typedef itk::VectorImage<precisionType, 3>	DiffusionImageType;
 typedef itk::VariableLengthVector<precisionType> VariableVectorType;
 typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
