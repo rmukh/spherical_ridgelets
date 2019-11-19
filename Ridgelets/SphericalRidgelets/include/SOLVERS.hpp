@@ -22,7 +22,7 @@ SOLVERS<pT, RT, ST>::SOLVERS(RT& ridgelets, ST& voxels, pT lambda) : A(&ridgelet
 template <class pT, class RT, class ST>
 void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 	x.resize(A->cols(), s->cols());
-	unsigned split_size = floor(s->cols() / N_splits);
+	int split_size = floor(s->cols() / N_splits);
 
 #if defined(_OPENMP)
 	#pragma omp parallel for

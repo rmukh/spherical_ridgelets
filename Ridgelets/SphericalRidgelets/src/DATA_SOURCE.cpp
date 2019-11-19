@@ -16,14 +16,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 
 	bool inp1 = false;
 	bool out1 = false;
-	output.is_compress = false;
-	output.lvl = 4;
-	output.n_splits = -1;
-	output.max_odf_thresh = 0.7;
-	output.fista_lambda = 0.01;
-	output.sph_J = 2;
-	output.sph_rho = 3.125;
-	output.nth = -1;
+
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
 			output.input_dmri = argv[i + 1];

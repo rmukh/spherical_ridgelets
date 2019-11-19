@@ -18,7 +18,7 @@
 #include "SPH_RIDG.h"
 #include "DATA_SOURCE.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	Eigen::initParallel();
 
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	DATA_SOURCE data;
 
 	// Parse input parameters from CLI
-	DATA_SOURCE::input_parse input_args;
+	DATA_SOURCE::input_parse input_args{ "","","","","","","",0.7,0.01,3.125,4,2,-1,-1,false };
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 

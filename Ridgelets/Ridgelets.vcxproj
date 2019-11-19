@@ -190,6 +190,7 @@
     <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.h" />
     <ClInclude Include="SphericalRidgelets\include\SPH_RIDG.hpp" />
     <ClInclude Include="SphericalRidgelets\include\UtilMath.h" />
+    <ClInclude Include="SphericalRidgelets\include\UtilMath.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

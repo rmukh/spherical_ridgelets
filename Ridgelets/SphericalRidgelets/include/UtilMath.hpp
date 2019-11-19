@@ -332,7 +332,7 @@ void UtilMath<pT, MT, VT>::icosahedron(MT& u, MT& faces, unsigned level) {
 	}
 
 	// Normalize
-	u = u.array().colwise() / (u.rowwise().norm().array() + 2.2204e-16);
+	u = u.array().colwise() / (u.rowwise().norm().array() + std::numeric_limits<precisionType>::epsilon());
 	convhull3_1(u, faces);
 }
 
