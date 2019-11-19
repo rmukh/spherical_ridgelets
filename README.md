@@ -32,11 +32,15 @@ You can run the script **linux_standalone_build.sh** to perform all steps descri
 
         make
 
-Note: You can also use *make* with multi-threading option in a way:
+### Notes: 
+
+1. You can also use *make* with multi-threading option in a way:
 
         make -j#of_threads, e.g. make -j4
 
-Please, find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
+2. If you want to compile the package with float (single) precision type used instead of double, please add -DUSE_FLOAT=1 when calling the CMake tool.
+
+3. Please, find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
 
 ## Basic Usage
 
@@ -86,7 +90,7 @@ The repository contains *Visual Studio 2017* project files for the development p
 
 The split parameter (*-nspl*) computed in a way to enable the highest possible level of parallelization, however, tests made on Intel CPU's only. If you feel that the default value is not optimal for your case, you are encouraged to experiment with it. You can also increase the default value of *-nspl* to reduce RAM usage.
 
-CMake starts building this package and all required libraries in Release mode to achieve the highest performance. If you want to build in Debug mode, don't forget to pass -DCMAKE_BUILD_TYPE=Debug
+CMake starts building this package and all required libraries in Release mode to achieve the highest performance. If you want to build in Debug mode, don't forget to pass -DCMAKE_BUILD_TYPE=Debug in CMake
 
 ## Custom build
 This package mainly depends on two libraries: *ITK* and *Eigen*. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:

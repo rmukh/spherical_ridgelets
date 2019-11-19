@@ -21,6 +21,10 @@ else()
   set(gen "${CMAKE_GENERATOR}" )
 endif()
 
+if(UKF_USE_FLOAT)
+  set(USE_FLOAT 1)
+endif()
+
 if(JUST_BUILD)
   message(STATUS "Build Spherical Ridgelets as a standalone application")
   set(SPH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Ridgelets/SphericalRidgelets)
@@ -42,6 +46,7 @@ if(JUST_BUILD)
       -DITK_DIR:PATH=${ITK_DIR}
       -DSPH_DIR:PATH=${SPH_DIR}
       -DBUILD_TU:STRING=1
+      -DUSE_FLOAT:STRING=${USE_FLOAT}
     )
 else()
   message(STATUS "Include Spherical Ridgelets for ExternalProject_Add() in ${SPH_DIR}")
