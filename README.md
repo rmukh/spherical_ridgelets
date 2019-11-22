@@ -38,7 +38,7 @@ You can run the script **linux_standalone_build.sh** to perform all steps descri
 
         make -j#of_threads, e.g. make -j4
 
-2. If you want to compile the package with float (single) precision type used instead of double, please add -DUSE_FLOAT=1 when calling the CMake tool.
+2. If you want to compile the package with float (single) precision type used instead of double, please add *-DUSE_FLOAT=1* when calling the CMake tool.
 
 3. Please, find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
 
@@ -56,10 +56,12 @@ Optional input arguments:
 - *-sj* [Predefined integer J, which defines the highest level of 'detectable' signal details parameter of the spherical ridgelets, 2 by default] 
 - *-srho* [Scaling parameter of the spherical ridgelets, 3.125 by default]
 - *-nth* [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
+- *-ext_grads* [The external gradients file of (# directions 3) shape]
 
 Output arguments:
 - *-ridg* [Ridgelet file name]
 - *-sr* [Signal reconstruction]
+- *-ext_sr* [Signal reconstruction using an external gradients table (*-ext_grads* must be specified)]
 - *-odf* [ODF values file name] 
 - *-omd* [ODF maxima directions and values file name]
 - *-A* [A basis file name]
@@ -90,7 +92,7 @@ The repository contains *Visual Studio 2017* project files for the development p
 
 The split parameter (*-nspl*) computed in a way to enable the highest possible level of parallelization, however, tests made on Intel CPU's only. If you feel that the default value is not optimal for your case, you are encouraged to experiment with it. You can also increase the default value of *-nspl* to reduce RAM usage.
 
-CMake starts building this package and all required libraries in Release mode to achieve the highest performance. If you want to build in Debug mode, don't forget to pass -DCMAKE_BUILD_TYPE=Debug in CMake
+CMake starts building this package and all required libraries in Release mode to achieve the highest performance. If you want to build in Debug mode, don't forget to pass *-DCMAKE_BUILD_TYPE=Debug* in CMake
 
 ## Custom build
 This package mainly depends on two libraries: *ITK* and *Eigen*. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:

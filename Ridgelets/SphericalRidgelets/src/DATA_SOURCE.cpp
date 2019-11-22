@@ -9,13 +9,15 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd, -A" << endl;
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
 			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, "
-			"-srho Spherical ridgelets rho, -nth number of threads to use" << endl;
-		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -odf ODF_values, -omd ODF_maxima_dir_&_value, -a A basis matrix, -c enable compression" << endl;
+			"-srho Spherical ridgelets rho, -nth number of threads to use, -ext_grads external gradients file" << endl;
+		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -ext_sr external gradients signal reconstruction, "
+			"-odf ODF_values, -omd ODF_maxima_dir_&_value, -a A basis matrix, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
 	bool inp1 = false;
 	bool out1 = false;
+	bool ext_grads_presented = false;
 
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
@@ -131,6 +133,15 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 					"(must be a positive integer). "
 					"So, will be computed automatically." << endl;
 			}
+		}
+		if (!strcmp(argv[i], "-ext_grads")) {
+			output.external_gradients = argv[i + 1];
+			ext_grads_presented = true;
+		}
+		if (!strcmp(argv[i], "-ext_sr")) {
+			if (!ext_grads_presented)
+				throw std::exception("External gradient directions (-ext_grads) is not provided!");
+			output.ext_signal_recon = argv[i + 1];
 		}
 	}
 	if (!inp1 || !out1) {
@@ -445,6 +456,64 @@ void DATA_SOURCE::fileToMatrix(const string& fname, MatrixType& matrix)
 		for (unsigned j = 0; j < number_of_cols; ++j)
 			inner_stream >> matrix(i, j);
 	}
+}
+
+void DATA_SOURCE::fileGradientsToMatrix(const string& fname, MatrixType& matrix)
+{
+	/*
+		Read an external gradients directions file
+	*/
+	unsigned number_of_rows = 0;
+	unsigned number_of_cols = 0;
+	std::string line;
+	ifstream infile;
+	
+	try {
+		infile.open(fname);
+	}
+	catch (const ifstream::failure &) {
+		throw std::exception("Exception opening/reading file. Please, check if file exists and have a text format.");
+	}
+
+	// Get number of lines
+	while (getline(infile, line))
+		++number_of_rows;
+
+	if (number_of_rows < 1)
+		throw std::exception("Number of rows less than 1 in a file");
+
+	// Get number of columns
+	infile.clear();
+	infile.seekg(0, ios::beg);
+	getline(infile, line);
+	stringstream stream(line);
+	while (stream)
+	{
+		std::string c;
+		stream >> c;
+		if (c.length())
+			++number_of_cols;
+	}
+
+	if (number_of_cols != 3)
+		throw std::exception("Number of columns less than 3");
+
+	matrix.resize(number_of_rows, 3);
+
+	// Filling matrix
+	infile.clear();
+	infile.seekg(0, ios::beg);
+
+	for (unsigned i = 0; i < number_of_rows; ++i)
+	{
+		getline(infile, line);
+		stringstream inner_stream(line);
+
+		for (unsigned j = 0; j < 3; ++j)
+			inner_stream >> matrix(i, j);
+	}
+
+	infile.close();
 }
 
 template <typename T>

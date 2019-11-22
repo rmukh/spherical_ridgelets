@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	DATA_SOURCE data;
 
 	// Parse input parameters from CLI
-	DATA_SOURCE::input_parse input_args{ "","","","","","","",0.7,0.01,3.125,4,2,-1,-1,false };
+	DATA_SOURCE::input_parse input_args{ "","","","","","","","","",0.7,0.01,3.125,4,2,-1,-1,false };
 	if (data.CLI(argc, argv, input_args))
 		return EXIT_SUCCESS;
 
@@ -66,6 +66,15 @@ int main(int argc, char* argv[])
 	cout << "Start computing R basis..." << endl;
 	ridg.RBasis(A, GradientDirections);
 	ridg.normBasis(A);
+	
+	// Read external gradients
+	MatrixType ext_g;
+	MatrixType ext_A;
+	if (!input_args.external_gradients.empty()) {
+		data.fileGradientsToMatrix(input_args.external_gradients, ext_g);
+		ridg.RBasis(ext_A, ext_g);
+		ridg.normBasis(ext_A);
+	}
 
 	if (!input_args.output_A.empty()) // -A
 	{
@@ -128,6 +137,21 @@ int main(int argc, char* argv[])
 
 		data.Matrix2DWI(s_coeff, mask, SR);
 		data.save_to_file<DiffusionImageType>(input_args.signal_recon, s_coeff, input_args.is_compress);
+	}
+
+	// ext_A*c (signal recon with an external gradients)
+	if (!input_args.ext_signal_recon.empty()) // -ext_sr
+	{
+		cout << "Saving signal reconstruction with an external gradients..." << endl;
+		MatrixType SR = ext_A * C;
+
+		DiffusionImagePointer s_coeff = DiffusionImageType::New();
+		data.set_header(s_coeff);
+		s_coeff->SetNumberOfComponentsPerPixel(SR.rows());
+		s_coeff->Allocate();
+
+		data.Matrix2DWI(s_coeff, mask, SR);
+		data.save_to_file<DiffusionImageType>(input_args.ext_signal_recon, s_coeff, input_args.is_compress);
 	}
 
 	UtilMath<precisionType, MatrixType, VectorType> m;
