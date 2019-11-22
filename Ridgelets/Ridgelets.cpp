@@ -21,7 +21,7 @@
 int main(int argc, char* argv[])
 {
 #if defined(USE_FLOAT) || defined(UKF_USE_FLOAT)
-	std::cout << "The package was compiled for float precision computations";
+	std::cout << "The package was compiled for float precision computations" << std::endl;
 #endif
 
 	Eigen::initParallel();

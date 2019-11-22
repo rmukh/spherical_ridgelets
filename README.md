@@ -56,7 +56,7 @@ Optional input arguments:
 - *-sj* [Predefined integer J, which defines the highest level of 'detectable' signal details parameter of the spherical ridgelets, 2 by default] 
 - *-srho* [Scaling parameter of the spherical ridgelets, 3.125 by default]
 - *-nth* [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
-- *-ext_grads* [The external gradients file of (# directions 3) shape]
+- *-ext_grads* [The external gradients file of (# of directions, 3) shape]
 
 Output arguments:
 - *-ridg* [Ridgelet file name]
