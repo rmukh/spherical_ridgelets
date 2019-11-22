@@ -26,6 +26,7 @@
 #include <iostream>
 #include <sstream>
 #include <limits>
+#include <stdexcept>
 
 // Necessary namespaces
 using namespace Eigen;
