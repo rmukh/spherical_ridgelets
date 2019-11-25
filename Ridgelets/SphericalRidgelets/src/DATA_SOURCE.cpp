@@ -140,7 +140,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		}
 		if (!strcmp(argv[i], "-ext_sr")) {
 			if (!ext_grads_presented)
-				throw std::exception("External gradient directions (-ext_grads) is not provided!");
+				throw std::logic_error("External gradient directions (-ext_grads) is not provided!");
 			output.ext_signal_recon = argv[i + 1];
 		}
 	}
@@ -472,7 +472,7 @@ void DATA_SOURCE::fileGradientsToMatrix(const string& fname, MatrixType& matrix)
 		infile.open(fname);
 	}
 	catch (const ifstream::failure &) {
-		throw std::exception("Exception opening/reading file. Please, check if file exists and have a text format.");
+		throw std::logic_error("Exception opening/reading file. Please, check if file exists and have a text format.");
 	}
 
 	// Get number of lines
@@ -480,7 +480,7 @@ void DATA_SOURCE::fileGradientsToMatrix(const string& fname, MatrixType& matrix)
 		++number_of_rows;
 
 	if (number_of_rows < 1)
-		throw std::exception("Number of rows less than 1 in a file");
+		throw std::logic_error("Number of rows less than 1 in a file");
 
 	// Get number of columns
 	infile.clear();
@@ -496,7 +496,7 @@ void DATA_SOURCE::fileGradientsToMatrix(const string& fname, MatrixType& matrix)
 	}
 
 	if (number_of_cols != 3)
-		throw std::exception("Number of columns less than 3");
+		throw std::logic_error("Number of columns less than 3");
 
 	matrix.resize(number_of_rows, 3);
 
