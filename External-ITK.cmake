@@ -3,7 +3,7 @@
 
 set(ITK_TAG "v4.13.1")
 ExternalProject_Add(ITK
-  GIT_REPOSITORY "${git_protocol}://itk.org/ITK.git"
+  GIT_REPOSITORY "${git_protocol}://github.com/Slicer/ITK.git"
   GIT_TAG "${ITK_TAG}"
   SOURCE_DIR itk/ITK
   BINARY_DIR itk/ITK-build
