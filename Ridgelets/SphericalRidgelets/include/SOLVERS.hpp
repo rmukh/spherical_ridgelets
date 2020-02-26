@@ -40,7 +40,10 @@ void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 
 template <class pT, class RT, class ST>
 void SOLVERS<pT, RT, ST>::FISTA(ST& x) {
-	x.resize(A->cols());
+	if (x.cols() == 1)
+		x.resize(A->cols(), 1);
+	else
+		x.resize(A->cols(), s->cols());
 	loop_block(x, *s);
 }
 
@@ -67,11 +70,11 @@ void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig)
 		e = ((0.5 * (*A * x - sig).array().pow(2).colwise().sum().array()) +
 			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
 
-		if ((e_old - e) / e_old < static_cast<precisionType>(0.001))
+		if (std::fabs(e_old - e) / e_old < static_cast<precisionType>(0.001))
 			break;
 		else
 			e_old = e;
-
+		
 		//Nesterov acceleration
 		t = (1 + sqrt(1 + 4 * t_old * t_old)) / 2;
 		y = x + ((t_old - 1) / t) * (x - x_old);
