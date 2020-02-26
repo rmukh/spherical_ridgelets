@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------------
 # Get and build itk
 
-set(ITK_TAG "1724fc0f25cc6fa77bc60ef56161611333ba09f6")
+set(ITK_TAG "f9ae0a051440b674c82dfa41c5054b2c7308417e")
 ExternalProject_Add(ITK
   GIT_REPOSITORY "${git_protocol}://github.com/Slicer/ITK.git"
   GIT_TAG "${ITK_TAG}"
