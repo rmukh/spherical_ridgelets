@@ -107,7 +107,8 @@ int main(int argc, char* argv[])
 		SOLVERS<precisionType, MatrixType, MatrixType> slv(A, signal, input_args.fista_lambda);
 		cout << "Start computing ridgelets coefficients..." << endl;
 		auto start = high_resolution_clock::now();
-		slv.FISTA(C, input_args.n_splits); //have a potentinal for optimization
+		//have a potentinal for optimization
+		slv.FISTA(C, input_args.n_splits, input_args.fista_iterations); 
 		auto stop = high_resolution_clock::now();
 		auto ds = duration_cast<seconds>(stop - start);
 		auto dm = duration_cast<minutes>(stop - start);

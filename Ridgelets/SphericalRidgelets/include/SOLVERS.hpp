@@ -20,7 +20,7 @@ template <class pT, class RT, class ST>
 SOLVERS<pT, RT, ST>::SOLVERS(RT& ridgelets, ST& voxels, pT lambda) : A(&ridgelets), s(&voxels), lmd(lambda) {}
 
 template <class pT, class RT, class ST>
-void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
+void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits, int n_iterations) {
 	x.resize(A->cols(), s->cols());
 	int split_size = floor(s->cols() / N_splits);
 
@@ -33,22 +33,22 @@ void SOLVERS<pT, RT, ST>::FISTA(ST& x, int N_splits) {
 
 		s_block = s->block(0, it * split_size, s->rows(), split_size);
 		
-		loop_block(x_block, s_block);
+		loop_block(x_block, s_block, n_iterations);
 		x.block(0, it * split_size, x_block.rows(), x_block.cols()) = x_block;
 	}
 }
 
 template <class pT, class RT, class ST>
-void SOLVERS<pT, RT, ST>::FISTA(ST& x) {
+void SOLVERS<pT, RT, ST>::FISTA(ST& x, int n_iterations) {
 	if (x.cols() == 1)
 		x.resize(A->cols(), 1);
 	else
 		x.resize(A->cols(), s->cols());
-	loop_block(x, *s);
+	loop_block(x, *s, n_iterations);
 }
 
 template<class pT, class RT, class ST>
-void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig)
+void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig, int n_iterations)
 {
 	ST y;
 	y = ST::Zero(A->cols(), sig.cols());
@@ -61,7 +61,7 @@ void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig)
 	pT e_old = 1e32;
 	pT e;
 
-	for (int iter = 0; iter < 2000; ++iter) {
+	for (int iter = 0; iter < n_iterations; ++iter) {
 		x = y + A->transpose() * (sig - *A * y);
 
 		//Soft thresholding

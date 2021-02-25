@@ -18,10 +18,10 @@ public:
 	SOLVERS(RT& ridgelets, ST& voxels);
 	SOLVERS(RT& ridgelets, ST& voxels, pT lambda);
 
-	void FISTA(ST & x, int N_splits);
-	void FISTA(ST & x);
+	void FISTA(ST & x, int N_splits, int n_iterations);
+	void FISTA(ST & x, int n_iterations);
 
-	void loop_block(ST& x, ST& sig);
+	void loop_block(ST& x, ST& sig, int n_iterations);
 };
 
 #include "SOLVERS.hpp"
