@@ -3,13 +3,16 @@
 DATA_SOURCE::DATA_SOURCE() {}
 DATA_SOURCE::~DATA_SOURCE() {}
 
-int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
+int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 	if (argc < 5)
 	{
+		cerr << "Not enough input arguments!" << endl;
 		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd, -A" << endl;
-		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits "
-			"coefficient, -mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, "
-			"-srho Spherical ridgelets rho, -nth number of threads to use, -ext_grads external gradients file" << endl;
+
+		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits coefficient, "
+			"-mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho, "
+			"-nth number of threads to use, -ext_grads external gradients file, -fi number of FISTA iterations" << endl;
+
 		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -ext_sr external gradients signal reconstruction, "
 			"-odf ODF_values, -omd ODF_maxima_dir_&_value, -a A basis matrix, -c enable compression" << endl;
 		return EXIT_FAILURE;
@@ -21,16 +24,16 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "-i")) {
-			output.input_dmri = argv[i + 1];
+			output->input_dmri = argv[i + 1];
 			inp1 = true;
 		}
 		if (!strcmp(argv[i], "-m")) {
-			output.input_mask = argv[i + 1];
+			output->input_mask = argv[i + 1];
 		}
 		if (!strcmp(argv[i], "-sj")) {
 			float sj = stof(argv[i + 1]);
 			if (sj == floor(sj) && sj > 0) {
-				output.sph_J = sj;
+				output->sph_J = sj;
 			}
 			else {
 				cout << "The J value of spherical ridgelets  "
@@ -42,7 +45,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		if (!strcmp(argv[i], "-srho")) {
 			float rho = stof(argv[i + 1]);
 			if (rho > 0) {
-				output.sph_rho = rho;
+				output->sph_rho = rho;
 			}
 			else {
 				cout << "The maxima ODF search threshold "
@@ -54,7 +57,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		if (!strcmp(argv[i], "-lvl")) {
 			float order = stof(argv[i + 1]);
 			if (order == floor(order) && order > 0) {
-				output.lvl = order;
+				output->lvl = order;
 			}
 			else {
 				cout << "The value for icosahedron "
@@ -66,7 +69,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		if (!strcmp(argv[i], "-nspl")) {
 			float splt = stof(argv[i + 1]);
 			if (splt == floor(splt) && splt > 0) {
-				output.n_splits = splt;
+				output->n_splits = splt;
 			}
 			else {
 				cout << "The split coefficient for the ridgelets "
@@ -78,7 +81,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		if (!strcmp(argv[i], "-mth")) {
 			float th = stof(argv[i + 1]);
 			if (th > 0 && th < 1) {
-				output.max_odf_thresh = th;
+				output->max_odf_thresh = th;
 			}
 			else {
 				cout << "The maxima ODF search threshold "
@@ -90,7 +93,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 		if (!strcmp(argv[i], "-lmd")) {
 			float lmd = stof(argv[i + 1]);
 			if (lmd > 0) {
-				output.fista_lambda = lmd;
+				output->fista_lambda = lmd;
 			}
 			else {
 				cout << "The lambda parameter of FISTA "
@@ -100,32 +103,32 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 			}
 		}
 		if (!strcmp(argv[i], "-ridg")) {
-			output.output_ridgelets = argv[i + 1];
+			output->output_ridgelets = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-sr")) {
-			output.signal_recon = argv[i + 1];
+			output->signal_recon = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-odf")) {
-			output.output_odf = argv[i + 1];
+			output->output_odf = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-omd")) {
-			output.output_fiber_max_odf = argv[i + 1];
+			output->output_fiber_max_odf = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-A")) {
-			output.output_A = argv[i + 1];
+			output->output_A = argv[i + 1];
 			out1 = true;
 		}
 		if (!strcmp(argv[i], "-c")) {
-			output.is_compress = true;
+			output->is_compress = true;
 		}
 		if (!strcmp(argv[i], "-nth")) {
 			float n_threads = stof(argv[i + 1]);
 			if (n_threads == floor(n_threads) && n_threads > 0) {
-				output.nth = n_threads;
+				output->nth = n_threads;
 			}
 			else {
 				cout << "The value for number of threads "
@@ -135,13 +138,26 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 			}
 		}
 		if (!strcmp(argv[i], "-ext_grads")) {
-			output.external_gradients = argv[i + 1];
+			output->external_gradients = argv[i + 1];
 			ext_grads_presented = true;
 		}
 		if (!strcmp(argv[i], "-ext_sr")) {
 			if (!ext_grads_presented)
 				throw std::logic_error("External gradient directions (-ext_grads) is not provided!");
-			output.ext_signal_recon = argv[i + 1];
+			output->ext_signal_recon = argv[i + 1];
+		}
+		if (!strcmp(argv[i], "-fi")) {
+			float iters = stof(argv[i + 1]);
+			if (iters == floor(iters) && iters > 0) {
+				output->fista_iterations = iters;
+			}
+			else {
+				cout << "The value for number of FISTA iterations "
+					"provided is in the wrong format "
+					"(must be a positive integer). "
+					"So, the default (" << output->fista_iterations 
+					<< ") will be used." << endl;
+			}
 		}
 	}
 	if (!inp1 || !out1) {
@@ -151,7 +167,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse& output) {
 	return 0;
 }
 
-void DATA_SOURCE::short_summary(input_parse& params) {
+void DATA_SOURCE::short_summary(const input_parse& params) {
 	// Show summary on parameters will be used during computations
 
 	cout << "Summary on parameters" << endl;
@@ -280,7 +296,7 @@ void DATA_SOURCE::data_saving_info_out(unsigned long int coef_size, string name)
 	cout << "Also you need " << ridg_save / pow(1024, 3) << " GB of RAM to save " << name << endl;
 }
 
-void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, input_parse& params) {
+void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, const input_parse& params) {
 	unsigned n_splits = params.n_splits;
 
 	// Get the number of threads

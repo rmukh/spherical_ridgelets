@@ -15,20 +15,21 @@ public:
 		unsigned lvl, sph_J;
 		int n_splits, nth;
 		bool is_compress;
+		int fista_iterations;
 	} input_parse;
 
 	DATA_SOURCE();
 	~DATA_SOURCE();
 
-	int CLI(int argc, char * argv[], input_parse & output);
-	void short_summary(input_parse & params);
+	int CLI(int argc, char * argv[], input_parse * output);
+	void short_summary(const input_parse & params);
 	int readMask(string inputMask, MaskImagePointer & image);
 	void set_header(DiffusionImagePointer & dest);
 	bool is_path_exists(const string & s);
 	void testFNC();
 	void readTestData(MatrixType & g, MatrixType & s);
 	void data_saving_info_out(unsigned long int coef_size, string name);
-	void estimate_memory(MatrixType & s, MatrixType & A, input_parse & params);
+	void estimate_memory(MatrixType & s, MatrixType & A, const input_parse & params);
 	int compute_splits(unsigned s_size);
 	int DWI2Matrix(string & dmri_file, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);

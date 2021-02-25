@@ -1,6 +1,6 @@
 // Ridgelets.cpp : This file contains the 'main' function. Program execution begins and ends there.
 /*
- Copyright (c) 2019 Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
+ Copyright (c) 2021 Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
 
  * Description:
  *     A C++ implementation of spherical ridgelets and orientation distribution function.
@@ -35,8 +35,12 @@ int main(int argc, char* argv[])
 	DATA_SOURCE data;
 
 	// Parse input parameters from CLI
-	DATA_SOURCE::input_parse input_args{ "","","","","","","","","",0.7,0.01,3.125,4,2,-1,-1,false };
-	if (data.CLI(argc, argv, input_args))
+	DATA_SOURCE::input_parse input_args {
+		"","","","","","","","","",
+		0.7,0.01,3.125,4,2,-1,-1,false,2000 
+	};
+
+	if (data.CLI(argc, argv, &input_args))
 		return EXIT_SUCCESS;
 
 #if defined(_OPENMP)
