@@ -16,6 +16,7 @@ public:
 		int n_splits, nth;
 		bool is_compress;
 		int fista_iterations;
+		precisionType fista_tolerance;
 	} input_parse;
 
 	DATA_SOURCE();

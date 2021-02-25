@@ -58,6 +58,7 @@ Optional input arguments:
 - *-nth* [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
 - *-ext_grads* [The external gradients file of (# of directions, 3) shape]
 - *-fi* [The number of FISTA iterations, 2000 by default]
+- *-ft* [The convergence tolerance of FISTA, 0.001 by default]
 
 Output arguments:
 - *-ridg* [Ridgelet file name]

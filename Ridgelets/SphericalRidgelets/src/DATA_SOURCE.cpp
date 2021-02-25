@@ -11,7 +11,8 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits coefficient, "
 			"-mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho, "
-			"-nth number of threads to use, -ext_grads external gradients file, -fi number of FISTA iterations" << endl;
+			"-nth number of threads to use, -ext_grads external gradients file, -fi number of FISTA iterations, "
+			"-ft FISTA tolerance" << endl;
 
 		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -ext_sr external gradients signal reconstruction, "
 			"-odf ODF_values, -omd ODF_maxima_dir_&_value, -a A basis matrix, -c enable compression" << endl;
@@ -80,7 +81,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 		}
 		if (!strcmp(argv[i], "-mth")) {
 			float th = stof(argv[i + 1]);
-			if (th > 0 && th < 1) {
+			if (th > 0.0 && th < 1.0) {
 				output->max_odf_thresh = th;
 			}
 			else {
@@ -92,7 +93,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 		}
 		if (!strcmp(argv[i], "-lmd")) {
 			float lmd = stof(argv[i + 1]);
-			if (lmd > 0) {
+			if (lmd > 0.0 && lmd < 1.0) {
 				output->fista_lambda = lmd;
 			}
 			else {
@@ -157,6 +158,19 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 					"(must be a positive integer). "
 					"So, the default (" << output->fista_iterations 
 					<< ") will be used." << endl;
+			}
+		}
+		if (!strcmp(argv[i], "-ft")) {
+			float ft = stof(argv[i + 1]);
+			if (ft > 0.0 && ft < 1.0) {
+				output->fista_tolerance = ft;
+			}
+			else {
+				cout << "The tolerance parameter of FISTA "
+					"provided is in the wrong "
+					"format (must be in (0, 1)). "
+					"So, the default value" << output->fista_tolerance
+					<< "will be used." << endl;
 			}
 		}
 	}

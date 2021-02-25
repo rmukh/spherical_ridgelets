@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	// Parse input parameters from CLI
 	DATA_SOURCE::input_parse input_args {
 		"","","","","","","","","",
-		0.7,0.01,3.125,4,2,-1,-1,false,2000 
+		0.7,0.01,3.125,4,2,-1,-1,false,2000,0.001
 	};
 
 	if (data.CLI(argc, argv, &input_args))
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
 		cout << "Start computing ridgelets coefficients..." << endl;
 		auto start = high_resolution_clock::now();
 		//have a potentinal for optimization
-		slv.FISTA(C, input_args.n_splits, input_args.fista_iterations); 
+		slv.FISTA(C, input_args.n_splits, input_args.fista_iterations, input_args.fista_tolerance); 
 		auto stop = high_resolution_clock::now();
 		auto ds = duration_cast<seconds>(stop - start);
 		auto dm = duration_cast<minutes>(stop - start);
