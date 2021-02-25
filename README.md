@@ -57,6 +57,7 @@ Optional input arguments:
 - *-srho* [Scaling parameter of the spherical ridgelets, 3.125 by default]
 - *-nth* [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
 - *-ext_grads* [The external gradients file of (# of directions, 3) shape]
+- *-fi* [The number of FISTA iterations, 2000 by default]
 
 Output arguments:
 - *-ridg* [Ridgelet file name]
