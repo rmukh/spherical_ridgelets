@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.6)
-include("${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/libs.cmake")
+cmake_minimum_required(VERSION 3.8)
+project(StandaloneSphericalRidgelets)
 
 # Set a default build type if none was specified
 set(default_build_type "Release")
@@ -24,6 +23,13 @@ endif()
 if(UKF_USE_FLOAT)
   set(USE_FLOAT 1)
 endif()
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/libs.cmake")
+
+message("Build type: ${CMAKE_BUILD_TYPE}")
+message("C options: ${CMAKE_C_FLAGS}")
+message("Cxx options: ${CMAKE_CXX_FLAGS}")
 
 if(JUST_BUILD)
   message(STATUS "Build Spherical Ridgelets as a standalone application")

@@ -1,11 +1,12 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.8)
+project(SphericalRidgelets VERSION 1.2)
+
 if(BUILD_TU)
 	include("${SPH_DIR}/../../Common.cmake")
 endif()
 if(USE_FLOAT)
   add_definitions(-DUSE_FLOAT=1)
 endif()
-project(SphericalRidgelets VERSION 1.2)
 include(GNUInstallDirs)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)

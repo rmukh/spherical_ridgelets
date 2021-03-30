@@ -3,10 +3,10 @@
 
 set(ITK_TAG "4f89edd8334da198099c686b993ec9f9f12dccdf")
 ExternalProject_Add(ITK
-  GIT_REPOSITORY "${git_protocol}://github.com/Slicer/ITK.git"
+  GIT_REPOSITORY "https://github.com/Slicer/ITK.git"
   GIT_TAG "${ITK_TAG}"
-  SOURCE_DIR itk/ITK
-  BINARY_DIR itk/ITK-build
+  SOURCE_DIR ITK
+  BINARY_DIR ITK-build
   CMAKE_GENERATOR ${gen}
   CMAKE_ARGS
     -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
@@ -29,4 +29,4 @@ ExternalProject_Add(ITK
   INSTALL_COMMAND ""
 )
 
-set(ITK_DIR ${CMAKE_BINARY_DIR}/itk/ITK-build)
+set(ITK_DIR ${CMAKE_BINARY_DIR}/ITK-build)
