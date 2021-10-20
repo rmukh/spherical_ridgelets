@@ -85,7 +85,7 @@ Currently, NRRD file format (.nrrd, .nhdr) supported only. To build this project
 
 Input diffusion MRI image expected to be in the shape of (size x, size y, size z, # of gradient directions), while mask file expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file.
 
-The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. 
+The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. Only *GCC* version 7.x.x is currently adequately supported, so install and use this version (gcc and g++) and specify the system paths if necessary. The usage example for Cmake/make build you can find in linux_standalone_build.sh
 
 Saving ODF values operation might fail if you don't have enough RAM.
 
