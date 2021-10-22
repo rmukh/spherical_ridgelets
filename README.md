@@ -1,4 +1,5 @@
-[![Build Status](https://app.travis-ci.com/rmukh/spherical_ridgelets.svg?branch=master)](https://app.travis-ci.com/rmukh/spherical_ridgelets)
+[![Build Status](https://app.travis-ci.com/rmukh/spherical_ridgelets.svg?branch=master)](https://app.travis-ci.com/rmukh/spherical_ridgelets) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5591085.svg)](https://doi.org/10.5281/zenodo.5591085)
+
 
 # Overview
 Package to compute spherical ridgelets.
@@ -114,3 +115,8 @@ For example:
 # Bugs & feautures
 
 Please, open a new issue or send a pull request if you found any bug/error or want to propose new features. Don't forget to describe the modifications or/and improvements you made otherwise it might take a long time to review and accept your request.
+
+# Citation
+
+**BibTeX**  
+@misc{sphridg_software, title={Sofwater for computation of spherical ridgelets for diffusion MRI}, DOI={10.5281/zenodo.5591084}, abstractNote={C++ Package to compute spherical ridgelets.}, publisher={Zenodo}, author={Rinat Mukhometzianov and Oleg Michailovich and Yogesh Rathi}, year={2021}, month={Oct} }
