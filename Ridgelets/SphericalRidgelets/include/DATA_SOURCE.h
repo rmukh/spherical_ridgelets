@@ -32,7 +32,7 @@ public:
 	void data_saving_info_out(unsigned long int coef_size, string name);
 	void estimate_memory(MatrixType & s, MatrixType & A, const input_parse & params);
 	int compute_splits(unsigned s_size);
-	int DWI2Matrix(string & dmri_file, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
+	int DWI2Matrix(input_parse* input_args, MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
 	void Matrix2DWI(DiffusionImagePointer & img, MaskImagePointer & mask, MatrixType & arr);
 	void matrixToFile(const string & fname, MatrixType & matrix);
 	void fileToMatrix(const string & fname, MatrixType & arr);

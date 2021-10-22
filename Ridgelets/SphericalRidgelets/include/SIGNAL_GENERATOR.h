@@ -11,6 +11,7 @@ public:
 	bool is_path_exists(const string & s);
 	int readVolume(MatrixType & GradientDirections, DiffusionImagePointer & image);
 	int ExtractMatrix(MaskImagePointer & mask, MatrixType & signal, MatrixType & grad_dirs);
+	void remove_row(MatrixType& a, Eigen::Index del);
 	unsigned nGradImgs; // Number of gradient images
 	unsigned nOfImgs; // Total number of images (including b0)
 	dMRI_h_info h;

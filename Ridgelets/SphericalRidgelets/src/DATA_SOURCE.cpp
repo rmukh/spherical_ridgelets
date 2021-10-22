@@ -217,7 +217,7 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 
 	if (ext_vol.compare("nhdr")) {
 		if (ext_vol.compare("nrrd")) {
-			cout << "NDHR or NRRD file formats only! Please, check file type." << endl;
+			cerr << "NDHR or NRRD file formats only! Please, check file type." << endl;
 			return EXIT_FAILURE;
 		}
 	}
@@ -351,9 +351,23 @@ int DATA_SOURCE::compute_splits(unsigned s_size) {
 	return s;
 }
 
-int DATA_SOURCE::DWI2Matrix(string &dmri_file, MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
+int DATA_SOURCE::DWI2Matrix(input_parse* input_args, MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
 {
-	SIGNAL_GENERATOR sg(dmri_file);
+	if (!input_args->external_gradients.empty()) {
+		char answer;
+		cout << "External gradient file is found. Do you want to use gradients from it instead of the image's one? (y/n)" << endl;
+		cin >> answer;
+		if (answer == 'y')
+			DATA_SOURCE::fileGradientsToMatrix(input_args->external_gradients, grad_dirs);
+		else if (answer == 'n')
+			cout << "Volume's gradients will be used." << endl;
+		else {
+			cerr << "Incorrect answer. Rerun the program." << endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	SIGNAL_GENERATOR sg(input_args->input_dmri);
 	int res_dmri = sg.ExtractMatrix(mask, signal, grad_dirs);
 	h = sg.h;
 	if (res_dmri)

@@ -21,7 +21,7 @@
 int main(int argc, char* argv[])
 {
 #if defined(USE_FLOAT) || defined(UKF_USE_FLOAT)
-	std::cout << "The package was compiled for float precision computations" << std::endl;
+	cout << "The package was compiled for float precision computations" << endl;
 #endif
 
 	Eigen::initParallel();
@@ -60,17 +60,12 @@ int main(int argc, char* argv[])
 	// 4D dMRI image to Eigen 2D Matrix
 	MatrixType signal;
 	MatrixType GradientDirections; // Matrix with dMRI image gradient directions
-	int res_dmri = data.DWI2Matrix(input_args.input_dmri, mask, signal, GradientDirections);
+	int res_dmri = data.DWI2Matrix(&input_args, mask, signal, GradientDirections);
 	if (res_dmri)
 		return EXIT_SUCCESS;
 
-	// Beginning of the main computational part
 	SPH_RIDG<precisionType, MatrixType, VectorType> ridg(input_args.sph_J, 1 / input_args.sph_rho);
-	MatrixType A;
-	cout << "Start computing R basis..." << endl;
-	ridg.RBasis(A, GradientDirections);
-	ridg.normBasis(A);
-	
+
 	// Read external gradients
 	MatrixType ext_g;
 	MatrixType ext_A;
@@ -79,6 +74,12 @@ int main(int argc, char* argv[])
 		ridg.RBasis(ext_A, ext_g);
 		ridg.normBasis(ext_A);
 	}
+
+	// Beginning of the main computational part
+	MatrixType A;
+	cout << "Start computing R basis..." << endl;
+	ridg.RBasis(A, GradientDirections);
+	ridg.normBasis(A);
 
 	if (!input_args.output_A.empty()) // -A
 	{
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
 		cout << "Start computing ridgelets coefficients..." << endl;
 		auto start = high_resolution_clock::now();
 		//have a potentinal for optimization
-		slv.FISTA(C, input_args.n_splits, input_args.fista_iterations, input_args.fista_tolerance); 
+		slv.FISTA(C, input_args.n_splits, input_args.fista_iterations, input_args.fista_tolerance);
 		auto stop = high_resolution_clock::now();
 		auto ds = duration_cast<seconds>(stop - start);
 		auto dm = duration_cast<minutes>(stop - start);
