@@ -5,7 +5,7 @@ echo To use a default \(4\) value just press Enter.
 
 read n_threads
 
-if [ -z "$n_threads" ] || [ -z ${n_threads} ];
+if [ -z "$n_threads" ] || [ -z "${n_threads}" ];
 then
 	n_threads=4
 fi
