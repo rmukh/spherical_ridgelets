@@ -62,19 +62,28 @@ Optional input arguments:
 - *-ft* [The convergence tolerance of FISTA, 0.001 by default]
 
 Output arguments:
-- *-ridg* [Ridgelet file name]
+- *-ridg* [Ridgelets coefficients file name]
 - *-sr* [Signal reconstruction]
 - *-ext_sr* [Signal reconstruction using an external gradients table (*-ext_grads* must be specified)]
 - *-odf* [ODF values file name] 
 - *-omd* [ODF maxima directions and values file name]
 - *-A* [A basis file name]
-- *-c* Enables compression of output files, disabled by default
+- *-c* Enables compression of output nrrd files, disabled by default
 
 You **must** provide at least input dMRI file and one output file to run the program.
 
 For example:
 
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
+
+# Outputs
+*-ridg* gives a 4D file with the same spatial size as an input, and the last dimension is a vector of representation (ridgelets) coefficients.
+
+*-sr* provides a reconstructed signal of exactly the same size as an input.
+
+*-ext_sr* generates a reconstructed signal at the diffusion-encoding directions provided with the external gradient table.
+
+*-A* outputs a spherical ridgelets basis
 
 # Notes on ODF and its directions
 Output file for the ODF maximum directions (-omd) has a shape of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, odf value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
@@ -84,11 +93,14 @@ It is very important to build it with the flag *-DJUST_BUILD=1*. Otherwise, the 
 
 Currently, NRRD file format (.nrrd, .nhdr) supported only. To build this project, you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) installed on your system. 
 
-Input diffusion MRI image expected to be in the shape of (size x, size y, size z, # of gradient directions), while mask file expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file.
+Input diffusion MRI image expected to be in the shape of (size x, size y, size z, # of gradient directions), while mask file expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file. The advanced text cleaning and gradient table detection procedures are not implemented yet.
 
 The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. Only *GCC* version 7.x.x is currently adequately supported, so install and use this version (gcc and g++) and specify the system paths if necessary. The usage example for Cmake/make build you can find in linux_standalone_build.sh
 
-Saving ODF values operation might fail if you don't have enough RAM.
+Saving ODF values operation **might fail** if you don't have enough RAM.
+
+Addition info you can find here: https://rinatm.com/spherical-ridgelets-for-high-angular-resolution-diffusion-imaging-hardi-implementation/
+
 
 # Advanced users
 
