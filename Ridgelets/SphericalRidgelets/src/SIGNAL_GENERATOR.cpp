@@ -47,9 +47,10 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 		reader->Update();
 		image = reader->GetOutput();
 	}
-	catch (itk::ExceptionObject)
+	catch (itk::ExceptionObject &ex)
 	{
 		cerr << "Can't read input dMRI file! Please, check that file is not corrupted." << endl;
+		cerr << "Extra error message: " << ex << endl;
 		return EXIT_FAILURE;
 	}
 
