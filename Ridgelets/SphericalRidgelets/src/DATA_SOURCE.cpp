@@ -229,9 +229,10 @@ int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
 		reader->Update();
 		image = reader->GetOutput();
 	}
-	catch (itk::ExceptionObject)
+	catch (itk::ExceptionObject &ex)
 	{
 		cerr << "Can't read input mask file! Please, check that file is not corrupted." << endl;
+		cerr << "Extra error message: " << ex << endl;
 		return EXIT_FAILURE;
 	}
 	cout << "Mask file loaded" << endl;
