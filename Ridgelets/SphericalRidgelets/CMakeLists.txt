@@ -85,6 +85,13 @@ endif()
 
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SphericalRidgelets)
 
+# Make a python module with an pybind11 interface
+message(STATUS "Building the python module")
+add_subdirectory(${SPH_DIR}/../../pybind11 [EXCLUDE_FROM_ALL])
+pybind11_add_module(Spherical_Ridgelets_py ${SPH_DIR}/src/Spherical_Ridgelets_py.cpp)
+target_link_libraries(Spherical_Ridgelets_py PRIVATE Spherical_Ridgelets)
+target_link_libraries(Spherical_Ridgelets_py PUBLIC Eigen3::Eigen)
+
 add_executable(sphridg ${SPH_DIR}/../Ridgelets.cpp)
 target_link_libraries(sphridg PUBLIC Eigen3::Eigen ${ITK_LIBRARIES} ${OPENMP} Spherical_Ridgelets)
 
