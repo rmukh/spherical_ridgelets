@@ -323,7 +323,7 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, const input_pars
 
 	// Estimate memory consumption by FISTA solver
 	unsigned long long int fista_memory_x = s.cols() * A.cols() * sizeof(precisionType);
-	unsigned long long int fista_memory_loop = n_threads * 4 * (s.cols() / n_splits) * A.cols() * sizeof(precisionType);
+	unsigned long long int fista_memory_loop = static_cast<unsigned long long int>(n_threads) * 4 * (s.cols() / n_splits) * A.cols() * sizeof(precisionType);
 	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
 
 	cout << "IMPORTANT! To successfully finish computations you need approximately ";
