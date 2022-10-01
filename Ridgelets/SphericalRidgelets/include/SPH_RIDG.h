@@ -24,8 +24,9 @@ public:
 	void init(); //pre-compute all necessary matricies/vectors
 
 	void RBasis(MT& A, MT& u); //return spherical ridgelets basis matrix
+	MT GetRBasis(MT& u); //return spherical ridgelets basis matrix
 	void QBasis(MT& Q, MT& u); //For visualizing pupose only
-	void normBasis(MT& mat); //normalize basis
+	void normBasis(Eigen::Ref<MT> mat); //normalize basis
 
 private:
 	int mcut;

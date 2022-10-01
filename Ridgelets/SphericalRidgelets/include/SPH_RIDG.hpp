@@ -94,6 +94,13 @@ void SPH_RIDG<pT, MT, VT>::RBasis(MT& A, MT& u) {
 }
 
 template<class pT, class MT, class VT>
+MT SPH_RIDG<pT, MT, VT>::GetRBasis(MT& u) {
+	MT A = MT::Zero(u.rows(), M0.sum());
+	RBasis(A, u);
+	return A;
+}
+
+template<class pT, class MT, class VT>
 void SPH_RIDG<pT, MT, VT>::QBasis(MT& Q, MT& u) {
 	Q.resize(u.rows(), M0.sum());
 	Q.setZero();
@@ -128,7 +135,7 @@ void SPH_RIDG<pT, MT, VT>::QBasis(MT& Q, MT& u) {
 }
 
 template<class pT, class MT, class VT>
-void SPH_RIDG<pT, MT, VT>::normBasis(MT& mat) {
+void SPH_RIDG<pT, MT, VT>::normBasis(Eigen::Ref<MT> mat) {
 	MT e = mat * mat.transpose();
 	SelfAdjointEigenSolver<MT> eigensolver(mat.rows());
 	eigensolver.compute(e, EigenvaluesOnly);

@@ -5,7 +5,7 @@
 
 template <class pT, class RT, class ST>
 SOLVERS<pT, RT, ST>::SOLVERS() : A(NULL), s(NULL) {
-	cerr << "Minimal set of argumets: ridgelets basis, full DWI array or matrix/vector with voxel(s). "
+	cout << "Minimal set of argumets: ridgelets basis, full DWI array or matrix/vector with voxel(s).\n"
 		"The last parameter - lambda value is optional.\n";
 }
 
@@ -48,7 +48,7 @@ void SOLVERS<pT, RT, ST>::FISTA(ST& x, int n_iterations, precisionType tolerance
 }
 
 template<class pT, class RT, class ST>
-void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig, int n_iterations, precisionType tolerance)
+void SOLVERS<pT, RT, ST>::loop_block(ST& x, ST& sig, int n_iterations, precisionType tolerance)
 {
 	ST y;
 	y = ST::Zero(A->cols(), sig.cols());
@@ -81,6 +81,44 @@ void SOLVERS<pT, RT, ST>::loop_block(ST & x, ST & sig, int n_iterations, precisi
 		x_old = x;
 		t_old = t;
 	}
+}
+
+template <class pT, class RT, class ST>
+ST SOLVERS<pT, RT, ST>::SolveSingle_py(RT& basis, ST& sig, precisionType lmd, int n_iterations, precisionType tolerance) {
+	ST x = ST::Zero(basis.cols(), 1);
+	ST y = ST::Zero(basis.cols(), 1);
+	ST x_old = ST::Zero(basis.cols(), 1);
+
+	pT t_old = 1;
+	pT t = 0;
+	pT e_old = 1e32;
+	pT e;
+
+	std::cout << "Iterations: " << n_iterations << std::endl;
+
+	for (int iter = 0; iter < n_iterations; ++iter) {
+		x = y + basis.transpose() * (sig - basis * y);
+
+		//Soft thresholding
+		x = ((x.cwiseAbs().array() - lmd).cwiseMax(0)).cwiseProduct(x.array().sign());
+
+		e = ((0.5 * (basis * x - sig).array().pow(2).colwise().sum().array()) +
+			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
+
+		if (std::fabs(e_old - e) / e_old < tolerance) {
+			std::cout << "Converged in " << iter << " iterations with error " << e << " and difference " << std::fabs(e_old - e) / e_old << std::endl;
+			break;
+		}
+		else
+			e_old = e;
+		
+		//Nesterov acceleration
+		t = (1 + sqrt(1 + 4 * t_old * t_old)) / 2;
+		y = x + ((t_old - 1) / t) * (x - x_old);
+		x_old = x;
+		t_old = t;
+	}
+	return x;
 }
 
 #endif
