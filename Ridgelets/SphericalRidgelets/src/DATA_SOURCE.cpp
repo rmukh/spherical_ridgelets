@@ -244,6 +244,7 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, b
 	typedef itk::ImageFileWriter<D> ImageWriterType;
 	typename ImageWriterType::Pointer writer = ImageWriterType::New();
 
+	writer->UseInputMetaDataDictionaryOn();
 	writer->SetFileName(fname);
 	writer->SetInput(image);
 	writer->SetUseCompression(is_compress);
@@ -263,7 +264,6 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, b
 void DATA_SOURCE::set_header(DiffusionImagePointer& dest) {
 	// Commented header information might be utilized in future
 	//dest->SetMetaDataDictionary(src->GetMetaDataDictionary());
-	//dest->SetNumberOfComponentsPerPixel(h.comp_h);
 	dest->SetSpacing(h.spc_h);
 	dest->SetDirection(h.dirs_h);
 	dest->SetOrigin(h.orig_h);

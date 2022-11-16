@@ -8,6 +8,18 @@ bool SIGNAL_GENERATOR::is_path_exists(const string& s)
 	return (stat(s.c_str(), &buffer) == 0);
 }
 
+string SIGNAL_GENERATOR::encoding_direction_2_string(const MatrixType& a)
+{
+	string out;
+	out += to_string(a(0));
+	out += ' ';
+	out += to_string(a(1));
+	out += ' ';
+	out += to_string(a(2));
+	out += ' ';
+	return out;
+}
+
 precisionType SIGNAL_GENERATOR::calculate_average_b0(DiffusionImageType::PixelType voxel_content, unsigned first_grad_image_index) {
 	// Calculate average b0 value for the voxel
 
@@ -107,13 +119,14 @@ int SIGNAL_GENERATOR::readVolume(MatrixType& GradientDirections, DiffusionImageP
 	vector<string> imgMetaKeys = imgMetaDictionary.GetKeys();
 	vector<string>::const_iterator itKey = imgMetaKeys.begin();
 	string metaString;
+	string gradSearchString = "DWMRI_gradient";
 
 	// Get diffusion-encoding direction from dmri volume if an external file is not provided
 	if (!ext_grad_use) {
 		for (; itKey != imgMetaKeys.end(); ++itKey)
 		{
 			itk::ExposeMetaData<string>(imgMetaDictionary, *itKey, metaString);
-			if (itKey->find("DWMRI_gradient") != string::npos)
+			if (itKey->find(gradSearchString) != string::npos)
 			{
 				//cout << *itKey << " -> " << metaString << endl;
 				istringstream ss(metaString.c_str());
@@ -158,6 +171,30 @@ int SIGNAL_GENERATOR::readVolume(MatrixType& GradientDirections, DiffusionImageP
 
 	// Normalize gradients
 	GradientDirections.rowwise().normalize();
+
+	// Regroup DWMRI_gradient entries ...
+	// 1. delete original DWMRI_gradient's
+	itKey = imgMetaKeys.begin(); // reset iterator's pointer
+	for (; itKey != imgMetaKeys.end(); ++itKey)
+	{
+		if (itKey->find(gradSearchString) != string::npos)
+			imgMetaDictionary.Erase(*itKey);
+	}
+	// 2. add new entries
+	ostringstream oss;
+	itKey = imgMetaKeys.begin(); // reset iterator's pointer
+
+	for (unsigned entry = 0; entry < GradientDirections.rows(); entry++) {
+		MetaDataStringType::Pointer meta_value = MetaDataStringType::New();
+		meta_value->SetMetaDataObjectValue(encoding_direction_2_string(GradientDirections.row(entry)));
+
+		oss << gradSearchString << "_" << setfill('0') << setw(4) << entry;
+		imgMetaDictionary.Set(oss.str(), meta_value);
+		oss.str("");
+	}
+
+	// save to the h struct field
+	h.meta_dict = imgMetaDictionary;
 
 	itk::Size<3> img_size = image->GetLargestPossibleRegion().GetSize();
 	unsigned short int n_refs = nOfImgs - nGradImgs;

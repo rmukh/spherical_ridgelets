@@ -3,6 +3,7 @@
 
 // Libraries
 #include <itkImage.h>
+#include <itkExceptionObject.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkNrrdImageIO.h>
@@ -25,6 +26,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <limits>
 #include <stdexcept>
 

@@ -79,17 +79,19 @@ For example:
 # Outputs
 *-ridg* gives a 4D file with the same spatial size as an input, and the last dimension is a vector of representation (ridgelets) coefficients.
 
-*-sr* provides a reconstructed signal of exactly the same size as an input.
+*-sr* provides a reconstructed signal **without** b0 volumes with the same spatial size as an input.
 
-*-ext_sr* generates a reconstructed signal at the diffusion-encoding directions provided with the external gradient table.
+*-ext_sr* generates a reconstructed signal **without** b0 volumes at the diffusion-encoding directions shipped with the external gradient table.
 
-*-A* outputs a spherical ridgelets basis
+*-A* outputs a spherical ridgelets basis.
 
 # Notes on ODF and its directions
 Output file for the ODF maximum directions (-omd) has a shape of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, odf value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
 
 # Important notes
 All **b0** volumes should be **in the beginning** aka first voxels. They couldn't be spread around, located between diffusion-encoded ones, or placed in the end. **Instead**, you can use pre-normalized images with no b0 volumes.
+
+If you are saving NRRD output with an **external** diffusion-encoding directions file, they will be saved in the meta-data information; hence, the original gradients will be overridden.
 
 Building it with the flag *-DJUST_BUILD=1* is essential if you want standalone software. Otherwise, the CMakeLists.txt will include files necessary to make this package in the form of a library.
 

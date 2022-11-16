@@ -9,6 +9,7 @@ public:
 	SIGNAL_GENERATOR(string& iv);
 
 	bool is_path_exists(const string& s);
+	string encoding_direction_2_string(const MatrixType& a);
 	precisionType calculate_average_b0(DiffusionImageType::PixelType voxel_content, unsigned first_grad_image_index);
 	void compute_n_fill_voxel_element(
 		MatrixType& signal,
