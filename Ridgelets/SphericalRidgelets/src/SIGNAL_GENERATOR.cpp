@@ -1,14 +1,56 @@
 #include "SIGNAL_GENERATOR.h"
 
-SIGNAL_GENERATOR::SIGNAL_GENERATOR(string & iv) : nGradImgs(0), nOfImgs(0), inputVolume(iv) {}
+SIGNAL_GENERATOR::SIGNAL_GENERATOR(string& iv) : nGradImgs(0), nOfImgs(0), inputVolume(iv) {}
 
-bool SIGNAL_GENERATOR::is_path_exists(const string &s)
+bool SIGNAL_GENERATOR::is_path_exists(const string& s)
 {
 	struct stat buffer;
 	return (stat(s.c_str(), &buffer) == 0);
 }
 
-int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImagePointer & image) {
+precisionType SIGNAL_GENERATOR::calculate_average_b0(DiffusionImageType::PixelType voxel_content, unsigned first_grad_image_index) {
+	// Calculate average b0 value for the voxel
+
+	precisionType average_b0_sum = sphZero;
+	precisionType average_b0 = sphOne;
+	precisionType volume_element = sphZero;
+
+	for (unsigned i = 0; i < first_grad_image_index; ++i) {
+		volume_element = voxel_content.GetElement(i);
+		average_b0_sum += volume_element;
+	}
+	average_b0 = average_b0_sum / first_grad_image_index;
+
+	return average_b0;
+}
+
+void SIGNAL_GENERATOR::compute_n_fill_voxel_element(
+	MatrixType& signal,
+	DiffusionImageType::PixelType voxel_content,
+	unsigned first_grad_image_index,
+	precisionType average_b0,
+	unsigned vox,
+	bool no_b0
+) {
+	// iterate over diffusion-encoding pixels
+
+	precisionType volume_element = sphZero;
+	precisionType vol_elem_eps = 1e-10;
+
+	for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
+		// Get diffusion pixel and normalize to b0
+		volume_element = voxel_content.GetElement(i);
+		if (fabs(average_b0 - sphZero) <= vol_elem_eps)
+			volume_element = vol_elem_eps;
+		else if (!no_b0)
+			volume_element /= average_b0;
+		// Remove negative values
+		if (volume_element > 0)
+			signal(i - first_grad_image_index, vox) = volume_element;
+	}
+}
+
+int SIGNAL_GENERATOR::readVolume(MatrixType& GradientDirections, DiffusionImagePointer& image) {
 	bool ext_grad_use = true;
 	if (GradientDirections.size() == 0) {
 		GradientDirections.resize(0, 3);
@@ -47,7 +89,7 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 		reader->Update();
 		image = reader->GetOutput();
 	}
-	catch (itk::ExceptionObject &ex)
+	catch (itk::ExceptionObject& ex)
 	{
 		cerr << "Can't read input dMRI file! Please, check that file is not corrupted." << endl;
 		cerr << "Extra error message: " << ex << endl;
@@ -131,7 +173,7 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 	return EXIT_SUCCESS;
 }
 
-int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
+int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer& mask, MatrixType& signal, MatrixType& grad_dirs)
 {
 	DiffusionImagePointer img = DiffusionImageType::New();
 	int res_dmri = readVolume(grad_dirs, img);
@@ -163,12 +205,18 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 		DiffusionImageType::SizeType sz = img->GetLargestPossibleRegion().GetSize();
 		N_of_voxels = sz[0] * sz[1] * sz[2];
 	}
-	precisionType avrg_b0 = -1.0;
+
+	// some in-dwi-loop variables declaration
+	precisionType vol_elem = sphZero;
+	precisionType avrg_b0 = sphOne;
+	bool no_b0 = false;
+	unsigned vox = 0;
+
 	unsigned first_grad_image_index = nOfImgs - nGradImgs;
 	if (first_grad_image_index == 0) {
 		cout << "Warning! There is no baseline image in the input file!" << endl;
 		cout << "Make sure that all diffusion-encoded volumes were normalized by an average b0!" << endl;
-		avrg_b0 = 0.0;
+		no_b0 = true;
 	}
 	signal = MatrixType::Zero(nGradImgs, N_of_voxels);
 	DiffusionImageType::PixelType voxel_content;
@@ -177,7 +225,6 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 	if (mask) {
 		ConstIterator it_i(img, img->GetRequestedRegion());
 		MaskIterator it_m(mask, mask->GetRequestedRegion());
-		unsigned vox = 0;
 
 		it_i.SetDirection(0);
 		it_i.GoToBegin();
@@ -192,32 +239,11 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 				if (it_m.Get() == 1) {
 					voxel_content = it_i.Get();
 
-					// Calculate average b0 value for the voxel
-					if (avrg_b0 == sphZero)
-					{
-						avrg_b0 = 1.0;
-					}
-					else
-					{
-						precisionType avrgb0_sum = 0;
-						for (unsigned i = 0; i < first_grad_image_index; ++i) {
-							precisionType vol = voxel_content.GetElement(i);
-							avrgb0_sum += vol;
-						}
-						avrg_b0 = avrgb0_sum / first_grad_image_index;
-					}
+					if (!no_b0)
+						avrg_b0 = calculate_average_b0(voxel_content, first_grad_image_index);
 
-					for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
-						// Get diffusion pixel and normalize to b0
-						precisionType vol;
-						if (avrg_b0 == sphZero)
-							vol = 1e-10;
-						else
-							vol = voxel_content.GetElement(i) / avrg_b0;
-						// Remove negative values
-						if (vol > 0)
-							signal(i - first_grad_image_index, vox) = vol;
-					}
+					compute_n_fill_voxel_element(signal, voxel_content, first_grad_image_index, avrg_b0, vox, no_b0);
+
 					++vox;
 				}
 				++it_i;
@@ -229,7 +255,6 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 	}
 	else {
 		ConstIterator it(img, img->GetRequestedRegion());
-		unsigned vox = 0;
 		it.SetDirection(0);
 		it.GoToBegin();
 		while (!it.IsAtEnd())
@@ -238,32 +263,10 @@ int SIGNAL_GENERATOR::ExtractMatrix(MaskImagePointer &mask, MatrixType &signal, 
 			{
 				voxel_content = it.Get();
 
-				// Calculate average b0 value for the voxel
-				if (avrg_b0 == sphZero)
-				{
-					avrg_b0 = 1.0;
-				}
-				else
-				{
-					precisionType avrgb0_sum = 0;
-					for (unsigned i = 0; i < first_grad_image_index; ++i) {
-						precisionType vol = voxel_content.GetElement(i);
-						avrgb0_sum += vol;
-					}
-					avrg_b0 = avrgb0_sum / first_grad_image_index;
-				}
+				if (!no_b0)
+					avrg_b0 = calculate_average_b0(voxel_content, first_grad_image_index);
 
-				for (unsigned i = first_grad_image_index; i < nOfImgs; ++i) {
-					// Get diffusion pixel and normalize to b0
-					precisionType vol;
-					if (avrg_b0 == sphZero)
-						vol = 1e-10;
-					else
-						vol = voxel_content.GetElement(i) / avrg_b0;
-					// Remove negative values
-					if (vol > 0)
-						signal(i - first_grad_image_index, vox) = vol;
-				}
+				compute_n_fill_voxel_element(signal, voxel_content, first_grad_image_index, avrg_b0, vox, no_b0);
 
 				++vox;
 				++it;
