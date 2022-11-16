@@ -102,6 +102,7 @@ int SIGNAL_GENERATOR::readVolume(MatrixType & GradientDirections, DiffusionImage
 	}
 
 	// Get b-value from the dmri volume
+	itKey = imgMetaKeys.begin(); // reset iterator's pointer
 	for (; itKey != imgMetaKeys.end(); ++itKey)
 	{
 		itk::ExposeMetaData<string>(imgMetaDictionary, *itKey, metaString);
