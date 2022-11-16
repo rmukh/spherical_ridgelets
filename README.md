@@ -89,13 +89,15 @@ For example:
 Output file for the ODF maximum directions (-omd) has a shape of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, odf value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
 
 # Important notes
-It is very important to build it with the flag *-DJUST_BUILD=1*. Otherwise, the CMakeLists.txt will include files necessary to build this package as a library.
+All **b0** volumes should be **in the beginning** aka first voxels. They couldn't be spread around, located between diffusion-encoded ones, or placed in the end. **Instead**, you can use pre-normalized images with no b0 volumes.
 
-Currently, NRRD file format (.nrrd, .nhdr) supported only. To build this project, you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) installed on your system. 
+Building it with the flag *-DJUST_BUILD=1* is essential if you want standalone software. Otherwise, the CMakeLists.txt will include files necessary to make this package in the form of a library.
 
-Input diffusion MRI image expected to be in the shape of (size x, size y, size z, # of gradient directions), while mask file expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file. The advanced text cleaning and gradient table detection procedures are not implemented yet.
+Currently, the NRRD file format (.nrrd, .nhdr) is supported only. To build this project, you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) installed on your system. 
 
-The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. Only *GCC* version 7.x.x is currently adequately supported, so install and use this version (gcc and g++) and specify the system paths if necessary. The usage example for Cmake/make build you can find in linux_standalone_build.sh
+Input diffusion MRI image expected to be in the shape of (size x, size y, size z, # of gradient directions), while mask file expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file. The advanced text cleaning and gradient table detection procedures still need to be implemented.
+
+The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. Only *GCC* version 7.x.x is currently adequately supported, so install and use this version (GCC and g++) and specify the system paths if necessary. The usage example for Cmake/make build you can find in linux_standalone_build.sh
 
 Saving ODF values operation **might fail** if you don't have enough RAM.
 
