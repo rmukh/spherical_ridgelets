@@ -10,11 +10,10 @@ public:
 
 	bool is_path_exists(const string& s);
 	string encoding_direction_2_string(const MatrixType& a);
-	precisionType calculate_average_b0(DiffusionImageType::PixelType voxel_content, unsigned first_grad_image_index);
+	precisionType calculate_average_b0(DiffusionImageType::PixelType voxel_content);
 	void compute_n_fill_voxel_element(
 		MatrixType& signal,
 		DiffusionImageType::PixelType voxel_content,
-		unsigned first_grad_image_index,
 		precisionType average_b0,
 		unsigned vox,
 		bool no_b0
@@ -22,8 +21,8 @@ public:
 	int readVolume(MatrixType& GradientDirections, DiffusionImagePointer& image);
 	int ExtractMatrix(MaskImagePointer& mask, MatrixType& signal, MatrixType& grad_dirs);
 	void remove_row(MatrixType& a, Eigen::Index del);
-	unsigned nGradImgs; // Number of gradient images
-	unsigned nOfImgs; // Total number of images (including b0)
+	vector<unsigned> gradImgs; // gradient images indices
+	vector<unsigned> b0Imgs; // b0 images indices
 	dMRI_h_info h;
 
 private:

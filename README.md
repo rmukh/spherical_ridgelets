@@ -89,7 +89,7 @@ For example:
 Output file for the ODF maximum directions (-omd) has a shape of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, odf value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
 
 # Important notes
-All **b0** volumes should be **in the beginning** aka first voxels. They couldn't be spread around, located between diffusion-encoded ones, or placed in the end. **Instead**, you can use pre-normalized images with no b0 volumes.
+Pre-normalized (by b0) images with no b0 volumes are supported.
 
 If you are saving NRRD output with an **external** diffusion-encoding directions file, they will be saved in the meta-data information; hence, the original gradients will be overridden.
 

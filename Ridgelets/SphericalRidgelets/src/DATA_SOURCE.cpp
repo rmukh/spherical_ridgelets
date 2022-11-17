@@ -184,7 +184,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 void DATA_SOURCE::short_summary(const input_parse& params) {
 	// Show summary on parameters will be used during computations
 
-	cout << "Summary on parameters" << endl;
+	cout << "Parameters:" << endl;
 	cout << "-----------------------------------" << endl;
 	cout << "Spherical ridgelets J: " << params.sph_J << endl;
 	cout << "Spherical ridgelets rho: " << params.sph_rho << endl;
@@ -194,7 +194,7 @@ void DATA_SOURCE::short_summary(const input_parse& params) {
 	cout << "Number of splits: " << params.n_splits << endl;
 	cout << "File(s) compression enabled: ";
 	params.is_compress ? cout << "yes" : cout << "no";
-	cout << endl << "-----------------------------------" << endl;
+	cout << endl << "-----------------------------------" << endl << endl;
 }
 
 int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
@@ -326,7 +326,7 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, const input_pars
 	unsigned long long int fista_memory_loop = static_cast<unsigned long long int>(n_threads) * 4 * (s.cols() / n_splits) * A.cols() * sizeof(precisionType);
 	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
 
-	cout << "IMPORTANT! To successfully finish computations you need approximately ";
+	cout << endl << "IMPORTANT! To successfully finish computations you need approximately ";
 	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined to compute spherical ridgelets." << endl;
 	
 	// Estimate memory consumption to save ridgelets

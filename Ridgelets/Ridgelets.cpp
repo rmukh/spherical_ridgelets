@@ -1,6 +1,6 @@
 // Ridgelets.cpp : This file contains the 'main' function. Program execution begins and ends there.
 /*
- Copyright (c) 2021 Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
+ Copyright (c) 2019-2022 Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
 
  * Description:
  *     A C++ implementation of spherical ridgelets and orientation distribution function.
