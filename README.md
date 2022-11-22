@@ -77,13 +77,15 @@ For example:
     ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 
 # Outputs
-*-ridg* gives a 4D file with the same spatial size as an input, and the last dimension is a vector of representation (ridgelets) coefficients.
+*-ridg* gives a 4D file with the same spatial size as an input.
 
 *-sr* provides a reconstructed signal **without** b0 volumes with the same spatial size as an input.
 
 *-ext_sr* generates a reconstructed signal **without** b0 volumes at the diffusion-encoding directions shipped with the external gradient table.
 
 *-A* outputs a spherical ridgelets basis.
+
+**IMPORTANT!** The output of the reconstructed images is always saved with the 1st dimension representing diffusion-encoding directions!
 
 # Notes on ODF and its directions
 Output file for the ODF maximum directions (-omd) has a shape of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, odf value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
