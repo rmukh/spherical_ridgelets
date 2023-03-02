@@ -146,6 +146,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 			if (!ext_grads_presented)
 				throw std::logic_error("External gradient directions (-ext_grads) is not provided!");
 			output->ext_signal_recon = argv[i + 1];
+			out1 = true;
 		}
 		if (!strcmp(argv[i], "-fi")) {
 			float iters = stof(argv[i + 1]);
@@ -184,7 +185,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 void DATA_SOURCE::short_summary(const input_parse& params) {
 	// Show summary on parameters will be used during computations
 
-	cout << "Summary on parameters" << endl;
+	cout << "Parameters:" << endl;
 	cout << "-----------------------------------" << endl;
 	cout << "Spherical ridgelets J: " << params.sph_J << endl;
 	cout << "Spherical ridgelets rho: " << params.sph_rho << endl;
@@ -194,7 +195,7 @@ void DATA_SOURCE::short_summary(const input_parse& params) {
 	cout << "Number of splits: " << params.n_splits << endl;
 	cout << "File(s) compression enabled: ";
 	params.is_compress ? cout << "yes" : cout << "no";
-	cout << endl << "-----------------------------------" << endl;
+	cout << endl << "-----------------------------------" << endl << endl;
 }
 
 int DATA_SOURCE::readMask(string inputMask, MaskImagePointer& image) {
@@ -244,6 +245,7 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, b
 	typedef itk::ImageFileWriter<D> ImageWriterType;
 	typename ImageWriterType::Pointer writer = ImageWriterType::New();
 
+	writer->UseInputMetaDataDictionaryOn();
 	writer->SetFileName(fname);
 	writer->SetInput(image);
 	writer->SetUseCompression(is_compress);
@@ -263,7 +265,6 @@ int DATA_SOURCE::save_to_file(const string& fname, typename D::Pointer& image, b
 void DATA_SOURCE::set_header(DiffusionImagePointer& dest) {
 	// Commented header information might be utilized in future
 	//dest->SetMetaDataDictionary(src->GetMetaDataDictionary());
-	//dest->SetNumberOfComponentsPerPixel(h.comp_h);
 	dest->SetSpacing(h.spc_h);
 	dest->SetDirection(h.dirs_h);
 	dest->SetOrigin(h.orig_h);
@@ -326,7 +327,7 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, const input_pars
 	unsigned long long int fista_memory_loop = static_cast<unsigned long long int>(n_threads) * 4 * (s.cols() / n_splits) * A.cols() * sizeof(precisionType);
 	unsigned long long int total = dmri_memory + fista_memory_x + fista_memory_loop;
 
-	cout << "IMPORTANT! To successfully finish computations you need approximately ";
+	cout << endl << "IMPORTANT! To successfully finish computations you need approximately ";
 	cout << total / pow(1024, 3) << " GB of RAM and virtual memory combined to compute spherical ridgelets." << endl;
 	
 	// Estimate memory consumption to save ridgelets
@@ -354,16 +355,16 @@ int DATA_SOURCE::compute_splits(unsigned s_size) {
 
 int DATA_SOURCE::DWI2Matrix(input_parse* input_args, MaskImagePointer &mask, MatrixType &signal, MatrixType &grad_dirs)
 {
-	if (!input_args->external_gradients.empty()) {
+	if (!input_args->external_gradients.empty() && input_args->ext_signal_recon.empty()) {
 		char answer;
 		cout << "External gradient file is found. Do you want to use gradients from it instead of the image's one? (y/n)" << endl;
 		cin >> answer;
-		if (answer == 'y')
+		if (answer == 'y' || answer == 'Y')
 			DATA_SOURCE::fileGradientsToMatrix(input_args->external_gradients, grad_dirs);
-		else if (answer == 'n')
+		else if (answer == 'n' || answer == 'N')
 			cout << "Volume's gradients will be used." << endl;
 		else {
-			cerr << "Incorrect answer. Rerun the program." << endl;
+			cerr << "Incorrect answer. Please, rerun the program." << endl;
 			return EXIT_FAILURE;
 		}
 	}

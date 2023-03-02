@@ -29,6 +29,7 @@ typedef DiffusionImageType::Pointer	    DiffusionImagePointer;
 typedef itk::ImageFileReader<DiffusionImageType> ImageReaderType;
 typedef itk::ImageLinearConstIteratorWithIndex<DiffusionImageType> ConstIterator;
 typedef itk::ImageLinearIteratorWithIndex<DiffusionImageType> Iterator;
+typedef itk::MetaDataObject<std::string> MetaDataStringType;
 
 // For mask file
 typedef unsigned char                   MaskPixelType;
@@ -45,6 +46,7 @@ struct dMRI_h_info
 	DiffusionImageType::PointType orig_h;
 	DiffusionImageType::RegionType reg_h;
 	unsigned comp_h;
+	itk::MetaDataDictionary meta_dict;
 };
 
 #endif
