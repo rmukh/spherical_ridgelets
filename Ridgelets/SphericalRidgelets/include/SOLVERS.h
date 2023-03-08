@@ -22,7 +22,7 @@ public:
 	void FISTA(ST& x, int n_iterations, precisionType tolerance);
 
 	void loop_block(ST& x, ST& sig, int n_iterations, precisionType tolerance);
-	ST SolveSingle_py(RT& basis, ST& sig, precisionType lmd, int n_iterations, precisionType tolerance);
+	ST SolveSingle_py(const Eigen::Ref<const RT>& basis, Eigen::Ref<ST>& sig, precisionType lmd, int n_iterations, precisionType tolerance);
 };
 
 #include "SOLVERS.hpp"

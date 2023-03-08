@@ -281,18 +281,17 @@ void DATA_SOURCE::testFNC() {
 	//MatrixType test(19, 1);
 	//test << -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9;
 	//MatrixType res = UM.polyleg(test, 5);
-	SPH_RIDG<precisionType, MatrixType, VectorType> test;
+	SPH_RIDG<precisionType, Eigen::MatrixXd, VectorType> test;
 	//cout << test.M0;
-	UtilMath<precisionType, MatrixType, VectorType> UM = UtilMath<precisionType, MatrixType, VectorType>();
-	MatrixType g;
-	g = MatrixType::Zero(100, 3);
+	UtilMath<precisionType, Eigen::MatrixXd, VectorType> UM = UtilMath<precisionType, Eigen::MatrixXd, VectorType>();
+	Eigen::MatrixXd g = Eigen::MatrixXd::Zero(100, 3);
 	UM.spiralsample(g, 2, 100);
 	cout << g << endl;
 	MatrixType A;
 	test.RBasis(A, g);
 	test.normBasis(A);
 
-	test.normBasis(A);
+	//test.normBasis(A);
 }
 
 void DATA_SOURCE::readTestData(MatrixType& g, MatrixType& s) {

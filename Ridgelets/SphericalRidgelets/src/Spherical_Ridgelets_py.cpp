@@ -31,8 +31,9 @@ PYBIND11_MODULE(Spherical_Ridgelets_py, m)
         .def(py::init())
         .def(py::init<unsigned, double>())
         .def("init", &SPH_RIDG<double, MatrixType, VectorType>::init)
-        .def("GetRBasis", &SPH_RIDG<double, MatrixType, VectorType>::GetRBasis)
-        .def("normBasis", &SPH_RIDG<double, MatrixType, VectorType>::normBasis, py::return_value_policy::reference_internal);
+        .def("GetRBasis", &SPH_RIDG<double, MatrixType, VectorType>::GetRBasis_py, py::return_value_policy::reference_internal)
+        .def("normBasis", &SPH_RIDG<double, MatrixType, VectorType>::normBasis, py::return_value_policy::reference_internal)
+        .def("QBasis", &SPH_RIDG<double, MatrixType, VectorType>::QBasis, py::return_value_policy::reference_internal);
     
     py::class_<SOLVERS<double, MatrixType, MatrixType>>(m, "SOLVERS")
         .def(py::init())

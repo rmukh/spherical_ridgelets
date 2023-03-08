@@ -12,9 +12,9 @@ Package to compute spherical ridgelets.
 
 You can run the script **linux_standalone_build.sh** to perform all steps described below.
 
-1. Download or clone repository.
+1. Download or clone repository (checkout dev-pybind).
 
-        git clone https://github.com/rmukh/spherical_ridgelets.git
+        git clone --recurse-submodules -b dev-pybind https://github.com/rmukh/spherical_ridgelets.git 
 
 2. Create an empty folder inside the downloaded repository.
     
@@ -41,7 +41,11 @@ You can run the script **linux_standalone_build.sh** to perform all steps descri
 
 2. If you want to compile the package with float (single) precision type used instead of double, please add *-DUSE_FLOAT=1* when calling the CMake tool.
 
-3. Please, find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
+3. Find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if the building succeeded.
+
+4. Find the python binding file *Spherical_Ridgelets_py* with *.pyd* extension in the *build/Spherical_Ridgelets-build* directory if the building succeeded. It might be in the deeper build type directory, e.g. *build/Spherical_Ridgelets-build/Release*. To try to run the Demos, please, copy this file to the *Demos* folder. Do the same if you plan to use it with your python scripts.
+
+5. Feel free to analyze and run the demo Python script *Demos/sr_coeffs_single_voxel.py* to see how to use the python binding (demo data is stored in demo81).
 
 ## Basic Usage
 

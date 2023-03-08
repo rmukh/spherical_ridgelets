@@ -23,8 +23,8 @@ public:
 	SPH_RIDG(unsigned JIn, pT rhoIn);
 	void init(); //pre-compute all necessary matricies/vectors
 
-	void RBasis(MT& A, MT& u); //return spherical ridgelets basis matrix
-	MT GetRBasis(MT& u); //return spherical ridgelets basis matrix
+	void RBasis(Eigen::Ref<MT> A, const Eigen::Ref<const MT>& u); //return spherical ridgelets basis matrix
+	MT GetRBasis_py(const Eigen::Ref<const MT>& u); //return spherical ridgelets basis matrix
 	void QBasis(MT& Q, MT& u); //For visualizing pupose only
 	void normBasis(Eigen::Ref<MT> mat); //normalize basis
 

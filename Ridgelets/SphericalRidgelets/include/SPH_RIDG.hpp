@@ -61,7 +61,7 @@ void SPH_RIDG<pT, MT, VT>::init() {
 }
 
 template<class pT, class MT, class VT>
-void SPH_RIDG<pT, MT, VT>::RBasis(MT& A, MT& u) {
+void SPH_RIDG<pT, MT, VT>::RBasis(Eigen::Ref<MT> A, const Eigen::Ref<const MT>& u) {
 	A.resize(u.rows(), M0.sum());
 	A.setZero();
 
@@ -94,9 +94,10 @@ void SPH_RIDG<pT, MT, VT>::RBasis(MT& A, MT& u) {
 }
 
 template<class pT, class MT, class VT>
-MT SPH_RIDG<pT, MT, VT>::GetRBasis(MT& u) {
+MT SPH_RIDG<pT, MT, VT>::GetRBasis_py(const Eigen::Ref<const MT>& u) {
 	MT A = MT::Zero(u.rows(), M0.sum());
 	RBasis(A, u);
+	normBasis(A);
 	return A;
 }
 

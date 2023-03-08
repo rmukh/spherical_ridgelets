@@ -84,7 +84,7 @@ void SOLVERS<pT, RT, ST>::loop_block(ST& x, ST& sig, int n_iterations, precision
 }
 
 template <class pT, class RT, class ST>
-ST SOLVERS<pT, RT, ST>::SolveSingle_py(RT& basis, ST& sig, precisionType lmd, int n_iterations, precisionType tolerance) {
+ST SOLVERS<pT, RT, ST>::SolveSingle_py(const Eigen::Ref<const RT>& basis, Eigen::Ref<ST>& sig, precisionType lmd, int n_iterations, precisionType tolerance) {
 	ST x = ST::Zero(basis.cols(), 1);
 	ST y = ST::Zero(basis.cols(), 1);
 	ST x_old = ST::Zero(basis.cols(), 1);
@@ -105,8 +105,8 @@ ST SOLVERS<pT, RT, ST>::SolveSingle_py(RT& basis, ST& sig, precisionType lmd, in
 		e = ((0.5 * (basis * x - sig).array().pow(2).colwise().sum().array()) +
 			(lmd * x.cwiseAbs().colwise().sum().array())).maxCoeff();
 
-		if (std::fabs(e_old - e) / e_old < tolerance) {
-			std::cout << "Converged in " << iter << " iterations with error " << e << " and difference " << std::fabs(e_old - e) / e_old << std::endl;
+		if (std::fabs(e - e_old) / e < tolerance) {
+			std::cout << "Converged in " << iter << " iterations with error " << e << " and relative error " << std::fabs(e - e_old) / e << std::endl;
 			break;
 		}
 		else
