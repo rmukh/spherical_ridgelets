@@ -10,8 +10,6 @@ Package to compute spherical ridgelets.
 
 ## The easiest way is to build a standalone application (Linux)
 
-You can run the script **linux_standalone_build.sh** to perform all steps described below.
-
 1. Download or clone repository (checkout dev-pybind).
 
         git clone --recurse-submodules -b dev-pybind https://github.com/rmukh/spherical_ridgelets.git 
@@ -43,7 +41,9 @@ You can run the script **linux_standalone_build.sh** to perform all steps descri
 
 3. Find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if the building succeeded.
 
-4. Find the python binding file *Spherical_Ridgelets_py* with *.pyd* extension in the *build/Spherical_Ridgelets-build* directory if the building succeeded. It might be in the deeper build type directory, e.g. *build/Spherical_Ridgelets-build/Release*. To try to run the Demos, please, copy this file to the *Demos* folder. Do the same if you plan to use it with your python scripts.
+4. Find the python binding file *Spherical_Ridgelets_py* with *.pyd* (Windows) or *.so* (Linux) extension in the *build/Spherical_Ridgelets-build* directory if the building succeeded. To try to run the Demos, please, **copy** this file to the *Demos* folder. Do the same if you plan to use it with your python scripts.
+
+4.1. It might be in the deeper build type directory, e.g. *build/Spherical_Ridgelets-build/Release*. 
 
 5. Feel free to analyze and run the demo Python script *Demos/sr_coeffs_single_voxel.py* to see how to use the python binding (demo data is stored in demo81).
 
