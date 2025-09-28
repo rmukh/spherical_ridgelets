@@ -49,9 +49,9 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 				output->sph_rho = rho;
 			}
 			else {
-				cout << "The maxima ODF search threshold "
-					"coefficient provided is in the wrong "
-					"format (must be float point number > 0). "
+				cout << "The spherical ridgelets 1/rho coefficient"
+					"provided is in the wrong format"
+					"(must be float point number > 0). "
 					"So, the default value 3.125 used." << endl;
 			}
 		}
