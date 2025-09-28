@@ -1,13 +1,15 @@
 #---------------------------------------------------------------------------
 # Get and build itk
 
-set(ITK_TAG "87f5d83f15929900aea038abed43d46a14b69886")
+set(ITK_TAG "v5.4.2")
 ExternalProject_Add(ITK
-  GIT_REPOSITORY "https://github.com/Slicer/ITK.git"
+  GIT_REPOSITORY "https://gitlab.kitware.com/itk/ITK.git"
   GIT_TAG "${ITK_TAG}"
   SOURCE_DIR ITK
   BINARY_DIR ITK-build
   CMAKE_GENERATOR ${gen}
+  LOG_DOWNLOAD ON
+  LOG_OUTPUT_ON_FAILURE ON
   CMAKE_ARGS
     -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
     -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
@@ -19,8 +21,12 @@ ExternalProject_Add(ITK
     -DITK_LEGACY_REMOVE:BOOL=ON
     -DITKV3_COMPATIBILITY:BOOL=OFF
     -DITK_BUILD_DEFAULT_MODULES:BOOL=ON
+    -DModule_ITKCommon:BOOL=ON
     -DModule_ITKIONIFTI:BOOL=ON
     -DModule_ITKIONRRD:BOOL=ON
+    -DModule_MGHIO:BOOL=ON
+    -DModule_ITKIOMINC:BOOL=ON
+    -DModule_ITKIOXML:BOOL=ON
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -DITK_INSTALL_NO_DEVELOPMENT:BOOL=ON
     -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
