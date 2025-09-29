@@ -12,7 +12,6 @@
 #include <itkMetaDataObject.h>
 #include <itkImageLinearConstIteratorWithIndex.h>
 #include <itkImageLinearIteratorWithIndex.h>
-#include <Eigen/Dense>
 
 #ifdef _OPENMP
   #include <omp.h>
