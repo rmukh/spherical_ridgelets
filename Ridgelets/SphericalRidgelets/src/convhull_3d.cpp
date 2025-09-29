@@ -460,16 +460,16 @@ void convhull_3d_build
 	if (nVert <= d || nVert < (d + 1)) {
 		// calloc safety check
 		fprintf(stderr, "Error: Invalid number of vertices (%lu) for dimension (%lu) in convhull_3d_build.\n", nVert, d);
-		*nTri = 0;
-        *tri = NULL;
-        return;
+		(*out_faces) = NULL;
+		(*nOut_faces) = 0;
+		return;
 	}
 	reldist = (CH_FLOAT*)calloc((nVert - d - 1), sizeof(CH_FLOAT));
     if (reldist == NULL) {
 		fprintf(stderr, "Error: Memory allocation failed for reldist in convhull_3d_build.\n");
-		*nTri = 0;
-        *tri = NULL;
-        return;
+		(*out_faces) = NULL;
+		(*nOut_faces) = 0;
+		return;
 	}
 	desReldist = (CH_FLOAT*)malloc((nVert - d - 1) * sizeof(CH_FLOAT));
 	for (i = 0; i < (nVert - d - 1); i++)
