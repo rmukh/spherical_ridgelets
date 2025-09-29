@@ -3,7 +3,7 @@
 
 set(ITK_TAG "v5.4.2")
 ExternalProject_Add(ITK
-  GIT_REPOSITORY "https://gitlab.kitware.com/itk/ITK.git"
+  GIT_REPOSITORY "https://github.com/InsightSoftwareConsortium/ITK"
   GIT_TAG "${ITK_TAG}"
   SOURCE_DIR ITK
   BINARY_DIR ITK-build
