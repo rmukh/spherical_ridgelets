@@ -10,6 +10,8 @@ then
 	n_threads=4
 fi
 
+echo "Setting # threads to $n_threads"
+
 if [[ "$n_threads" =~ ^-?[0-9]+$ ]] && [ "$n_threads" -gt 0 ];
 then
 	echo Start building using "$n_threads" threads
@@ -17,6 +19,7 @@ then
 	cd build
 	cmake .. -DJUST_BUILD=1
 	make -j"{$n_threads}"
+
 else
 	echo Incorrent number of threads
 fi
