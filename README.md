@@ -2,7 +2,7 @@
 
 
 # Overview
-Package to compute spherical ridgelets.
+Package to compute spherical ridgelets build for diffusion MRI (dMRI).
 
 **Authors**: Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
 
@@ -10,38 +10,38 @@ Package to compute spherical ridgelets.
 
 ## The easiest way is to build a standalone application (Linux)
 
-You can run the script **linux_standalone_build.sh** to perform all steps described below.
+Run the script ```linux_standalone_build.sh``` to perform all steps below.
 
 1. Download or clone repository.
-
-        git clone https://github.com/rmukh/spherical_ridgelets.git
-
+```sh
+git clone https://github.com/rmukh/spherical_ridgelets.git
+```
 2. Create an empty folder inside the downloaded repository.
-    
-        cd spherical_ridgelets
-        mkdir build
-
+```sh
+cd spherical_ridgelets
+mkdir build
+```
 3. Enter that directory.
-
-        cd build
-
+```sh
+cd build
+```
 4. Generate make files.
-
-        cmake .. -DJUST_BUILD=1
-
+```sh
+cmake .. -DJUST_BUILD=1
+```
 5. Build package.
-
-        make
-
+```sh
+make
+```
 ### Notes: 
 
-1. You can also use *make* with multi-threading option in a way:
-
-        make -j#of_threads, e.g. make -j4
-
+1. You can also use ```make``` with multi-threading option in a way:
+```sh
+make -j#of_threads, e.g. make -j4
+```
 2. If you want to compile the package with float (single) precision type used instead of double, please add *-DUSE_FLOAT=1* when calling the CMake tool.
 
-3. Please, find the binary file *sphridg* in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
+3. Please, find the binary file ```sphridg``` in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
 
 ## Basic Usage
 
@@ -73,9 +73,9 @@ Output arguments:
 You **must** provide at least input dMRI file and one output file to run the program.
 
 For example:
-
-    ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
-
+```sh
+./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
+```
 # Outputs
 *-ridg* gives a 4D file with the same spatial size as an input.
 
@@ -88,25 +88,26 @@ For example:
 **IMPORTANT!** The output of the reconstructed images is always saved with the 1st dimension representing diffusion-encoding directions!
 
 # Notes on ODF and its directions
-Output file for the ODF maximum directions (-omd) has a shape of input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, odf value) for each direction. Now a maximum number of directions is fixed to 6 (3 directions, each has an antipode).
+The output file for the ODF maximum directions (-omd) has a shape of the input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, ODF value) for each direction. Now a maximum number of directions is fixed at 6 (3 directions, each with an antipode).
 
 # Important notes
 Pre-normalized (by b0) images with no b0 volumes are supported.
 
-If you are saving NRRD output with an **external** diffusion-encoding directions file, they will be saved in the meta-data information; hence, the original gradients will be overridden.
+If you are saving NRRD output with an **external** diffusion-encoding directions file, they will be saved in the metadata information; hence, the original gradients will be overridden.
 
-Building it with the flag *-DJUST_BUILD=1* is essential if you want standalone software. Otherwise, the CMakeLists.txt will include files necessary to make this package in the form of a library.
+Building with the flag *-DJUST_BUILD=1* is essential if you want a standalone build. Otherwise, the CMakeLists.txt will include files necessary to make this package in the form of a library.
 
 Currently, the NRRD file format (.nrrd, .nhdr) is supported only. To build this project, you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) installed on your system. 
 
-Input diffusion MRI image expected to be in the shape of (size x, size y, size z, # of gradient directions), while mask file expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file. The advanced text cleaning and gradient table detection procedures still need to be implemented.
+The input diffusion MRI image is expected to be in the shape of (size x, size y, size z, # of gradient directions), while the mask file is expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file. 
+TODO:
+The advanced text cleaning and gradient table detection procedures.
 
-The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. The recommended are **GCC** of versions **5,6,7,8**. So, install and use one of those versions (GCC and g++) and specify the system paths if necessary. The usage example for Cmake/make build you can find in linux_standalone_build.sh
+The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. The recommended are **GCC** of versions **5,6,7,8**. So, install and use one of those versions (GCC and g++) and specify the system paths if necessary. The usage example for Cmake/make build you can find in ```linux_standalone_build.sh```
 
 Saving ODF values operation **might fail** if you don't have enough RAM.
 
 Addition info you can find here: https://rinatm.com/spherical-ridgelets-for-high-angular-resolution-diffusion-imaging-hardi-implementation/
-
 
 # Advanced users
 
@@ -115,7 +116,7 @@ Addition info you can find here: https://rinatm.com/spherical-ridgelets-for-high
 
 The split parameter (*-nspl*) computed in a way to enable the highest possible level of parallelization, however, tests made on Intel CPU's only. If you feel that the default value is not optimal for your case, you are encouraged to experiment with it. You can also increase the default value of *-nspl* to reduce RAM usage.
 
-CMake starts building this package and all required libraries in Release mode to achieve the highest performance. If you want to build in Debug mode, don't forget to pass *-DCMAKE_BUILD_TYPE=Debug* in CMake
+CMake starts building this package and all required libraries in **Release** mode (for the highest performance). To build in **Debug** mode pass *-DCMAKE_BUILD_TYPE=Debug* to CMake.
 
 ## Custom build
 This package mainly depends on two libraries: *ITK* and *Eigen*. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:
@@ -127,9 +128,9 @@ Then you can pass the path in cmake command.
 * For *Eigen* use *-DEigen3_DIR*
 
 For example:
-
-    cmake -DITK_DIR=/path/to/ITK_build -DEigen3_DIR=/path/to/Eigen ..
-
+```sh
+cmake -DITK_DIR=/path/to/ITK_build -DEigen3_DIR=/path/to/Eigen ..
+```
 # Bugs & feautures
 
 Please, open a new issue or send a pull request if you found any bug/error or want to propose new features. Don't forget to describe the modifications or/and improvements you made otherwise it might take a long time to review and accept your request.
