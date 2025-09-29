@@ -573,7 +573,8 @@ void UtilMath<pT, MT, VT>::FindMaxODFMaxInDMRI(MT& fin, MT& Q, MT& C,
 			fin(z, i) = dirs_vec(k);
 			fin(z + 1, i) = dirs_vec(k + 1);
 			fin(z + 2, i) = dirs_vec(k + 2);
-			fin(z + 3, i) = vol(exe_vol(j));
+			Eigen::Index idx = exe_vol(j, 0)
+			fin(z + 3, i) = vol(idx);
 		}
 	}
 }

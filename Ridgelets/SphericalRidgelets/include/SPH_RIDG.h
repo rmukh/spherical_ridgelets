@@ -26,7 +26,7 @@ public:
 	void RBasis(MT& A, MT& u); //return spherical ridgelets basis matrix
 	void QBasis(MT& Q, MT& u); //For visualizing pupose only
 	void normBasis(MT& mat); //normalize basis
-
+	const pT USER_RHO_DEFAULT = static_cast<pT>(3.125);
 private:
 	int mcut;
 	MT h;

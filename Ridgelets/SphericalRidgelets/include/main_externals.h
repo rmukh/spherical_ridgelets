@@ -3,7 +3,7 @@
 
 // Libraries
 #include <itkImage.h>
-#include <itkExceptionObject.h>
+#include <itkMacro.h>
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
 #include <itkNrrdImageIO.h>
@@ -12,7 +12,6 @@
 #include <itkMetaDataObject.h>
 #include <itkImageLinearConstIteratorWithIndex.h>
 #include <itkImageLinearIteratorWithIndex.h>
-#include <Eigen/Dense>
 
 #ifdef _OPENMP
   #include <omp.h>

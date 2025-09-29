@@ -8,7 +8,7 @@ template<class pT, class MT, class VT>
 SPH_RIDG<pT, MT, VT>::SPH_RIDG()
 {
 	J = 2;
-	rho = 0.5;
+	rho = static_cast<pT>(1.0) / USER_RHO_DEFAULT;
 	UM = UtilMath<pT, MT, VT>();
 	init();
 }
