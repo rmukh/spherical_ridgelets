@@ -29,4 +29,4 @@ ExternalProject_Add(Eigen3
 )
 
 set(Eigen3_DIR ${EIGEN3_INSTALL_DIR})
-set(EIGEN_CMAKE ${EIGEN3_INSTALL_DIR}/share/eigen3/cmake)
+set(EIGEN_CMAKE ${EIGEN3_INSTALL_DIR}/share)
