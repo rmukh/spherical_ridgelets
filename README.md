@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/rmukh/spherical_ridgelets.svg?branch=master)](https://app.travis-ci.com/rmukh/spherical_ridgelets) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5591085.svg)](https://doi.org/10.5281/zenodo.5591085)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5591085.svg)](https://doi.org/10.5281/zenodo.5591085)
 
 
 # Overview
