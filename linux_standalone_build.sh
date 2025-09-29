@@ -18,7 +18,7 @@ then
 	mkdir build
 	cd build
 	cmake .. -DJUST_BUILD=1
-	make -j"{$n_threads}"
+	make -j"$n_threads"
 
 else
 	echo Incorrent number of threads
