@@ -457,7 +457,20 @@ void convhull_3d_build
 			absdist[k * d + j] = (points[i * (d + 1) + j] - meanp[j]) / span[j];
 
 	/* Relative distance of points from the center */
+	if (nVert <= d || nVert < (d + 1)) {
+		// calloc safety check
+		fprintf(stderr, "Error: Invalid number of vertices (%lu) for dimension (%lu) in convhull_3d_build.\n", nVert, d);
+		*nTri = 0;
+        *tri = NULL;
+        return;
+	}
 	reldist = (CH_FLOAT*)calloc((nVert - d - 1), sizeof(CH_FLOAT));
+    if (reldist == NULL) {
+		fprintf(stderr, "Error: Memory allocation failed for reldist in convhull_3d_build.\n");
+		*nTri = 0;
+        *tri = NULL;
+        return;
+	}
 	desReldist = (CH_FLOAT*)malloc((nVert - d - 1) * sizeof(CH_FLOAT));
 	for (i = 0; i < (nVert - d - 1); i++)
 		for (j = 0; j < d; j++)
