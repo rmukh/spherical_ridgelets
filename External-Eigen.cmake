@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------------
 # Get and build Eigen
 
-set(EIGEN_TAG "3.4.1")
+set(EIGEN_TAG "for/itk-20231108-master-4d54c43d")
 
 option(eigen_PATCH_FILE "Patch file to apply to eigen" OFF)
 set(eigen_PATCH_COMMAND "")
@@ -11,7 +11,7 @@ endif(eigen_PATCH_FILE)
 
 ExternalProject_Add(Eigen3
     PREFIX Eigen3
-    GIT_REPOSITORY "https://gitlab.com/libeigen/eigen.git"
+    GIT_REPOSITORY "https://github.com/InsightSoftwareConsortium/eigen"
     GIT_TAG "${EIGEN_TAG}"
     INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/eigen/install
     ${eigen_PATCH_COMMAND}
