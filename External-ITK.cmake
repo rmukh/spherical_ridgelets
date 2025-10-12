@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------------
 # Get and build itk
 
-set(ITK_TAG "v5.4.2")
+set(ITK_TAG "v5.4.3")
 ExternalProject_Add(ITK
   GIT_REPOSITORY "https://github.com/InsightSoftwareConsortium/ITK"
   GIT_TAG "${ITK_TAG}"
@@ -10,6 +10,7 @@ ExternalProject_Add(ITK
   CMAKE_GENERATOR ${gen}
   LOG_DOWNLOAD ON
   LOG_OUTPUT_ON_FAILURE ON
+  PATCH_COMMAND ${CMAKE_COMMAND} -E echo "#include <cstdint>" >> Modules/Core/Common/include/itkFloatingPointExceptions.h
   CMAKE_ARGS
     -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
     -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
@@ -26,9 +27,11 @@ ExternalProject_Add(ITK
     -DModule_ITKCommon:BOOL=ON
     -DModule_ITKIONIFTI:BOOL=ON
     -DModule_ITKIONRRD:BOOL=ON
-    -DModule_MGHIO:BOOL=ON
-    -DModule_ITKIOMINC:BOOL=ON
+    -DModule_MGHIO:BOOL=OFF
+    -DModule_ITKIOMINC:BOOL=OFF
     -DModule_ITKIOXML:BOOL=ON
+    -DModule_ITKIOGDCM:BOOL=OFF
+    -DModule_ITKGDCM:BOOL=OFF
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -DITK_INSTALL_NO_DEVELOPMENT:BOOL=ON
     -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
