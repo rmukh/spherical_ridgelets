@@ -4,18 +4,20 @@ DATA_SOURCE::DATA_SOURCE() {}
 DATA_SOURCE::~DATA_SOURCE() {}
 
 int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
-	if (argc < 5)
+	if (argc < 2)
 	{
 		cerr << "Not enough input arguments!" << endl;
-		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd, -A" << endl;
+		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd, -omd_r, -A" << endl;
+		cerr << "       Ridgelets -sw [-sj J] [-srho rho]" << endl;
 
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits coefficient, "
 			"-mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho, "
-			"-nth number of threads to use, -ext_grads external gradients file, -fi number of FISTA iterations, "
+			"-rth direct ridgelet NMS angle in degrees, -nth number of threads to use, -ext_grads external gradients file, -fi number of FISTA iterations, "
 			"-ft FISTA tolerance" << endl;
 
 		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -ext_sr external gradients signal reconstruction, "
-			"-odf ODF_values, -omd ODF_maxima_dir_&_value, -a A basis matrix, -c enable compression" << endl;
+			"-odf ODF_values, -omd ODF_maxima_dir_&_value, -omd_r direct_ridgelet_maxima_dir_&_value, -A A basis matrix, "
+			"-sw print scale weights, -test_omd_r run a direct ridgelet self-check, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -91,6 +93,18 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 					"So, the default value 0.7 used." << endl;
 			}
 		}
+		if (!strcmp(argv[i], "-rth")) {
+			float th = stof(argv[i + 1]);
+			if (th > 0.0 && th < 90.0) {
+				output->ridgelet_nms_angle = th;
+			}
+			else {
+				cout << "The direct ridgelet NMS angle "
+					"provided is in the wrong "
+					"format (must be in (0, 90) degrees). "
+					"So, the default value 20 used." << endl;
+			}
+		}
 		if (!strcmp(argv[i], "-lmd")) {
 			float lmd = stof(argv[i + 1]);
 			if (lmd > 0.0 && lmd < 1.0) {
@@ -119,9 +133,19 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 			output->output_fiber_max_odf = argv[i + 1];
 			out1 = true;
 		}
+		if (!strcmp(argv[i], "-omd_r")) {
+			output->output_fiber_max_ridgelets = argv[i + 1];
+			out1 = true;
+		}
 		if (!strcmp(argv[i], "-A")) {
 			output->output_A = argv[i + 1];
 			out1 = true;
+		}
+		if (!strcmp(argv[i], "-sw")) {
+			output->print_scale_weights = true;
+		}
+		if (!strcmp(argv[i], "-test_omd_r")) {
+			output->test_direct_ridgelet_maxima = true;
 		}
 		if (!strcmp(argv[i], "-c")) {
 			output->is_compress = true;
@@ -175,8 +199,12 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 			}
 		}
 	}
-	if (!inp1 || !out1) {
-		cerr << "Please, provide at least one input AND one output file names" << endl;
+	if (out1 && !inp1) {
+		cerr << "Please, provide an input dMRI file name" << endl;
+		return EXIT_FAILURE;
+	}
+	if (!out1 && !output->print_scale_weights && !output->test_direct_ridgelet_maxima) {
+		cerr << "Please, provide at least one output file name, -sw, or -test_omd_r" << endl;
 		return EXIT_FAILURE;
 	}
 	return 0;
@@ -191,6 +219,8 @@ void DATA_SOURCE::short_summary(const input_parse& params) {
 	cout << "Spherical ridgelets rho: " << params.sph_rho << endl;
 	cout << "Icosahedron tesselation order: " << params.lvl << endl;
 	cout << "Maxima ODF threshold: " << params.max_odf_thresh << endl;
+	if (!params.output_fiber_max_ridgelets.empty())
+		cout << "Direct ridgelet NMS angle: " << params.ridgelet_nms_angle << endl;
 	cout << "FISTA lambda parameter: " << params.fista_lambda << endl;
 	cout << "Number of splits: " << params.n_splits << endl;
 	cout << "File(s) compression enabled: ";
@@ -341,6 +371,10 @@ void DATA_SOURCE::estimate_memory(MatrixType& s, MatrixType& A, const input_pars
 	// Estimate memory consumption to save ODF max values and directions
 	if (!params.output_fiber_max_odf.empty())
 		data_saving_info_out(24, "ODF max");
+
+	// Estimate memory consumption to save direct ridgelet max values and directions
+	if (!params.output_fiber_max_ridgelets.empty())
+		data_saving_info_out(24, "direct ridgelet max");
 
 	cout << "If you want to optimize memory consumption and computation speed, feel free to "
 		"experiment with split coefficient (-nspl parameter). " << endl << endl;

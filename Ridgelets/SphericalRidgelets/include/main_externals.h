@@ -19,10 +19,13 @@
 #endif
 #include <chrono>
 #include <thread>
+#include <algorithm>
+#include <cmath>
 #include <unordered_map>
 #include <sys/stat.h>
 #include <numeric>
 #include <string>
+#include <vector>
 #include <fstream>
 #include <iostream>
 #include <sstream>

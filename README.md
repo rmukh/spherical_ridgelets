@@ -182,6 +182,7 @@ Optional input arguments:
 - `-lmd` [Lambda parameter for FISTA solver, 0.01 by default]
 - `-sj` [Predefined integer J, which defines the highest level of detectable signal details for the spherical ridgelets, 2 by default]
 - `-srho` [Scaling parameter of the spherical ridgelets, 3.125 by default]
+- `-rth` [Antipodal non-maximum suppression angle for direct ridgelet maxima, 20 degrees by default]
 - `-nth` [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
 - `-ext_grads` [The external gradients file of (# of directions, 3) shape]
 - `-fi` [The number of FISTA iterations, 2000 by default]
@@ -194,10 +195,13 @@ Output arguments:
 - `-ext_sr` [Signal reconstruction using an external gradients table (`-ext_grads` must be specified)]
 - `-odf` [ODF values file name]
 - `-omd` [ODF maxima directions and values file name]
+- `-omd_r` [Direct ridgelet-coefficient maxima directions and values file name]
 - `-A` [A basis file name]
+- `-sw` Prints the normalized ridgelet scale weights and exits unless another output is requested
+- `-test_omd_r` Runs a synthetic single-coefficient direct ridgelet maxima self-check and exits unless another output is requested
 - `-c` Enables compression of output NRRD files, disabled by default
 
-You **must** provide at least one input dMRI file and one output file to run the program.
+You **must** provide at least one input dMRI file and one output file to run the program, except for `-sw` and `-test_omd_r`, which can be used by themselves.
 
 For example:
 
@@ -220,6 +224,22 @@ For example:
 # Notes on ODF and its directions
 
 The output file for the ODF maximum directions (`-omd`) has the shape of the input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, ODF value) for each direction. The maximum number of directions is currently fixed at 6 (3 directions, each with an antipode).
+
+The direct ridgelet maxima output (`-omd_r`) uses the same 6-entry `(x, y, z, value)` layout, but estimates directions directly in coefficient space instead of evaluating the full ODF grid. The score for each ridgelet atom is its positive coefficient part weighted by the precomputed aligned scale response. Antipodal non-maximum suppression uses `abs(dot(a, b))` because `v` and `-v` represent the same fiber axis.
+
+For a quick developer check of the scale design:
+
+```sh
+./sphridg -sw
+```
+
+The default `J = 2` and `srho = 3.125` should print 3 finite scale weights. A synthetic single-coefficient check is available with:
+
+```sh
+./sphridg -test_omd_r
+```
+
+It sets one finest-scale ridgelet coefficient to 1 and checks that the direct estimator returns that atom's native orientation up to antipodal sign. To compare the direct estimator with the ODF-grid path on a small image, run both `-omd` and `-omd_r` and compare axes up to antipodal sign; exact agreement is not expected because `-omd` peak-picks a sampled ODF while `-omd_r` works directly on native ridgelet orientation grids.
 
 # Important notes
 

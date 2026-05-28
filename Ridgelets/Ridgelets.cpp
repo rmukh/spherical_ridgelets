@@ -35,10 +35,7 @@ int main(int argc, char* argv[])
 	DATA_SOURCE data;
 
 	// Parse input parameters from CLI
-	DATA_SOURCE::input_parse input_args{
-		"","","","","","","","","",
-		0.7,0.01,3.125,4,2,-1,-1,false,2000,0.001
-	};
+	DATA_SOURCE::input_parse input_args;
 
 	if (data.CLI(argc, argv, &input_args))
 		return EXIT_SUCCESS;
@@ -51,6 +48,47 @@ int main(int argc, char* argv[])
 		Eigen::setNbThreads(input_args.nth);
 	}
 #endif
+	SPH_RIDG<precisionType, MatrixType, VectorType> ridg(input_args.sph_J, 1 / input_args.sph_rho);
+
+	bool has_volume_output = !input_args.output_ridgelets.empty() ||
+		!input_args.signal_recon.empty() ||
+		!input_args.output_odf.empty() ||
+		!input_args.output_fiber_max_odf.empty() ||
+		!input_args.output_fiber_max_ridgelets.empty() ||
+		!input_args.output_A.empty() ||
+		!input_args.ext_signal_recon.empty();
+
+	if (input_args.print_scale_weights) // -sw
+	{
+		const MatrixType& scale_weights = ridg.getScaleWeights();
+		cout << "Scale weights:" << endl;
+		for (int i = 0; i < scale_weights.rows(); ++i)
+			cout << i << " " << scale_weights(i, 0) << endl;
+
+		if (!has_volume_output && !input_args.test_direct_ridgelet_maxima)
+			return EXIT_SUCCESS;
+	}
+
+	if (input_args.test_direct_ridgelet_maxima) // -test_omd_r
+	{
+		precisionType abs_dot = 0;
+		precisionType score = 0;
+		int coeff_index = 0;
+		bool ok = ridg.TestDirectRidgeletMaxima(abs_dot, score, coeff_index);
+
+		cout << "Direct ridgelet synthetic test:" << endl;
+		cout << "Coefficient index: " << coeff_index << endl;
+		cout << "abs(dot): " << abs_dot << endl;
+		cout << "score: " << score << endl;
+		cout << "Result: " << (ok ? "pass" : "fail") << endl;
+
+		if (!ok)
+			return EXIT_FAILURE;
+
+		if (!has_volume_output)
+			return EXIT_SUCCESS;
+	}
+
 	// Read mask
 	MaskImagePointer mask;
 	int res_mask = data.readMask(input_args.input_mask, mask);
@@ -63,8 +101,6 @@ int main(int argc, char* argv[])
 	int res_dmri = data.DWI2Matrix(&input_args, mask, signal, GradientDirections);
 	if (res_dmri)
 		return EXIT_SUCCESS;
-
-	SPH_RIDG<precisionType, MatrixType, VectorType> ridg(input_args.sph_J, 1 / input_args.sph_rho);
 
 	// Read external gradients
 	MatrixType ext_g;
@@ -92,7 +128,8 @@ int main(int argc, char* argv[])
 		input_args.output_ridgelets.empty() &&
 		input_args.signal_recon.empty() &&
 		input_args.output_odf.empty() &&
-		input_args.output_fiber_max_odf.empty())
+		input_args.output_fiber_max_odf.empty() &&
+		input_args.output_fiber_max_ridgelets.empty())
 	{
 		return EXIT_SUCCESS;
 	}
@@ -160,6 +197,23 @@ int main(int argc, char* argv[])
 
 		data.Matrix2DWI(s_coeff, mask, SR);
 		data.save_to_file<DiffusionImageType>(input_args.ext_signal_recon, s_coeff, input_args.is_compress);
+	}
+
+	// Direct maximum directions and values from ridgelet coefficients
+	if (!input_args.output_fiber_max_ridgelets.empty()) // -omd_r
+	{
+		cout << "Start computing direct ridgelet maxima..." << endl;
+		MatrixType r_d;
+		ridg.FindMaxRidgeletMaxInDMRI(r_d, C, input_args.ridgelet_nms_angle);
+
+		cout << "Saving direct ridgelet maxima direction and value..." << endl;
+		DiffusionImagePointer mridg = DiffusionImageType::New();
+		data.set_header(mridg);
+		mridg->SetNumberOfComponentsPerPixel(r_d.rows());
+		mridg->Allocate();
+
+		data.Matrix2DWI(mridg, mask, r_d);
+		data.save_to_file<DiffusionImageType>(input_args.output_fiber_max_ridgelets, mridg, input_args.is_compress);
 	}
 
 	UtilMath<precisionType, MatrixType, VectorType> m;

@@ -10,13 +10,21 @@ class DATA_SOURCE
 public:
 	typedef struct input_parse {
 		string input_dmri, input_mask, output_ridgelets, output_fiber_max_odf,
-			output_odf, signal_recon, output_A, external_gradients, ext_signal_recon;
-		precisionType max_odf_thresh, fista_lambda, sph_rho;
-		unsigned lvl, sph_J;
-		int n_splits, nth;
-		bool is_compress;
-		int fista_iterations;
-		precisionType fista_tolerance;
+			output_fiber_max_ridgelets, output_odf, signal_recon, output_A,
+			external_gradients, ext_signal_recon;
+		precisionType max_odf_thresh = static_cast<precisionType>(0.7);
+		precisionType fista_lambda = static_cast<precisionType>(0.01);
+		precisionType sph_rho = static_cast<precisionType>(3.125);
+		precisionType ridgelet_nms_angle = static_cast<precisionType>(20.0);
+		unsigned lvl = 4;
+		unsigned sph_J = 2;
+		int n_splits = -1;
+		int nth = -1;
+		bool is_compress = false;
+		bool print_scale_weights = false;
+		bool test_direct_ridgelet_maxima = false;
+		int fista_iterations = 2000;
+		precisionType fista_tolerance = static_cast<precisionType>(0.001);
 	} input_parse;
 
 	DATA_SOURCE();
