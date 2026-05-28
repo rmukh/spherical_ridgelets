@@ -10,7 +10,12 @@ endif()
 include(GNUInstallDirs)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(ITK REQUIRED)
+find_package(ITK REQUIRED COMPONENTS
+  ITKCommon
+  ITKIOImageBase
+  ITKIONIFTI
+  ITKIONRRD
+)
 find_package(OpenMP)
 
 if(BUILD_SHARED_LIBS)
@@ -60,8 +65,7 @@ target_include_directories(Spherical_Ridgelets
 )
 
 include(${ITK_USE_FILE})
-target_link_libraries(Spherical_Ridgelets Eigen3::Eigen)
-target_link_libraries(Spherical_Ridgelets ${ITK_LIBRARIES})
+target_link_libraries(Spherical_Ridgelets PUBLIC Eigen3::Eigen ${ITK_LIBRARIES})
 
 if(OpenMP_FOUND OR OpenMP_CXX_FOUND)
   message(STATUS "OpenMP will be linked")
@@ -74,7 +78,7 @@ if(OpenMP_FOUND OR OpenMP_CXX_FOUND)
     set_property(TARGET OpenMP::OpenMP_CXX
     PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_CXX_FLAGS} Threads::Threads)
   endif()
-  target_link_libraries(Spherical_Ridgelets OpenMP::OpenMP_CXX)
+  target_link_libraries(Spherical_Ridgelets PUBLIC OpenMP::OpenMP_CXX)
   set(OPENMP "OpenMP::OpenMP_CXX")
 else()
   message(STATUS "OpenMP can't be linked. \
@@ -86,7 +90,25 @@ endif()
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SphericalRidgelets)
 
 add_executable(sphridg ${SPH_DIR}/../Ridgelets.cpp)
-target_link_libraries(sphridg PUBLIC Eigen3::Eigen ${ITK_LIBRARIES} ${OPENMP} Spherical_Ridgelets)
+target_link_libraries(sphridg PUBLIC ${OPENMP} Spherical_Ridgelets)
+
+if(WIN32 AND MINGW)
+  get_filename_component(MINGW_RUNTIME_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
+  foreach(MINGW_RUNTIME_DLL
+      libgcc_s_seh-1.dll
+      libstdc++-6.dll
+      libwinpthread-1.dll
+      libgomp-1.dll
+  )
+    if(EXISTS "${MINGW_RUNTIME_DIR}/${MINGW_RUNTIME_DLL}")
+      add_custom_command(TARGET sphridg POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "${MINGW_RUNTIME_DIR}/${MINGW_RUNTIME_DLL}"
+          "$<TARGET_FILE_DIR:sphridg>"
+      )
+    endif()
+  endforeach()
+endif()
 
 include(CMakePackageConfigHelpers)
 
