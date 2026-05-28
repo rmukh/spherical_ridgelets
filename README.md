@@ -1,141 +1,266 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5591085.svg)](https://doi.org/10.5281/zenodo.5591085)
 
-
 # Overview
-Package to compute spherical ridgelets build for diffusion MRI (dMRI).
+
+Package to compute spherical ridgelets for diffusion MRI (dMRI).
 
 **Authors**: Rinat Mukhometzianov, Oleg Michailovich, Yogesh Rathi
 
-# How to start
+# Build from source
 
-## The easiest way is to build a standalone application (Linux)
+The recommended build is the standalone command-line application. If `Eigen3_DIR` and `ITK_DIR` are empty or not provided, CMake downloads and builds pinned compatible versions of Eigen and ITK automatically.
 
-Run the script ```linux_standalone_build.sh``` to perform all steps below.
+## Requirements
 
-1. Download or clone repository.
+- CMake 3.22 or newer
+- Git
+- A C++17 compiler
+- Ninja or Make
+- OpenMP support is recommended for better performance
+
+The first build can take a while because ITK is compiled from source.
+
+## Clone
+
 ```sh
 git clone https://github.com/rmukh/spherical_ridgelets.git
-```
-2. Create an empty folder inside the downloaded repository.
-```sh
 cd spherical_ridgelets
-mkdir build
 ```
-3. Enter that directory.
-```sh
-cd build
-```
-4. Generate make files.
-```sh
-cmake .. -DJUST_BUILD=1
-```
-5. Build package.
-```sh
-make
-```
-### Notes: 
 
-1. You can also use ```make``` with multi-threading option in a way:
+## Windows
+
+The recommended Windows toolchain is MSYS2 UCRT64.
+
+1. Install MSYS2 from <https://www.msys2.org/>.
+2. Open the **MSYS2 UCRT64** shell.
+3. Install the build tools:
+
 ```sh
-make -j#of_threads, e.g. make -j4
+pacman -Syu
+pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja git
 ```
-2. If you want to compile the package with float (single) precision type used instead of double, please add *-DUSE_FLOAT=1* when calling the CMake tool.
 
-3. Please, find the binary file ```sphridg``` in the *build/Spherical_Ridgelets-build* directory if building succeeded. 
+Then build from the repository root:
 
-## Basic Usage
+```sh
+cmake -S . -B build -G Ninja -DJUST_BUILD=1
+cmake --build build
+```
+
+The executable is created at:
+
+```text
+build/SphericalRidgeletsStandalone-build/sphridg.exe
+```
+
+MinGW executables need the MSYS2 runtime DLLs available at run time. The build copies the known required DLLs next to `sphridg.exe`. Running from an MSYS2 UCRT64 shell, or adding `C:\msys64\ucrt64\bin` to `PATH`, also works.
+
+If you build from PowerShell or Command Prompt instead of the UCRT64 shell, pass the toolchain explicitly:
+
+```powershell
+C:\msys64\ucrt64\bin\cmake.exe -S . -B build -G Ninja `
+  -DCMAKE_MAKE_PROGRAM=C:/msys64/ucrt64/bin/ninja.exe `
+  -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe `
+  -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/g++.exe `
+  -DJUST_BUILD=1
+C:\msys64\ucrt64\bin\cmake.exe --build build
+```
+
+## Linux
+
+Install a compiler, CMake, Ninja, and Git. For example:
+
+```sh
+# Ubuntu/Debian
+sudo apt update
+sudo apt install build-essential cmake ninja-build git
+
+# Fedora
+sudo dnf install gcc gcc-c++ cmake ninja-build git
+
+# Arch Linux
+sudo pacman -S base-devel cmake ninja git
+```
+
+If your distribution provides CMake older than 3.22, install a newer CMake from your package manager backports or from <https://cmake.org/download/>.
+
+Build from the repository root:
+
+```sh
+cmake -S . -B build -G Ninja -DJUST_BUILD=1
+cmake --build build
+```
+
+The executable is created at:
+
+```text
+build/SphericalRidgeletsStandalone-build/sphridg
+```
+
+## macOS
+
+Install the command-line tools and Homebrew packages:
+
+```sh
+xcode-select --install
+brew install cmake ninja git
+```
+
+Build from the repository root:
+
+```sh
+cmake -S . -B build -G Ninja -DJUST_BUILD=1
+cmake --build build
+```
+
+The executable is created at:
+
+```text
+build/SphericalRidgeletsStandalone-build/sphridg
+```
+
+Apple Clang may not provide OpenMP out of the box. The project can build without OpenMP, but it will be slower. To build with OpenMP support, install LLVM and libomp, then configure with Homebrew LLVM:
+
+```sh
+brew install llvm libomp
+cmake -S . -B build -G Ninja -DJUST_BUILD=1 \
+  -DCMAKE_C_COMPILER="$(brew --prefix llvm)/bin/clang" \
+  -DCMAKE_CXX_COMPILER="$(brew --prefix llvm)/bin/clang++"
+cmake --build build
+```
+
+## Build options
+
+CMake defaults to `Release` mode. To build in `Debug` mode:
+
+```sh
+cmake -S . -B build -G Ninja -DJUST_BUILD=1 -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+```
+
+To build with float (single precision) instead of double precision:
+
+```sh
+cmake -S . -B build -G Ninja -DJUST_BUILD=1 -DUSE_FLOAT=1
+cmake --build build
+```
+
+To force CMake to ignore any existing `Eigen3_DIR` or `ITK_DIR` values and download the pinned dependencies:
+
+```sh
+cmake -S . -B build -G Ninja -DJUST_BUILD=1 -DSPH_DOWNLOAD_DEPS=ON
+cmake --build build
+```
+
+## Using prebuilt Eigen and ITK
+
+This package mainly depends on Eigen and ITK. If you already have compatible versions installed, pass their CMake package directories:
+
+```sh
+cmake -S . -B build -G Ninja -DJUST_BUILD=1 \
+  -DEigen3_DIR=/path/to/eigen/share \
+  -DITK_DIR=/path/to/ITK-build
+cmake --build build
+```
+
+`Eigen3_DIR` must contain `Eigen3Config.cmake` or `eigen3-config.cmake`. `ITK_DIR` must contain `ITKConfig.cmake`. ITK 5 or newer is expected; ITK 4.x is rejected or ignored by this build.
+
+Building with `-DJUST_BUILD=1` is essential for a standalone application. Without it, CMake includes the package as a library.
+
+# Basic usage
 
 Mandatory input argument:
-- *-i* [dMRI file name]
+
+- `-i` [dMRI file name]
 
 Optional input arguments:
-- *-m* [Mask file]
-- *-lvl* [Icosahedron tesselation order, 4 by default]
-- *-nspl* [The number of ridgelets coefficients splits to parallel computing, computed automatically by default based on your computer configuration]
-- *-mth* [Find maxima ODF threshold, 0.7 by default] 
-- *-lmd* [Lambda parameter for FISTA solver, 0.01 by default] 
-- *-sj* [Predefined integer J, which defines the highest level of 'detectable' signal details parameter of the spherical ridgelets, 2 by default] 
-- *-srho* [Scaling parameter of the spherical ridgelets, 3.125 by default]
-- *-nth* [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
-- *-ext_grads* [The external gradients file of (# of directions, 3) shape]
-- *-fi* [The number of FISTA iterations, 2000 by default]
-- *-ft* [The convergence tolerance of FISTA, 0.001 by default]
+
+- `-m` [Mask file]
+- `-lvl` [Icosahedron tessellation order, 4 by default]
+- `-nspl` [The number of ridgelets coefficient splits for parallel computing, computed automatically by default based on your computer configuration]
+- `-mth` [Find maxima ODF threshold, 0.7 by default]
+- `-lmd` [Lambda parameter for FISTA solver, 0.01 by default]
+- `-sj` [Predefined integer J, which defines the highest level of detectable signal details for the spherical ridgelets, 2 by default]
+- `-srho` [Scaling parameter of the spherical ridgelets, 3.125 by default]
+- `-nth` [The number of threads to use for computations. Otherwise, all available CPU resources will be utilized]
+- `-ext_grads` [The external gradients file of (# of directions, 3) shape]
+- `-fi` [The number of FISTA iterations, 2000 by default]
+- `-ft` [The convergence tolerance of FISTA, 0.001 by default]
 
 Output arguments:
-- *-ridg* [Ridgelets coefficients file name]
-- *-sr* [Signal reconstruction]
-- *-ext_sr* [Signal reconstruction using an external gradients table (*-ext_grads* must be specified)]
-- *-odf* [ODF values file name] 
-- *-omd* [ODF maxima directions and values file name]
-- *-A* [A basis file name]
-- *-c* Enables compression of output nrrd files, disabled by default
 
-You **must** provide at least input dMRI file and one output file to run the program.
+- `-ridg` [Ridgelets coefficients file name]
+- `-sr` [Signal reconstruction]
+- `-ext_sr` [Signal reconstruction using an external gradients table (`-ext_grads` must be specified)]
+- `-odf` [ODF values file name]
+- `-omd` [ODF maxima directions and values file name]
+- `-A` [A basis file name]
+- `-c` Enables compression of output NRRD files, disabled by default
+
+You **must** provide at least one input dMRI file and one output file to run the program.
 
 For example:
+
 ```sh
 ./sphridg -i my_dmri.nrrd -ridg ridgelets_coefficients.nrrd
 ```
+
 # Outputs
-*-ridg* gives a 4D file with the same spatial size as an input.
 
-*-sr* provides a reconstructed signal **without** b0 volumes with the same spatial size as an input.
+`-ridg` gives a 4D file with the same spatial size as an input.
 
-*-ext_sr* generates a reconstructed signal **without** b0 volumes at the diffusion-encoding directions shipped with the external gradient table.
+`-sr` provides a reconstructed signal **without** b0 volumes with the same spatial size as an input.
 
-*-A* outputs a spherical ridgelets basis.
+`-ext_sr` generates a reconstructed signal **without** b0 volumes at the diffusion-encoding directions shipped with the external gradient table.
 
-**IMPORTANT!** The output of the reconstructed images is always saved with the 1st dimension representing diffusion-encoding directions!
+`-A` outputs a spherical ridgelets basis.
+
+**IMPORTANT!** The output of reconstructed images is always saved with the first dimension representing diffusion-encoding directions.
 
 # Notes on ODF and its directions
-The output file for the ODF maximum directions (-omd) has a shape of the input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, ODF value) for each direction. Now a maximum number of directions is fixed at 6 (3 directions, each with an antipode).
+
+The output file for the ODF maximum directions (`-omd`) has the shape of the input dMRI file. Each voxel contains ODF directions and ODF values organized as (x, y, z, ODF value) for each direction. The maximum number of directions is currently fixed at 6 (3 directions, each with an antipode).
 
 # Important notes
+
 Pre-normalized (by b0) images with no b0 volumes are supported.
 
-If you are saving NRRD output with an **external** diffusion-encoding directions file, they will be saved in the metadata information; hence, the original gradients will be overridden.
+If you save NRRD output with an **external** diffusion-encoding directions file, those directions are saved in the metadata, and the original gradients are overridden.
 
-Building with the flag *-DJUST_BUILD=1* is essential if you want a standalone build. Otherwise, the CMakeLists.txt will include files necessary to make this package in the form of a library.
+Currently, only the NRRD file format (`.nrrd`, `.nhdr`) is supported.
 
-Currently, the NRRD file format (.nrrd, .nhdr) is supported only. To build this project, you need [CMake](https://cmake.org/) and [git](https://git-scm.com/) installed on your system. 
+The input diffusion MRI image is expected to have the shape (size x, size y, size z, # of gradient directions), while the mask file is expected to have the shape (size x, size y, size z, 1). The external gradient file, if used, should not contain comments and should start from the first line as a (# directions, 3) ASCII file.
 
-The input diffusion MRI image is expected to be in the shape of (size x, size y, size z, # of gradient directions), while the mask file is expected to be in the shape of (size x, size y, size z, 1). The external gradient file (if used) should not contain any comments and start from the first line, so just (#directins, 3) ASCII file. 
-TODO:
-The advanced text cleaning and gradient table detection procedures.
+Saving ODF values **might fail** if you do not have enough RAM.
 
-The repository contains *Visual Studio* project files for development purposes, so you can safely delete them. *GCC*, *Clang*, *MSVC* compilers adequately supported. This package was tested on *Linux*, *Windows 10*, *Mac OS*. Please, refer to the Travis CI badge at the top of this manual to check if the current version is compilable. The recommended are **GCC** of versions **5,6,7,8**. So, install and use one of those versions (GCC and g++) and specify the system paths if necessary. The usage example for Cmake/make build you can find in ```linux_standalone_build.sh```
+Additional information is available here: <https://rinatm.com/spherical-ridgelets-for-high-angular-resolution-diffusion-imaging-hardi-implementation/>
 
-Saving ODF values operation **might fail** if you don't have enough RAM.
-
-Addition info you can find here: https://rinatm.com/spherical-ridgelets-for-high-angular-resolution-diffusion-imaging-hardi-implementation/
+TODO: Advanced text cleaning and gradient table detection procedures.
 
 # Advanced users
 
 ## Speed
-*OpenMP* enabled by default during compilation to provide you a significant acceleration. So, if you don't have OpenMP support, we recommend you to use GCC compiler with OpenMP. [Google](https://www.google.com/) and [this page](https://www.openmp.org/resources/openmp-compilers-tools/) are excellent sources of information on *OpenMP*. Also, advanced CPU features, e.g., SSE, AVX, etc. enabled by default.
 
-The split parameter (*-nspl*) computed in a way to enable the highest possible level of parallelization, however, tests made on Intel CPU's only. If you feel that the default value is not optimal for your case, you are encouraged to experiment with it. You can also increase the default value of *-nspl* to reduce RAM usage.
+OpenMP is enabled by default when available and provides significant acceleration. If you do not have OpenMP support, we recommend using a compiler with OpenMP support. The split parameter (`-nspl`) is computed to enable a high level of parallelization, although tests have primarily been made on Intel CPUs. If the default value is not optimal for your case, you are encouraged to experiment with it. You can also increase `-nspl` to reduce RAM usage.
 
-CMake starts building this package and all required libraries in **Release** mode (for the highest performance). To build in **Debug** mode pass *-DCMAKE_BUILD_TYPE=Debug* to CMake.
+Advanced CPU features, such as SSE and AVX, are enabled by default in Release builds when supported by the compiler.
 
-## Custom build
-This package mainly depends on two libraries: *ITK* and *Eigen*. In some cases, you may want to use custom versions of these libraries. That's typically happening in the following cases:
-* You have them preinstalled in your system and want to save time on the compilation process;
-* You want to test some specific version for performance comparasion.
+# Bugs and features
 
-Then you can pass the path in cmake command.
-* For *ITK* use *-DITK_DIR*
-* For *Eigen* use *-DEigen3_DIR*
-
-For example:
-```sh
-cmake -DITK_DIR=/path/to/ITK_build -DEigen3_DIR=/path/to/Eigen ..
-```
-# Bugs & feautures
-
-Please, open a new issue or send a pull request if you found any bug/error or want to propose new features. Don't forget to describe the modifications or/and improvements you made otherwise it might take a long time to review and accept your request.
+Please open a new issue or send a pull request if you found a bug or want to propose a feature. Describe the modification or improvement so it can be reviewed efficiently.
 
 # Citation
 
-**BibTeX**  
-@misc{sphridg_software, title={Sofwater for computation of spherical ridgelets for diffusion MRI}, DOI={10.5281/zenodo.5591084}, abstractNote={C++ Package to compute spherical ridgelets.}, publisher={Zenodo}, author={Rinat Mukhometzianov and Oleg Michailovich and Yogesh Rathi}, year={2021}, month={Oct} }
+**BibTeX**
+
+```bibtex
+@misc{sphridg_software,
+  title={Software for computation of spherical ridgelets for diffusion MRI},
+  DOI={10.5281/zenodo.5591084},
+  abstractNote={C++ Package to compute spherical ridgelets.},
+  publisher={Zenodo},
+  author={Rinat Mukhometzianov and Oleg Michailovich and Yogesh Rathi},
+  year={2021},
+  month={Oct}
+}
+```
