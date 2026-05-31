@@ -27,6 +27,7 @@ public:
 	void QBasis(MT& Q, MT& u); //For visualizing pupose only
 	const MT& getScaleWeights() const;
 	void FindMaxRidgeletMaxInDMRI(MT& fin, MT& R, pT nms_angle_degrees = static_cast<pT>(20.0));
+	bool TestScaleWeightsAgainstQBasis(pT& max_abs_err);
 	bool TestDirectRidgeletMaxima(pT& abs_dot, pT& score, int& coeff_index);
 	void normBasis(MT& mat); //normalize basis
 	const pT USER_RHO_DEFAULT = static_cast<pT>(3.125);
@@ -46,4 +47,3 @@ private:
 #include "SPH_RIDG.hpp"
 
 #endif // !SPH_RIDG_H
-

@@ -8,7 +8,7 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 	{
 		cerr << "Not enough input arguments!" << endl;
 		cerr << "Usage: Ridgelets -i dMRI file AND at least one output: -ridg, -sr, -odf, -omd, -omd_r, -A" << endl;
-		cerr << "       Ridgelets -sw [-sj J] [-srho rho]" << endl;
+		cerr << "       Ridgelets -sw | -test_sw | -test_omd_r [-sj J] [-srho rho]" << endl;
 
 		cerr << "Optional input arguments: -m mask file, -lvl ridgelets order, -nspl splits coefficient, "
 			"-mth maxima ODF threshold, -lmd FISTA lambda, -sj Spherical ridgelets J, -srho Spherical ridgelets rho, "
@@ -17,7 +17,8 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 
 		cerr << "Possible output argumet(s): -ridg ridgelet_file, -sr signal reconstruction, -ext_sr external gradients signal reconstruction, "
 			"-odf ODF_values, -omd ODF_maxima_dir_&_value, -omd_r direct_ridgelet_maxima_dir_&_value, -A A basis matrix, "
-			"-sw print scale weights, -test_omd_r run a direct ridgelet self-check, -c enable compression" << endl;
+			"-sw print scale weights, -test_sw run a scale-weight QBasis self-check, "
+			"-test_omd_r run a direct ridgelet self-check, -c enable compression" << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -144,6 +145,9 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 		if (!strcmp(argv[i], "-sw")) {
 			output->print_scale_weights = true;
 		}
+		if (!strcmp(argv[i], "-test_sw")) {
+			output->test_scale_weights = true;
+		}
 		if (!strcmp(argv[i], "-test_omd_r")) {
 			output->test_direct_ridgelet_maxima = true;
 		}
@@ -203,8 +207,8 @@ int DATA_SOURCE::CLI(int argc, char* argv[], input_parse* output) {
 		cerr << "Please, provide an input dMRI file name" << endl;
 		return EXIT_FAILURE;
 	}
-	if (!out1 && !output->print_scale_weights && !output->test_direct_ridgelet_maxima) {
-		cerr << "Please, provide at least one output file name, -sw, or -test_omd_r" << endl;
+	if (!out1 && !output->print_scale_weights && !output->test_scale_weights && !output->test_direct_ridgelet_maxima) {
+		cerr << "Please, provide at least one output file name, -sw, -test_sw, or -test_omd_r" << endl;
 		return EXIT_FAILURE;
 	}
 	return 0;

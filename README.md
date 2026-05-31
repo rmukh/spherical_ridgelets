@@ -198,10 +198,11 @@ Output arguments:
 - `-omd_r` [Direct ridgelet-coefficient maxima directions and values file name]
 - `-A` [A basis file name]
 - `-sw` Prints the normalized ridgelet scale weights and exits unless another output is requested
+- `-test_sw` Runs a QBasis-alignment check for the scale weights and exits unless another output is requested
 - `-test_omd_r` Runs a synthetic single-coefficient direct ridgelet maxima self-check and exits unless another output is requested
 - `-c` Enables compression of output NRRD files, disabled by default
 
-You **must** provide at least one input dMRI file and one output file to run the program, except for `-sw` and `-test_omd_r`, which can be used by themselves.
+You **must** provide at least one input dMRI file and one output file to run the program, except for `-sw`, `-test_sw`, and `-test_omd_r`, which can be used by themselves.
 
 For example:
 
@@ -233,7 +234,13 @@ For a quick developer check of the scale design:
 ./sphridg -sw
 ```
 
-The default `J = 2` and `srho = 3.125` should print 3 finite scale weights. A synthetic single-coefficient check is available with:
+The default `J = 2` and `srho = 3.125` should print 3 finite scale weights. You can verify those weights against QBasis with:
+
+```sh
+./sphridg -test_sw
+```
+
+It compares each scale weight against QBasis evaluated at the native aligned direction for one atom per scale. A synthetic single-coefficient check is available with:
 
 ```sh
 ./sphridg -test_omd_r

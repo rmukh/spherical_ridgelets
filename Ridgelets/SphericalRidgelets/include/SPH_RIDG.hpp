@@ -56,11 +56,10 @@ void SPH_RIDG<pT, MT, VT>::init() {
 		psi.col(i) = psi.col(i) / t(i);
 
 	// scale_weights(j) is the aligned ODF-domain response of one normalized
-	// ridgelet atom at scale j.  RBasis uses sum_l C_l psi_lj P_l(mu); applying
-	// the same Funk-Radon convention as QBasis evaluates P_l(0) at alignment.
-	// UtilMath::fura stores the same P_l(0) sequence used by QBasis, up to the
-	// repository's omitted global 2*pi factor, so these weights match -odf's
-	// normalization convention.
+	// ridgelet atom at scale j.  The QBasis aligned direction uses P_l(1)=1.
+	// The Funk-Radon multiplier is already represented by Lmd in QBasis.  Since
+	// Lmd equals P_l(0) up to the repository's omitted 2*pi factor,
+	// P0 * (C .* psi_j) equals the aligned QBasis response.
 	MT P0 = MT::Ones(1, mcut + 1);
 	MT x0 = MT::Zero(1, 1);
 	UM.polyleg(P0, x0, mcut);
@@ -115,6 +114,40 @@ void SPH_RIDG<pT, MT, VT>::RBasis(MT& A, MT& u) {
 template<class pT, class MT, class VT>
 const MT& SPH_RIDG<pT, MT, VT>::getScaleWeights() const {
 	return scale_weights;
+}
+
+template<class pT, class MT, class VT>
+bool SPH_RIDG<pT, MT, VT>::TestScaleWeightsAgainstQBasis(pT& max_abs_err) {
+	max_abs_err = static_cast<pT>(0.0);
+
+	MT u = MT::Zero(J + 1, 3);
+	vector<int> offsets(J + 1, 0);
+
+	int offset = 0;
+	for (int j = 0; j < J + 1; ++j) {
+		offsets[j] = offset;
+
+		int K = M0(j);
+		int N = 2 * K;
+		MT v = MT::Zero(N, 3);
+		UM.spiralsample(v, 2, N);
+		u.row(j) = v.row(0);
+
+		offset += K;
+	}
+
+	MT Q;
+	QBasis(Q, u);
+
+	for (int j = 0; j < J + 1; ++j) {
+		pT err = std::abs(Q(j, offsets[j]) - scale_weights(j, 0));
+		max_abs_err = std::max(max_abs_err, err);
+	}
+
+	pT scale = std::max(static_cast<pT>(1.0), scale_weights.cwiseAbs().maxCoeff());
+	pT tolerance = static_cast<pT>(64.0) * std::numeric_limits<pT>::epsilon()
+		* static_cast<pT>(mcut + 1) * scale;
+	return max_abs_err <= tolerance;
 }
 
 template<class pT, class MT, class VT>
@@ -180,10 +213,11 @@ void SPH_RIDG<pT, MT, VT>::FindMaxRidgeletMaxInDMRI(MT& fin, MT& R, pT nms_angle
 		UM.spiralsample(v, 2, N);
 
 		pT weight = scale_weights(j, 0);
-		// The current FRT convention gives positive aligned responses.  Using
-		// abs(weight) keeps the score invariant to an equivalent global sign
-		// convention while the default coefficient rule stays positive-part.
-		weight = std::abs(weight);
+		if (weight < static_cast<pT>(0.0)) {
+			cerr << "Warning: negative scale weight at scale " << j
+				<< "; clamping to 0 for ODF-consistent scoring." << endl;
+		}
+		weight = std::max(weight, static_cast<pT>(0.0));
 
 		for (int k = 0; k < K; ++k) {
 			Candidate c;

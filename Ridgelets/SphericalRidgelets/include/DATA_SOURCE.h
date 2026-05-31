@@ -22,6 +22,7 @@ public:
 		int nth = -1;
 		bool is_compress = false;
 		bool print_scale_weights = false;
+		bool test_scale_weights = false;
 		bool test_direct_ridgelet_maxima = false;
 		int fista_iterations = 2000;
 		precisionType fista_tolerance = static_cast<precisionType>(0.001);

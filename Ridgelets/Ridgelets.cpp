@@ -62,8 +62,26 @@ int main(int argc, char* argv[])
 	{
 		const MatrixType& scale_weights = ridg.getScaleWeights();
 		cout << "Scale weights:" << endl;
+		cout << setprecision(12);
 		for (int i = 0; i < scale_weights.rows(); ++i)
 			cout << i << " " << scale_weights(i, 0) << endl;
+
+		if (!has_volume_output && !input_args.test_scale_weights && !input_args.test_direct_ridgelet_maxima)
+			return EXIT_SUCCESS;
+	}
+
+	if (input_args.test_scale_weights) // -test_sw
+	{
+		precisionType max_abs_err = 0;
+		bool ok = ridg.TestScaleWeightsAgainstQBasis(max_abs_err);
+
+		cout << "Scale weights QBasis alignment test:" << endl;
+		cout << setprecision(12);
+		cout << "max_abs_err: " << max_abs_err << endl;
+		cout << "Result: " << (ok ? "pass" : "fail") << endl;
+
+		if (!ok)
+			return EXIT_FAILURE;
 
 		if (!has_volume_output && !input_args.test_direct_ridgelet_maxima)
 			return EXIT_SUCCESS;
