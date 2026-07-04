@@ -53,17 +53,17 @@ The executable is created at:
 build/SphericalRidgeletsStandalone-build/sphridg.exe
 ```
 
-MinGW executables need the MSYS2 runtime DLLs available at run time. The build copies the known required DLLs next to `sphridg.exe`. Running from an MSYS2 UCRT64 shell, or adding `C:\msys64\ucrt64\bin` to `PATH`, also works.
+MinGW executables need the MSYS2 runtime DLLs available at run time. The build copies the known required DLLs next to `sphridg.exe`. Running from an MSYS2 UCRT64 shell, or adding your MSYS2 UCRT64 `bin` directory to `PATH`, also works.
 
 If you build from PowerShell or Command Prompt instead of the UCRT64 shell, pass the toolchain explicitly:
 
 ```powershell
-C:\msys64\ucrt64\bin\cmake.exe -S . -B build -G Ninja `
-  -DCMAKE_MAKE_PROGRAM=C:/msys64/ucrt64/bin/ninja.exe `
-  -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe `
-  -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/g++.exe `
+<MSYS2_UCRT64_BIN>\cmake.exe -S . -B build -G Ninja `
+  -DCMAKE_MAKE_PROGRAM=<MSYS2_UCRT64_BIN>/ninja.exe `
+  -DCMAKE_C_COMPILER=<MSYS2_UCRT64_BIN>/gcc.exe `
+  -DCMAKE_CXX_COMPILER=<MSYS2_UCRT64_BIN>/g++.exe `
   -DJUST_BUILD=1
-C:\msys64\ucrt64\bin\cmake.exe --build build
+<MSYS2_UCRT64_BIN>\cmake.exe --build build
 ```
 
 ## Linux
@@ -158,8 +158,8 @@ This package mainly depends on Eigen and ITK. If you already have compatible ver
 
 ```sh
 cmake -S . -B build -G Ninja -DJUST_BUILD=1 \
-  -DEigen3_DIR=/path/to/eigen/share \
-  -DITK_DIR=/path/to/ITK-build
+  -DEigen3_DIR=<EIGEN_INSTALL_SHARE> \
+  -DITK_DIR=<ITK_BUILD_DIR>
 cmake --build build
 ```
 
@@ -247,6 +247,51 @@ It compares each scale weight against QBasis evaluated at the native aligned dir
 ```
 
 It sets one finest-scale ridgelet coefficient to 1 and checks that the direct estimator returns that atom's native orientation up to antipodal sign. To compare the direct estimator with the ODF-grid path on a small image, run both `-omd` and `-omd_r` and compare axes up to antipodal sign; exact agreement is not expected because `-omd` peak-picks a sampled ODF while `-omd_r` works directly on native ridgelet orientation grids.
+
+# Visualizing direct ridgelet directions in 3D Slicer
+
+The `-omd_r` file is a 24-component NRRD with six `(x, y, z, value)` entries per voxel. The entries are three fiber axes plus their antipodes, so the visualization script shows entries 1, 3, and 5 as centered stick glyphs and skips the duplicated antipodes by default.
+
+## Native Slicer module
+
+The recommended interactive workflow is the self-contained scripted module in
+`SlicerRidgeletDirections`.
+
+1. Open 3D Slicer.
+2. Open **Edit > Application Settings > Modules**.
+3. Add `SlicerRidgeletDirections/RidgeletDirections` to **Additional module paths**.
+4. Restart Slicer.
+5. Open **Modules > Diffusion > Ridgelet Directions**.
+
+The module provides native selectors and controls for:
+
+- loading or selecting the `-omd_r`, reference, and mask volumes
+- slice axis/index, IJK ROI, stride, score threshold, and maximum axes
+- glyph length, tube radius, tube sides, and axis/score coloring
+- VTP, legacy VTK, and CSV conversion exports
+
+The `SlicerRidgeletDirections` folder is independent from the C++ build and can
+later be moved into its own extension repository.
+
+## Slicer Python script
+
+For batch conversion or scripted use, run from this repository with Slicer's Python:
+
+```powershell
+<SLICER_EXECUTABLE> --python-script tools\slicer\visualize_omd_r.py -- --omd-r <DIRECT_RIDGELET_DIRECTIONS_NRRD> --reference <REFERENCE_VOLUME_NRRD> --slice-axis k --slice-index 20 --stride 2 --threshold 0 --export-vtp <DIRECT_RIDGELET_DIRECTIONS_VTP> --export-csv <DIRECT_RIDGELET_DIRECTIONS_CSV>
+```
+
+Useful options:
+
+- `--slice-axis i|j|k|all` and `--slice-index N` choose which slice to render. The default is the middle `k` slice.
+- `--roi-ijk IMIN IMAX JMIN JMAX KMIN KMAX` restricts glyphs to an inclusive voxel ROI.
+- `--stride N` skips voxels to keep the view interactive.
+- `--threshold V` hides directions with scores at or below `V`.
+- `--glyph-length V` and `--tube-radius V` control stick size in physical units.
+- `--color-by axis|score` colors by fiber axis index or score.
+- `--export-vtp`, `--export-vtk`, and `--export-csv` save reusable converted files.
+
+If no NRRD measurement-frame metadata is found, the script prints a warning and assumes the stored directions are already in RAS/physical coordinates.
 
 # Important notes
 
