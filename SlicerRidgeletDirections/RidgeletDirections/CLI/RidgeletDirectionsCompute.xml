@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Diffusion</category>
+  <title>Ridgelet Directions Compute</title>
+  <description>Compute spherical ridgelets direct fiber directions from dMRI data.</description>
+  <version>1.0</version>
+  <documentation-url>https://github.com/rinatm/spherical_ridgelets</documentation-url>
+  <license>BSD-3-Clause</license>
+  <contributor>Rinat Mukhometzianov</contributor>
+  <acknowledgements>Built for the spherical_ridgelets project.</acknowledgements>
+
+  <parameters>
+    <label>Input dMRI Data</label>
+    <description>Input diffusion MRI volume and parameters for spherical ridgelets computation.</description>
+    
+    <string-vector>
+      <name>input_dmri</name>
+      <label>Input dMRI Volume</label>
+      <description>Input diffusion-weighted MRI volume (NRRD format).</description>
+      <channel>input</channel>
+      <element>
+        <name>file</name>
+        <label>dMRI File</label>
+        <type>file</type>
+        <filetype>nrrd</filetype>
+      </element>
+    </string-vector>
+
+    <string-vector>
+      <name>input_mask</name>
+      <label>Input Mask Volume</label>
+      <description>Optional brain mask volume. Voxels with value less than or equal to 0 are skipped.</description>
+      <channel>input</channel>
+      <element>
+        <name>file</name>
+        <label>Mask File</label>
+        <type>file</type>
+        <filetype>nrrd</filetype>
+      </element>
+    </string-vector>
+
+    <string-vector>
+      <name>external_gradients</name>
+      <label>External Gradient Directions</label>
+      <description>Optional external gradient directions file.</description>
+      <channel>input</channel>
+      <element>
+        <name>file</name>
+        <label>Gradients File</label>
+        <type>file</type>
+        <filetype>txt</filetype>
+      </element>
+    </string-vector>
+
+    <label>Spherical Ridgelets Parameters</label>
+    <description>Parameters controlling the spherical ridgelets basis and computation.</description>
+
+    <integer>
+      <name>sph_J</name>
+      <label>Spherical Ridgelets J</label>
+      <description>J value for spherical ridgelets basis (positive integer). Default: 2.</description>
+      <default>2</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>10</maximum>
+      </constraints>
+    </integer>
+
+    <double>
+      <name>sph_rho</name>
+      <label>Spherical Ridgelets Rho</label>
+      <description>Rho value for spherical ridgelets (float greater than 0). Default: 3.125.</description>
+      <default>3.125</default>
+      <constraints>
+        <minimum>0.001</minimum>
+        <maximum>100.0</maximum>
+      </constraints>
+    </double>
+
+    <integer>
+      <name>lvl</name>
+      <label>Icosahedron Tesselation Order</label>
+      <description>Order of icosahedron tesselation for ODF computation. Default: 4.</description>
+      <default>4</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>10</maximum>
+      </constraints>
+    </integer>
+
+    <integer>
+      <name>n_splits</name>
+      <label>Number of Splits</label>
+      <description>Split coefficient for ridgelets computation. Default: -1 (auto).</description>
+      <default>-1</default>
+      <constraints>
+        <minimum>-1</minimum>
+        <maximum>1000</maximum>
+      </constraints>
+    </integer>
+
+    <double>
+      <name>fista_lambda</name>
+      <label>FISTA Lambda</label>
+      <description>Lambda parameter for FISTA solver (between 0 and 1). Default: 0.01.</description>
+      <default>0.01</default>
+      <constraints>
+        <minimum>0.0001</minimum>
+        <maximum>0.9999</maximum>
+      </constraints>
+    </double>
+
+    <integer>
+      <name>fista_iterations</name>
+      <label>FISTA Iterations</label>
+      <description>Number of FISTA iterations. Default: 100.</description>
+      <default>100</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>10000</maximum>
+      </constraints>
+    </integer>
+
+    <double>
+      <name>fista_tolerance</name>
+      <label>FISTA Tolerance</label>
+      <description>Tolerance parameter for FISTA convergence (between 0 and 1). Default: 0.0001.</description>
+      <default>0.0001</default>
+      <constraints>
+        <minimum>1e-8</minimum>
+        <maximum>0.9999</maximum>
+      </constraints>
+    </integer>
+
+    <integer>
+      <name>nth</name>
+      <label>Number of Threads</label>
+      <description>Number of threads to use. Default: -1 (auto).</description>
+      <default>-1</default>
+      <constraints>
+        <minimum>-1</minimum>
+        <maximum>128</maximum>
+      </constraints>
+    </integer>
+
+    <boolean>
+      <name>is_compress</name>
+      <label>Enable Compression</label>
+      <description>Enable NRRD file compression for output volumes.</description>
+      <default>false</default>
+    </boolean>
+
+    <label>Output Options</label>
+    <description>Select which outputs to generate. At least one output is required.</description>
+
+    <string-vector>
+      <name>output_fiber_max_ridgelets</name>
+      <label>Direct Ridgelet Maxima (-omd_r)</label>
+      <description>Output direct ridgelet maxima directions and values volume (24 components). This is the main output for visualization.</description>
+      <channel>output</channel>
+      <element>
+        <name>file</name>
+        <label>Direct Ridgelet Maxima File</label>
+        <type>file</type>
+        <filetype>nrrd</filetype>
+      </element>
+    </string-vector>
+
+    <string-vector>
+      <name>output_ridgelets</name>
+      <label>Ridgelets Coefficients</label>
+      <description>Output ridgelets coefficients volume.</description>
+      <channel>output</channel>
+      <element>
+        <name>file</name>
+        <label>Ridgelets File</label>
+        <type>file</type>
+        <filetype>nrrd</filetype>
+      </element>
+    </string-vector>
+
+    <string-vector>
+      <name>output_signal_recon</name>
+      <label>Signal Reconstruction</label>
+      <description>Output signal reconstruction volume.</description>
+      <channel>output</channel>
+      <element>
+        <name>file</name>
+        <label>Signal Reconstruction File</label>
+        <type>file</type>
+        <filetype>nrrd</filetype>
+      </element>
+    </string-vector>
+
+    <string-vector>
+      <name>output_odf</name>
+      <label>ODF Values</label>
+      <description>Output ODF values volume.</description>
+      <channel>output</channel>
+      <element>
+        <name>file</name>
+        <label>ODF File</label>
+        <type>file</type>
+        <filetype>nrrd</filetype>
+      </element>
+    </string-vector>
+
+    <double>
+      <name>ridgelet_nms_angle</name>
+      <label>Direct Ridgelet NMS Angle</label>
+      <description>Non-maximum suppression angle for direct ridgelet maxima (degrees). Default: 20.</description>
+      <default>20.0</default>
+      <constraints>
+        <minimum>0.1</minimum>
+        <maximum>89.9</maximum>
+      </constraints>
+    </double>
+
+    <double>
+      <name>max_odf_thresh</name>
+      <label>ODF Maxima Threshold</label>
+      <description>Threshold for ODF maxima search (between 0 and 1). Default: 0.7.</description>
+      <default>0.7</default>
+      <constraints>
+        <minimum>0.001</minimum>
+        <maximum>0.999</maximum>
+      </constraints>
+    </double>
+
+    <boolean>
+      <name>print_scale_weights</name>
+      <label>Print Scale Weights</label>
+      <description>Print scale weights to console.</description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>test_scale_weights</name>
+      <label>Test Scale Weights</label>
+      <description>Run scale weights QBasis self-check.</description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>test_direct_ridgelet_maxima</name>
+      <label>Test Direct Ridgelet Maxima</label>
+      <description>Run direct ridgelet synthetic test.</description>
+      <default>false</default>
+    </boolean>
+  </parameters>
+</executable>
