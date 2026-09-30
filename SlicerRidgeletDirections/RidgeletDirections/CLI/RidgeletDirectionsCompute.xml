@@ -130,7 +130,7 @@
         <minimum>1e-8</minimum>
         <maximum>0.9999</maximum>
       </constraints>
-    </integer>
+    </double>
 
     <integer>
       <name>nth</name>

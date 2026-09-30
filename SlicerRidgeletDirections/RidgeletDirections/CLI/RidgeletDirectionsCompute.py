@@ -183,45 +183,49 @@ def compute_ridgelet_directions(params: dict, progress_callback=None) -> tuple:
         return False, f"Error running sphridg.exe: {str(e)}"
 
 
+def build_argument_parser():
+    """Build an argument parser for Slicer and standalone CLI invocations."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Compute spherical ridgelets direct fiber directions")
+
+    # Input parameters
+    parser.add_argument("--input-dmri", "--input_dmri", required=True, help="Input dMRI volume file")
+    parser.add_argument("--input-mask", "--input_mask", help="Optional brain mask volume file")
+    parser.add_argument("--external-gradients", "--external_gradients", help="Optional external gradient directions file")
+
+    # Spherical ridgelets parameters
+    parser.add_argument("--sph-J", "--sph_J", type=int, default=2, help="Spherical ridgelets J (default: 2)")
+    parser.add_argument("--sph-rho", "--sph_rho", type=float, default=3.125, help="Spherical ridgelets rho (default: 3.125)")
+    parser.add_argument("--lvl", type=int, default=4, help="Icosahedron tesselation order (default: 4)")
+    parser.add_argument("--n-splits", "--n_splits", type=int, default=-1, help="Number of splits (default: -1 for auto)")
+    parser.add_argument("--fista-lambda", "--fista_lambda", type=float, default=0.01, help="FISTA lambda (default: 0.01)")
+    parser.add_argument("--fista-iterations", "--fista_iterations", type=int, default=100, help="FISTA iterations (default: 100)")
+    parser.add_argument("--fista-tolerance", "--fista_tolerance", type=float, default=0.0001, help="FISTA tolerance (default: 0.0001)")
+    parser.add_argument("--nth", type=int, default=-1, help="Number of threads (default: -1 for auto)")
+    parser.add_argument("--is-compress", "--is_compress", action="store_true", help="Enable compression")
+
+    # Output parameters
+    parser.add_argument("--output-fiber-max-ridgelets", "--output_fiber_max_ridgelets", help="Output direct ridgelet maxima file (-omd_r)")
+    parser.add_argument("--output-ridgelets", "--output_ridgelets", help="Output ridgelets coefficients file")
+    parser.add_argument("--output-signal-recon", "--output_signal_recon", help="Output signal reconstruction file")
+    parser.add_argument("--output-odf", "--output_odf", help="Output ODF values file")
+
+    # Additional parameters
+    parser.add_argument("--ridgelet-nms-angle", "--ridgelet_nms_angle", type=float, default=20.0, help="Direct ridgelet NMS angle (default: 20)")
+    parser.add_argument("--max-odf-thresh", "--max_odf_thresh", type=float, default=0.7, help="ODF maxima threshold (default: 0.7)")
+
+    # Test options
+    parser.add_argument("--print-scale-weights", "--print_scale_weights", action="store_true", help="Print scale weights")
+    parser.add_argument("--test-scale-weights", "--test_scale_weights", action="store_true", help="Test scale weights")
+    parser.add_argument("--test-direct-ridgelet-maxima", "--test_direct_ridgelet_maxima", action="store_true", help="Test direct ridgelet maxima")
+    return parser
+
+
 def main():
     """Main entry point for the CLI module."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Compute spherical ridgelets direct fiber directions")
-    
-    # Input parameters
-    parser.add_argument("--input-dmri", required=True, help="Input dMRI volume file")
-    parser.add_argument("--input-mask", help="Optional brain mask volume file")
-    parser.add_argument("--external-gradients", help="Optional external gradient directions file")
-    
-    # Spherical ridgelets parameters
-    parser.add_argument("--sph-J", type=int, default=2, help="Spherical ridgelets J (default: 2)")
-    parser.add_argument("--sph-rho", type=float, default=3.125, help="Spherical ridgelets rho (default: 3.125)")
-    parser.add_argument("--lvl", type=int, default=4, help="Icosahedron tesselation order (default: 4)")
-    parser.add_argument("--n-splits", type=int, default=-1, help="Number of splits (default: -1 for auto)")
-    parser.add_argument("--fista-lambda", type=float, default=0.01, help="FISTA lambda (default: 0.01)")
-    parser.add_argument("--fista-iterations", type=int, default=100, help="FISTA iterations (default: 100)")
-    parser.add_argument("--fista-tolerance", type=float, default=0.0001, help="FISTA tolerance (default: 0.0001)")
-    parser.add_argument("--nth", type=int, default=-1, help="Number of threads (default: -1 for auto)")
-    parser.add_argument("--is-compress", action="store_true", help="Enable compression")
-    
-    # Output parameters
-    parser.add_argument("--output-fiber-max-ridgelets", help="Output direct ridgelet maxima file (-omd_r)")
-    parser.add_argument("--output-ridgelets", help="Output ridgelets coefficients file")
-    parser.add_argument("--output-signal-recon", help="Output signal reconstruction file")
-    parser.add_argument("--output-odf", help="Output ODF values file")
-    
-    # Additional parameters
-    parser.add_argument("--ridgelet-nms-angle", type=float, default=20.0, help="Direct ridgelet NMS angle (default: 20)")
-    parser.add_argument("--max-odf-thresh", type=float, default=0.7, help="ODF maxima threshold (default: 0.7)")
-    
-    # Test options
-    parser.add_argument("--print-scale-weights", action="store_true", help="Print scale weights")
-    parser.add_argument("--test-scale-weights", action="store_true", help="Test scale weights")
-    parser.add_argument("--test-direct-ridgelet-maxima", action="store_true", help="Test direct ridgelet maxima")
-    
-    args = parser.parse_args()
-    
+    args = build_argument_parser().parse_args()
+
     # Build params dict
     params = {
         PARAM_INPUT_DMRI: args.input_dmri,

@@ -51,3 +51,9 @@ Configure this directory against a Slicer build:
 cmake -S . -B build -DSlicer_DIR=<SLICER_BUILD_DIR>
 cmake --build build
 ```
+
+The compute CLI requires a separately built `sphridg` executable; it is not
+bundled with this extension. Set `SPHRIDG_EXECUTABLE` to the full executable
+path before launching Slicer when the executable is not found automatically.
+The standalone executable can be built by following the repository-root build
+instructions.
